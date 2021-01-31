@@ -1,14 +1,21 @@
 package ch.trick17.gradingserver.gradingservice.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-@Embeddable
+@Entity
 public class Credentials {
 
+    @Id
+    @GeneratedValue
+    private int id;
     @Column
     private String host;
     @Column
@@ -18,21 +25,26 @@ public class Credentials {
 
     protected Credentials() {}
 
+    @JsonCreator
     public Credentials(String host, String username, String password) {
         this.host = requireNonNull(host);
         this.username = requireNonNull(username);
         this.password = requireNonNull(password);
     }
 
-    public String host() {
+    public int getId() {
+        return id;
+    }
+
+    public String getHost() {
         return host;
     }
 
-    public String username() {
+    public String getUsername() {
         return username;
     }
 
-    public String password() {
+    public String getPassword() {
         return password;
     }
 
