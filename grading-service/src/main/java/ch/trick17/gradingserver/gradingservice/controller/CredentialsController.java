@@ -23,4 +23,9 @@ public class CredentialsController {
     public void create(@RequestBody Credentials credentials) {
         repo.save(credentials);
     }
+
+    @DeleteMapping(path = "/{id}")
+    public void delete(@PathVariable int id) {
+        repo.deleteById(id);
+    }
 }
