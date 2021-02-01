@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver;
 
 import ch.trick17.gradingserver.util.StringListConverter;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -29,6 +30,7 @@ public class GradingResult {
 
     protected GradingResult() {}
 
+    @JsonCreator
     public GradingResult(String error, List<String> properties, List<String> passedTests,
                          List<String> failedTests, String details) {
         this.error = error;
@@ -38,23 +40,23 @@ public class GradingResult {
         this.details = details;
     }
 
-    public String error() {
+    public String getError() {
         return error;
     }
 
-    public List<String> properties() {
+    public List<String> getProperties() {
         return properties;
     }
 
-    public List<String> passedTests() {
+    public List<String> getPassedTests() {
         return passedTests;
     }
 
-    public List<String> failedTests() {
+    public List<String> getFailedTests() {
         return failedTests;
     }
 
-    public String details() {
+    public String getDetails() {
         return details;
     }
 

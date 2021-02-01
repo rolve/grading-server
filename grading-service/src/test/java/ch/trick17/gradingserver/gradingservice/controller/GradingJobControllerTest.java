@@ -3,7 +3,9 @@ package ch.trick17.gradingserver.gradingservice.controller;
 import ch.trick17.gradingserver.CodeLocation;
 import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.GradingOptions;
+import ch.trick17.gradingserver.GradingResult;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
+import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
+import java.util.List;
 
 import static ch.trick17.gradingserver.GradingOptions.Compiler.ECLIPSE;
 import static java.util.regex.Pattern.compile;
@@ -29,6 +32,9 @@ class GradingJobControllerTest {
 
     @Autowired
     private TestRestTemplate rest;
+
+    @Autowired
+    private GradingJobRepository repo;
 
     @Test
     @DirtiesContext
@@ -58,6 +64,23 @@ class GradingJobControllerTest {
         var response = rest.getForEntity(host() + "/api/v1/grading-jobs/0", GradingJob.class);
         assertEquals(NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
+    }
+
+    @Test
+    @DirtiesContext
+    void getResult() {
+        var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
+                "c61e753ad81f76cca7491efb441ce2fb915ef231");
+        var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var job = new GradingJob(code, new GradingConfig(options, "foo.Foo"));
+        var result = new GradingResult(null, List.of("foo", "bar"), List.of("fooTest"),
+                List.of("bazTest"), "no details");
+        job.setResult(result);
+        repo.save(job);
+
+        var response = rest.getForObject(host() + "/api/v1/grading-jobs/" + job.getId() + "/result", GradingResult.class);
+        assertEquals(result, response);
     }
 
     private String host() {

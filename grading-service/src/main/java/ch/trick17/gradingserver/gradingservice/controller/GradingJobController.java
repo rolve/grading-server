@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.controller;
 
+import ch.trick17.gradingserver.GradingResult;
 import ch.trick17.gradingserver.gradingservice.model.JobRunner;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
@@ -38,5 +39,12 @@ public class GradingJobController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<GradingJob> get(@PathVariable String id) {
         return ResponseEntity.of(repo.findById(id));
+    }
+
+    @GetMapping(path = "/{id}/result")
+    public ResponseEntity<GradingResult> getResult(@PathVariable String id) {
+        var result = repo.findById(id)
+                .flatMap(job -> Optional.ofNullable(job.getResult()));
+        return ResponseEntity.of(result);
     }
 }
