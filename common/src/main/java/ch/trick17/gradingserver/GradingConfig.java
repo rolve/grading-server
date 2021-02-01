@@ -1,5 +1,7 @@
 package ch.trick17.gradingserver;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.util.Objects;
@@ -16,16 +18,17 @@ public class GradingConfig {
 
     protected GradingConfig() {}
 
+    @JsonCreator
     public GradingConfig(GradingOptions options, String testClass) {
         this.options = requireNonNull(options);
         this.testClass = requireNonNull(testClass);
     }
 
-    public GradingOptions options() {
+    public GradingOptions getOptions() {
         return options;
     }
 
-    public String testClass() {
+    public String getTestClass() {
         return testClass;
     }
 

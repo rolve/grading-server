@@ -1,5 +1,7 @@
 package ch.trick17.gradingserver;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.time.Duration;
@@ -23,6 +25,7 @@ public class GradingOptions {
 
     protected GradingOptions() {}
 
+    @JsonCreator
     public GradingOptions(Compiler compiler, int repetitions, Duration repTimeout,
                           Duration testTimeout, boolean permRestrictions) {
         this.compiler = requireNonNull(compiler);
@@ -32,23 +35,23 @@ public class GradingOptions {
         this.permRestrictions = permRestrictions;
     }
 
-    public Compiler compiler() {
+    public Compiler getCompiler() {
         return compiler;
     }
 
-    public int repetitions() {
+    public int getRepetitions() {
         return repetitions;
     }
 
-    public Duration repTimeout() {
+    public Duration getRepTimeout() {
         return Duration.ofMillis(repTimeoutMillis);
     }
 
-    public Duration testTimeout() {
+    public Duration getTestTimeout() {
         return Duration.ofMillis(testTimeoutMillis);
     }
 
-    public boolean permRestrictions() {
+    public boolean getPermRestrictions() {
         return permRestrictions;
     }
 
@@ -74,8 +77,8 @@ public class GradingOptions {
         return "GradingOptions[" +
                 "compiler=" + compiler + ", " +
                 "repetitions=" + repetitions + ", " +
-                "repTimeout=" + repTimeout() + ", " +
-                "testTimeout=" + testTimeout() + ", " +
+                "repTimeout=" + getRepTimeout() + ", " +
+                "testTimeout=" + getTestTimeout() + ", " +
                 "permRestrictions=" + permRestrictions + ']';
     }
 
