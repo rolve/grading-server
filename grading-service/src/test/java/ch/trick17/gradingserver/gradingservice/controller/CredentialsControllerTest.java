@@ -21,23 +21,20 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class CredentialsControllerTest {
 
-    @LocalServerPort
-    private int port;
-
     @Autowired
     private TestRestTemplate rest;
 
     @Test
     @DirtiesContext
     void create() {
-        var response = rest.exchange(host() + "/api/v1/credentials", GET, null,
+        var response = rest.exchange("/api/v1/credentials", GET, null,
                 new ParameterizedTypeReference<List<Credentials>>() {});
         assertEquals(emptyList(), response.getBody());
 
         var credentials = new Credentials("localhost", "user", "secret");
-        rest.postForLocation(host() + "/api/v1/credentials", credentials);
+        rest.postForLocation("/api/v1/credentials", credentials);
 
-        response = rest.exchange(host() + "/api/v1/credentials", GET, null,
+        response = rest.exchange("/api/v1/credentials", GET, null,
                 new ParameterizedTypeReference<List<Credentials>>() {});
         assertEquals(List.of(credentials), response.getBody());
     }
@@ -45,7 +42,7 @@ class CredentialsControllerTest {
     @Test
     void createIncomplete() {
         var credentials = new Credentials() {};
-        var response = rest.postForEntity(host() + "/api/v1/credentials", credentials, null);
+        var response = rest.postForEntity("/api/v1/credentials", credentials, null);
         assertEquals(BAD_REQUEST, response.getStatusCode());
     }
 
@@ -53,20 +50,16 @@ class CredentialsControllerTest {
     @DirtiesContext
     void delete() {
         var credentials = new Credentials("localhost", "user", "secret");
-        rest.postForObject(host() + "/api/v1/credentials", credentials, String.class);
-        var response = rest.exchange(host() + "/api/v1/credentials", GET, null,
+        rest.postForObject("/api/v1/credentials", credentials, String.class);
+        var response = rest.exchange("/api/v1/credentials", GET, null,
                 new ParameterizedTypeReference<List<Credentials>>() {});
         assertEquals(List.of(credentials), response.getBody());
 
         int id = response.getBody().get(0).getId();
 
-        rest.delete(host() + "/api/v1/credentials/" + id);
-        response = rest.exchange(host() + "/api/v1/credentials", GET, null,
+        rest.delete("/api/v1/credentials/" + id);
+        response = rest.exchange("/api/v1/credentials", GET, null,
                 new ParameterizedTypeReference<>() {});
         assertEquals(emptyList(), response.getBody());
-    }
-
-    private String host() {
-        return "http://localhost:" + port;
     }
 }

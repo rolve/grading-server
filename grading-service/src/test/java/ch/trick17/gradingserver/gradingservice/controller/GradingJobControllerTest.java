@@ -27,9 +27,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class GradingJobControllerTest {
 
-    @LocalServerPort
-    private int port;
-
     @Autowired
     private TestRestTemplate rest;
 
@@ -44,7 +41,7 @@ class GradingJobControllerTest {
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
         var job = new GradingJob(code, new GradingConfig(options, "foo.Foo"));
-        var uri = rest.postForLocation(host() + "/api/v1/grading-jobs", job);
+        var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
         assertTrue(matcher.matches(), uri.getPath());
 
@@ -55,13 +52,13 @@ class GradingJobControllerTest {
     @Test
     void createIncomplete() {
         var job = new GradingJob() {};
-        var response = rest.postForEntity(host() + "/api/v1/grading-jobs", job, null);
+        var response = rest.postForEntity("/api/v1/grading-jobs", job, null);
         assertEquals(BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     void getNonexistent() {
-        var response = rest.getForEntity(host() + "/api/v1/grading-jobs/0", GradingJob.class);
+        var response = rest.getForEntity("/api/v1/grading-jobs/0", GradingJob.class);
         assertEquals(NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
     }
@@ -79,11 +76,7 @@ class GradingJobControllerTest {
         job.setResult(result);
         repo.save(job);
 
-        var response = rest.getForObject(host() + "/api/v1/grading-jobs/" + job.getId() + "/result", GradingResult.class);
+        var response = rest.getForObject("/api/v1/grading-jobs/" + job.getId() + "/result", GradingResult.class);
         assertEquals(result, response);
-    }
-
-    private String host() {
-        return "http://localhost:" + port;
     }
 }
