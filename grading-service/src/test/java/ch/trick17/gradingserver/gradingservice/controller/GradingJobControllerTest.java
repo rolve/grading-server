@@ -1,0 +1,58 @@
+package ch.trick17.gradingserver.gradingservice.controller;
+
+import ch.trick17.gradingserver.CodeLocation;
+import ch.trick17.gradingserver.GradingConfig;
+import ch.trick17.gradingserver.GradingOptions;
+import ch.trick17.gradingserver.gradingservice.model.GradingJob;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
+
+import java.time.Duration;
+
+import static ch.trick17.gradingserver.GradingOptions.Compiler.ECLIPSE;
+import static java.util.regex.Pattern.compile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+class GradingJobControllerTest {
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate rest;
+
+    @Test
+    @DirtiesContext
+    void create() {
+        var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
+                "c61e753ad81f76cca7491efb441ce2fb915ef231");
+        var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var job = new GradingJob(code, new GradingConfig(options, "foo.Foo"));
+        var uri = rest.postForLocation(host() + "/api/v1/grading-jobs", job);
+        var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
+        assertTrue(matcher.matches(), uri.getPath());
+
+        var response = rest.getForObject(uri, GradingJob.class);
+        assertEquals(matcher.group(1), response.getId());
+    }
+
+    @Test
+    void createIncomplete() {
+        var job = new GradingJob() {};
+        var response = rest.postForEntity(host() + "/api/v1/grading-jobs", job, null);
+        assertEquals(BAD_REQUEST, response.getStatusCode());
+    }
+
+    private String host() {
+        return "http://localhost:" + port;
+    }
+}

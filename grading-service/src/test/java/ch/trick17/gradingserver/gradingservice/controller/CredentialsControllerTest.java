@@ -35,7 +35,7 @@ class CredentialsControllerTest {
         assertEquals(emptyList(), response.getBody());
 
         var credentials = new Credentials("localhost", "user", "secret");
-        rest.postForObject(host() + "/api/v1/credentials", credentials, String.class);
+        rest.postForLocation(host() + "/api/v1/credentials", credentials);
 
         response = rest.exchange(host() + "/api/v1/credentials", GET, null,
                 new ParameterizedTypeReference<List<Credentials>>() {});
@@ -43,9 +43,9 @@ class CredentialsControllerTest {
     }
 
     @Test
-    void incomplete() {
+    void createIncomplete() {
         var credentials = new Credentials() {};
-        var response = rest.postForEntity(host() + "/api/v1/credentials", credentials, String.class);
+        var response = rest.postForEntity(host() + "/api/v1/credentials", credentials, null);
         assertEquals(BAD_REQUEST, response.getStatusCode());
     }
 
