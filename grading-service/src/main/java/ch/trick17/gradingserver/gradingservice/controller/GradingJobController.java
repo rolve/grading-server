@@ -36,7 +36,7 @@ public class GradingJobController {
     }
 
     @GetMapping(path = "/{id}")
-    public Optional<GradingJob> get(@PathVariable String id) {
-        return repo.findById(id);
+    public ResponseEntity<GradingJob> get(@PathVariable String id) {
+        return ResponseEntity.of(repo.findById(id));
     }
 }

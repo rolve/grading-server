@@ -9,16 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
 
 import static ch.trick17.gradingserver.GradingOptions.Compiler.ECLIPSE;
 import static java.util.regex.Pattern.compile;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class GradingJobControllerTest {
@@ -50,6 +51,13 @@ class GradingJobControllerTest {
         var job = new GradingJob() {};
         var response = rest.postForEntity(host() + "/api/v1/grading-jobs", job, null);
         assertEquals(BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void getNonexistent() {
+        var response = rest.getForEntity(host() + "/api/v1/grading-jobs/0", GradingJob.class);
+        assertEquals(NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
     private String host() {
