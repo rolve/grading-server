@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.gradingservice.controller;
 
 import ch.trick17.gradingserver.CodeLocation;
 import ch.trick17.gradingserver.GradingConfig;
+import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingResult;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
@@ -10,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
@@ -40,7 +39,8 @@ class GradingJobControllerTest {
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, new GradingConfig(options, "foo.Foo"));
+        var job = new GradingJob(code, new GradingConfig("foo.Foo", "/",
+                ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
         assertTrue(matcher.matches(), uri.getPath());
@@ -70,7 +70,8 @@ class GradingJobControllerTest {
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, new GradingConfig(options, "foo.Foo"));
+        var job = new GradingJob(code, new GradingConfig("foo.Foo", "/",
+                ProjectStructure.ECLIPSE, options));
         var result = new GradingResult(null, List.of("foo", "bar"), List.of("fooTest"),
                 List.of("bazTest"), "no details");
         job.setResult(result);

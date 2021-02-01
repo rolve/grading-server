@@ -12,24 +12,37 @@ import static java.util.Objects.requireNonNull;
 public class GradingConfig {
 
     @Column
-    private GradingOptions options;
-    @Column
     private String testClass;
+    private String projectRoot;
+    private ProjectStructure structure;
+    @Column
+    private GradingOptions options;
 
     protected GradingConfig() {}
 
     @JsonCreator
-    public GradingConfig(GradingOptions options, String testClass) {
-        this.options = requireNonNull(options);
+    public GradingConfig(String testClass, String projectRoot,
+                         ProjectStructure structure, GradingOptions options) {
         this.testClass = requireNonNull(testClass);
-    }
-
-    public GradingOptions getOptions() {
-        return options;
+        this.projectRoot = requireNonNull(projectRoot);
+        this.structure = requireNonNull(structure);
+        this.options = requireNonNull(options);
     }
 
     public String getTestClass() {
         return testClass;
+    }
+
+    public String getProjectRoot() {
+        return projectRoot;
+    }
+
+    public ProjectStructure getStructure() {
+        return structure;
+    }
+
+    public GradingOptions getOptions() {
+        return options;
     }
 
     @Override
@@ -37,8 +50,7 @@ public class GradingConfig {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (GradingConfig) obj;
-        return Objects.equals(this.options, that.options) &&
-                Objects.equals(this.testClass, that.testClass);
+        return testClass.equals(that.testClass) && options.equals(that.options);
     }
 
     @Override
@@ -51,5 +63,9 @@ public class GradingConfig {
         return "GradingConfig[" +
                 "options=" + options + ", " +
                 "testClass=" + testClass + ']';
+    }
+
+    public enum ProjectStructure {
+        ECLIPSE, MAVEN
     }
 }

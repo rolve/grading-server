@@ -34,14 +34,18 @@ public class GradingResult {
     public GradingResult(String error, List<String> properties, List<String> passedTests,
                          List<String> failedTests, String details) {
         this.error = error;
-        this.properties = copyOf(properties);
-        this.passedTests = copyOf(passedTests);
-        this.failedTests = copyOf(failedTests);
+        this.properties = properties != null ? copyOf(properties) : null;
+        this.passedTests = passedTests != null ? copyOf(passedTests) : null;
+        this.failedTests = failedTests != null ? copyOf(failedTests): null;
         this.details = details;
     }
 
     public String getError() {
         return error;
+    }
+
+    public boolean successful() {
+        return error != null;
     }
 
     public List<String> getProperties() {
