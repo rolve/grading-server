@@ -15,11 +15,13 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     
     @Override
     public String convertToDatabaseColumn(List<String> stringList) {
-        return stringList != null ? join(SPLIT_CHAR, stringList) : null;
+        return stringList == null ? null : join(SPLIT_CHAR, stringList);
     }
 
     @Override
     public List<String> convertToEntityAttribute(String string) {
-        return string != null ? asList(string.split(SPLIT_CHAR)) : null;
+        return string == null ? null :
+                string.isEmpty() ? emptyList() :
+                        asList(string.split(SPLIT_CHAR));
     }
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;
+import javax.persistence.Lob;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ import static java.util.List.copyOf;
 public class GradingResult {
 
     @Column
+    @Lob
     private String error;
     @Column
     @Convert(converter = StringListConverter.class)
@@ -26,6 +28,7 @@ public class GradingResult {
     @Convert(converter = StringListConverter.class)
     private List<String> failedTests;
     @Column
+    @Lob
     private String details;
 
     protected GradingResult() {}
@@ -45,7 +48,7 @@ public class GradingResult {
     }
 
     public boolean successful() {
-        return error != null;
+        return error == null;
     }
 
     public List<String> getProperties() {

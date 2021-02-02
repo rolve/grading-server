@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Lob;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -12,8 +13,11 @@ import static java.util.Objects.requireNonNull;
 public class GradingConfig {
 
     @Column
+    @Lob
     private String testClass;
+    @Column
     private String projectRoot;
+    @Column
     private ProjectStructure structure;
     @Column
     private GradingOptions options;
