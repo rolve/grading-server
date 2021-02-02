@@ -31,7 +31,7 @@ public class CodeDownloader {
         Credentials credentials;
         try {
             var host = new URI(from.getRepoUrl()).getHost();
-            credentials = credentialsRepo.findByHost(host).findFirst().orElse(null);
+            credentials = credentialsRepo.findByHost(host).stream().findFirst().orElse(null);
         } catch (URISyntaxException e) {
             throw new AssertionError(e);
         }
