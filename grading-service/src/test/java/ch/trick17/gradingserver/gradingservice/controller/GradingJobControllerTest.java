@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingResult;
+import ch.trick17.gradingserver.gradingservice.model.Credentials;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import org.junit.jupiter.api.Test;
@@ -125,5 +126,91 @@ class GradingJobControllerTest {
         assertEquals(List.of("compiled"), result.getProperties());
         assertEquals(List.of("testToRgbInt"), result.getPassedTests());
         assertEquals(emptyList(), result.getFailedTests());
+    }
+
+    @Test
+    @DirtiesContext
+    void privateRepo() throws InterruptedException {
+        var credResponse = rest.postForEntity("/api/v1/credentials", new Credentials("gitlab.com",
+                "grading-server", "VBgo1xky7z87tKdzXacw"), String.class); // read-only token
+        assertEquals(OK, credResponse.getStatusCode());
+
+        var code = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
+                "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
+        var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var test = """
+                package foo;
+                import org.junit.jupiter.api.Test;
+                import static org.junit.jupiter.api.Assertions.assertEquals;
+                class FooTest {
+                    @Test
+                    void testAdd() {
+                        assertEquals(3, Foo.add(1, 2));
+                    }
+                }""";
+        var job = new GradingJob(code, new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
+        var uri = rest.postForLocation("/api/v1/grading-jobs", job);
+
+        ResponseEntity<GradingResult> response;
+        HttpStatus status;
+        do {
+            response = rest.getForEntity(uri + "/result", GradingResult.class);
+            status = response.getStatusCode();
+            assertTrue(Set.of(OK, NOT_FOUND).contains(status), status.toString());
+            if (status == NOT_FOUND) {
+                sleep(1000);
+            }
+        } while (status == NOT_FOUND);
+
+        var result = response.getBody();
+        assertNotNull(result);
+        assertTrue(result.successful());
+        assertNull(result.getError());
+        assertEquals(List.of("compiled"), result.getProperties());
+        assertEquals(List.of("testAdd"), result.getPassedTests());
+        assertEquals(emptyList(), result.getFailedTests());
+    }
+
+    @Test
+    @DirtiesContext
+    void privateRepoMissingCredentials() throws InterruptedException {
+        var code = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
+                "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
+        var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var test = """
+                package foo;
+                import org.junit.jupiter.api.Test;
+                import static org.junit.jupiter.api.Assertions.assertEquals;
+                class FooTest {
+                    @Test
+                    void testAdd() {
+                        assertEquals(3, Foo.add(1, 2));
+                    }
+                }""";
+        var job = new GradingJob(code, new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
+        var uri = rest.postForLocation("/api/v1/grading-jobs", job);
+
+        ResponseEntity<GradingResult> response;
+        HttpStatus status;
+        do {
+            response = rest.getForEntity(uri + "/result", GradingResult.class);
+            status = response.getStatusCode();
+            assertTrue(Set.of(OK, NOT_FOUND).contains(status), status.toString());
+            if (status == NOT_FOUND) {
+                sleep(1000);
+            }
+        } while (status == NOT_FOUND);
+
+        var result = response.getBody();
+        assertNotNull(result);
+        assertFalse(result.successful());
+        assertNotNull(result.getError());
+        assertTrue(result.getError().toLowerCase()
+                .matches(".*ioexception.*authentication.*required.*"));
+        assertNull(result.getProperties());
+        assertNull(result.getPassedTests());
+        assertNull(result.getFailedTests());
     }
 }
