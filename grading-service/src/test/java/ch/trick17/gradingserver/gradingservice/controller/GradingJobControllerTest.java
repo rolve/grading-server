@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -93,29 +94,32 @@ class GradingJobControllerTest {
                 "7f9225c2e7b20cb1ff51b0220687c75305341392");
         var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var test =
-                "package gui;\n" +
-                "import org.junit.jupiter.api.Test;\n" +
-                "import static org.junit.jupiter.api.Assertions.assertEquals;\n" +
-                "class ColorTest {\n" +
-                "    @Test\n" +
-                "    void testToRgbInt() {\n" +
-                "        assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());\n" +
-                "    }\n" +
-                "}";
+        var test = """
+                package gui;
+                import org.junit.jupiter.api.Test;
+                import static org.junit.jupiter.api.Assertions.assertEquals;
+                class ColorTest {
+                    @Test
+                    void testToRgbInt() {
+                        assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
+                    }
+                }""";
         var job = new GradingJob(code, new GradingConfig(test, "", MAVEN, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;
+        HttpStatus status;
         do {
             response = rest.getForEntity(uri + "/result", GradingResult.class);
-            assertTrue(Set.of(OK, NOT_FOUND).contains(response.getStatusCode()),
-                    response.getStatusCode().toString());
-            if (response.getStatusCode() == NOT_FOUND) {
+            status = response.getStatusCode();
+            assertTrue(Set.of(OK, NOT_FOUND).contains(status), status.toString());
+            if (status == NOT_FOUND) {
                 sleep(1000);
             }
-        } while (response.getStatusCode() == NOT_FOUND);
+        } while (status == NOT_FOUND);
+
         var result = response.getBody();
+        assertNotNull(result);
         assertTrue(result.successful());
         assertNull(result.getError());
         assertEquals(List.of("compiled"), result.getProperties());
