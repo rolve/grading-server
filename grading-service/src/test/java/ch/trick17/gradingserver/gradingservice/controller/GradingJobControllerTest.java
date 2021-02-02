@@ -11,17 +11,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 
+import static ch.trick17.gradingserver.GradingConfig.ProjectStructure.MAVEN;
 import static ch.trick17.gradingserver.GradingOptions.Compiler.ECLIPSE;
+import static ch.trick17.gradingserver.GradingOptions.Compiler.JAVAC;
+import static java.lang.Thread.sleep;
+import static java.util.Collections.emptyList;
 import static java.util.regex.Pattern.compile;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class GradingJobControllerTest {
@@ -39,7 +44,7 @@ class GradingJobControllerTest {
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, new GradingConfig("foo.Foo", "/",
+        var job = new GradingJob(code, new GradingConfig("class Foo {}", "/",
                 ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
@@ -66,11 +71,11 @@ class GradingJobControllerTest {
     @Test
     @DirtiesContext
     void getResult() {
-        var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
-                "c61e753ad81f76cca7491efb441ce2fb915ef231");
+        var code = new CodeLocation("https://github.com/rolve/gui.git",
+                "7f9225c2e7b20cb1ff51b0220687c75305341392");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, new GradingConfig("foo.Foo", "/",
+        var job = new GradingJob(code, new GradingConfig("class Foo {}", "/",
                 ProjectStructure.ECLIPSE, options));
         var result = new GradingResult(null, List.of("foo", "bar"), List.of("fooTest"),
                 List.of("bazTest"), "no details");
@@ -79,5 +84,42 @@ class GradingJobControllerTest {
 
         var response = rest.getForObject("/api/v1/grading-jobs/" + job.getId() + "/result", GradingResult.class);
         assertEquals(result, response);
+    }
+
+    @Test
+    @DirtiesContext
+    void getGradedResult() throws InterruptedException {
+        var code = new CodeLocation("https://github.com/rolve/gui.git",
+                "7f9225c2e7b20cb1ff51b0220687c75305341392");
+        var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var test =
+                "package gui;\n" +
+                "import org.junit.jupiter.api.Test;\n" +
+                "import static org.junit.jupiter.api.Assertions.assertEquals;\n" +
+                "class ColorTest {\n" +
+                "    @Test\n" +
+                "    void testToRgbInt() {\n" +
+                "        assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());\n" +
+                "    }\n" +
+                "}";
+        var job = new GradingJob(code, new GradingConfig(test, "", MAVEN, options));
+        var uri = rest.postForLocation("/api/v1/grading-jobs", job);
+
+        ResponseEntity<GradingResult> response;
+        do {
+            response = rest.getForEntity(uri + "/result", GradingResult.class);
+            assertTrue(Set.of(OK, NOT_FOUND).contains(response.getStatusCode()),
+                    response.getStatusCode().toString());
+            if (response.getStatusCode() == NOT_FOUND) {
+                sleep(1000);
+            }
+        } while (response.getStatusCode() == NOT_FOUND);
+        var result = response.getBody();
+        assertTrue(result.successful());
+        assertNull(result.getError());
+        assertEquals(List.of("compiled"), result.getProperties());
+        assertEquals(List.of("testToRgbInt"), result.getPassedTests());
+        assertEquals(emptyList(), result.getFailedTests());
     }
 }
