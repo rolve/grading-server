@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver;
+package ch.trick17.gradingserver.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

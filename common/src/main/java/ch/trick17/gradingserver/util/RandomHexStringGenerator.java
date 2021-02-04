@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver;
+package ch.trick17.gradingserver.util;
 
 import java.util.Random;
 import java.util.function.Predicate;

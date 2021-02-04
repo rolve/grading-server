@@ -1,11 +1,8 @@
 package ch.trick17.gradingserver.gradingservice.model;
 
-import ch.trick17.gradingserver.RandomHexStringGenerator;
+import ch.trick17.gradingserver.util.RandomHexStringGenerator;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.persister.entity.EntityPersister;
-
-import java.util.Random;
 
 import static java.lang.String.format;
 import static org.hibernate.LockMode.NONE;
