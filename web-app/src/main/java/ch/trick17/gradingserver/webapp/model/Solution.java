@@ -18,7 +18,6 @@ public class Solution {
     @Id
     @ManyToOne
     private Author author;
-    @Column
     private String accessToken;
 
     protected Solution() {}

@@ -15,9 +15,7 @@ public class Author {
     @Id
     @GeneratedValue
     private int id;
-    @Column
     private String name;
-    @Column
     private String accessToken;
 
     protected Author() {}

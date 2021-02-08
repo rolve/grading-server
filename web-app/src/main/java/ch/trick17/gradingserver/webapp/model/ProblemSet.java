@@ -15,9 +15,7 @@ public class ProblemSet {
     private Course course;
     @Id
     private String name;
-    @Column
     private GradingConfig gradingConfig;
-    @Column
     private ZonedDateTime deadline;
 
     protected ProblemSet() {}

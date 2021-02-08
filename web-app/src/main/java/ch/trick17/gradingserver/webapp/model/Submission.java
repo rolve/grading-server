@@ -17,11 +17,8 @@ public class Submission {
     @Id
     @GeneratedValue
     private int number;
-    @Column
     private CodeLocation location;
-    @Column
     private boolean gradingStarted;
-    @Column
     private GradingResult result;
 
     protected Submission() {}

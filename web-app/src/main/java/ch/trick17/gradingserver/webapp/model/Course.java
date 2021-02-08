@@ -10,11 +10,8 @@ public class Course {
     @Id
     @GeneratedValue
     private int id;
-    @Column
     private String name;
-    @Column
     private Term term;
-    @Column
     private String qualifier;
 
     protected Course() {}
