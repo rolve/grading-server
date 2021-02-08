@@ -6,10 +6,7 @@ import ch.trick17.gradingserver.GradingResult;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import static java.util.Objects.requireNonNull;
 
@@ -21,14 +18,11 @@ public class GradingJob {
     @GenericGenerator(name = "job-id-generator",
             strategy = "ch.trick17.gradingserver.gradingservice.model.JobIdGenerator")
     private String id;
-
-    @Embedded
+    @Column
     private CodeLocation submission;
-
-    @Embedded
+    @Column
     private GradingConfig config;
-
-    @Embedded
+    @Column
     private GradingResult result;
 
     protected GradingJob() {}
