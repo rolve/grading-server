@@ -12,14 +12,10 @@ import static java.util.Objects.requireNonNull;
 @Embeddable
 public class GradingConfig {
 
-    @Column
     @Lob
     private String testClass;
-    @Column
     private String projectRoot;
-    @Column
     private ProjectStructure structure;
-    @Column
     private GradingOptions options;
 
     protected GradingConfig() {}

@@ -12,15 +12,10 @@ import static java.util.Objects.requireNonNull;
 @Embeddable
 public class GradingOptions {
 
-    @Column
     private Compiler compiler;
-    @Column
     private int repetitions;
-    @Column
     private long repTimeoutMillis;
-    @Column
     private long testTimeoutMillis;
-    @Column
     private boolean permRestrictions;
 
     protected GradingOptions() {}

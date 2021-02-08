@@ -3,7 +3,6 @@ package ch.trick17.gradingserver;
 import ch.trick17.gradingserver.util.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
@@ -15,19 +14,14 @@ import static java.util.List.copyOf;
 @Embeddable
 public class GradingResult {
 
-    @Column
     @Lob
     private String error;
-    @Column
     @Convert(converter = StringListConverter.class)
     private List<String> properties;
-    @Column
     @Convert(converter = StringListConverter.class)
     private List<String> passedTests;
-    @Column
     @Convert(converter = StringListConverter.class)
     private List<String> failedTests;
-    @Column
     @Lob
     private String details;
 

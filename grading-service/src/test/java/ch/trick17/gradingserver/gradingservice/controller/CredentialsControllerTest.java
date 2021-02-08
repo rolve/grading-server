@@ -35,7 +35,7 @@ class CredentialsControllerTest {
         rest.postForLocation("/api/v1/credentials", credentials);
 
         response = rest.exchange("/api/v1/credentials", GET, null,
-                new ParameterizedTypeReference<List<Credentials>>() {});
+                new ParameterizedTypeReference<>() {});
         assertEquals(List.of(credentials), response.getBody());
     }
 

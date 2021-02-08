@@ -1,8 +1,8 @@
 package ch.trick17.gradingserver.gradingservice.controller;
 
 import ch.trick17.gradingserver.GradingResult;
-import ch.trick17.gradingserver.gradingservice.service.JobRunner;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
+import ch.trick17.gradingserver.gradingservice.service.JobRunner;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

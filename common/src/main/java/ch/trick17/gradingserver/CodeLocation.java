@@ -2,7 +2,6 @@ package ch.trick17.gradingserver;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.util.Objects;
 
@@ -11,9 +10,7 @@ import static java.util.Objects.requireNonNull;
 @Embeddable
 public class CodeLocation {
 
-    @Column
     private String repoUrl;
-    @Column
     private String commitHash;
 
     protected CodeLocation() {}
