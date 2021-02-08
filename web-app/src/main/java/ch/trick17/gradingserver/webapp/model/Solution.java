@@ -7,10 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import java.io.Serializable;
+
 import static java.util.Objects.requireNonNull;
 
 @Entity
-public class Solution {
+public class Solution implements Serializable {
 
     @Id
     @ManyToOne

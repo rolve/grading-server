@@ -22,6 +22,10 @@ public class Course {
         this.qualifier = qualifier;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -44,5 +48,9 @@ public class Course {
 
     public void setQualifier(String qualifier) {
         this.qualifier = qualifier;
+    }
+
+    public String fullName() {
+        return name + " (" + term.getKind() + " " + term.getYear() + " " + qualifier + ")";
     }
 }

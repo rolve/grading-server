@@ -3,12 +3,13 @@ package ch.trick17.gradingserver.webapp.model;
 import ch.trick17.gradingserver.GradingConfig;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
 
 @Entity
-public class ProblemSet {
+public class ProblemSet implements Serializable {
 
     @Id
     @ManyToOne

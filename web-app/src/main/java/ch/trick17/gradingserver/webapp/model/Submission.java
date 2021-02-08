@@ -5,11 +5,13 @@ import ch.trick17.gradingserver.GradingResult;
 
 import javax.persistence.*;
 
+import java.io.Serializable;
+
 import static ch.trick17.gradingserver.webapp.model.SubmissionState.*;
 import static java.util.Objects.requireNonNull;
 
 @Entity
-public class Submission {
+public class Submission implements Serializable {
 
     @Id
     @ManyToOne
