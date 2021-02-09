@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <meta charset="UTF-8">
     <title>Grading Server</title>
 </head>
 <body>
-    <h1>Grading Server</h1>
-    <p>
-        <a href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
-    </p>
-    <p th:each="course : ${courses}">
-        <a href="courses/course.html" th:href="@{/courses/{id}(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
-    </p>
+    <main>
+        <h1>Grading Server</h1>
+        <p>
+            <a class="btn btn-primary" href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
+        </p>
+        <p th:each="course : ${courses}">
+            <a href="courses/course.html" th:href="@{/courses/{id}(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
+        </p>
+    </main>
 </body>
 </html>

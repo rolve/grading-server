@@ -1,24 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <meta charset="UTF-8">
     <title th:text="${course.fullName}">Course Name</title>
 </head>
 <body>
-    <h1 th:text="${course.fullName}">Course Name</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Problem Set</th>
-                <th>Deadline</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="problemSet : ${course.problemSets}">
-                <td th:text="${problemSet.name}">Problem Set Name</td>
-                <td th:text="${problemSet.deadline}">Deadline</td>
-            </tr>
-        </tbody>
-    </table>
+    <main>
+        <h1 th:text="${course.fullName}">Course Name</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Problem Set</th>
+                    <th>Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="problemSet : ${course.problemSets}">
+                    <td th:text="${problemSet.name}">Problem Set Name</td>
+                    <td th:text="${problemSet.deadline}">Deadline</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
 </body>
 </html>
