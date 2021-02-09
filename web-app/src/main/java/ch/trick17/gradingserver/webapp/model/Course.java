@@ -63,6 +63,7 @@ public class Course {
     }
 
     public String fullName() {
-        return name + " (" + term.getKind() + " " + term.getYear() + " " + qualifier + ")";
+        var suffix = qualifier != null ? " " + qualifier : "";
+        return name + " (" + term.getKind() + " " + term.getYear() + suffix + ")";
     }
 }

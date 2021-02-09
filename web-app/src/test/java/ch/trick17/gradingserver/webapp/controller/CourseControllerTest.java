@@ -12,8 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.time.*;
-import java.util.TimeZone;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static ch.trick17.gradingserver.GradingConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.GradingOptions.Compiler.JAVAC;

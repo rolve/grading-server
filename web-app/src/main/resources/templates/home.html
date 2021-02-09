@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Grading Server</title>
+</head>
+<body>
+    <h1>Grading Server</h1>
+    <p>
+        <a href="courses/create.html" th:href="'/courses/create'">Create Course</a>
+    </p>
+    <p th:each="course : ${courses}">
+        <a href="courses/course.html" th:href="'/courses/' + ${course.id}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
+    </p>
+</body>
+</html>

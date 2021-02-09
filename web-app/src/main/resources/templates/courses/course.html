@@ -2,10 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title data-th-text="${course.fullName}">Course Name</title>
+    <title th:text="${course.fullName}">Course Name</title>
 </head>
 <body>
-    <h1 data-th-text="${course.fullName}">Course Name</h1>
+    <h1 th:text="${course.fullName}">Course Name</h1>
     <table>
         <thead>
             <tr>
@@ -14,9 +14,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr data-th-each="problemSet : ${course.problemSets}">
-                <td data-th-text="${problemSet.name}">Problem Set Name</td>
-                <td data-th-text="${problemSet.deadline}">Deadline</td>
+            <tr th:each="problemSet : ${course.problemSets}">
+                <td th:text="${problemSet.name}">Problem Set Name</td>
+                <td th:text="${problemSet.deadline}">Deadline</td>
             </tr>
         </tbody>
     </table>
