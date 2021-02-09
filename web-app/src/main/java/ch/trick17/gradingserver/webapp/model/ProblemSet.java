@@ -26,6 +26,7 @@ public class ProblemSet implements Serializable {
         this.name = requireNonNull(name);
         this.deadline = deadline;
         this.gradingConfig = gradingConfig;
+        course.getProblemSets().add(this);
     }
 
     public Course getCourse() {
