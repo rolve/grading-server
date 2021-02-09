@@ -7,10 +7,10 @@
 <body>
     <h1>Grading Server</h1>
     <p>
-        <a href="courses/create.html" th:href="'/courses/create'">Create Course</a>
+        <a href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
     </p>
     <p th:each="course : ${courses}">
-        <a href="courses/course.html" th:href="'/courses/' + ${course.id}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
+        <a href="courses/course.html" th:href="@{/courses/{id}(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
     </p>
 </body>
 </html>
