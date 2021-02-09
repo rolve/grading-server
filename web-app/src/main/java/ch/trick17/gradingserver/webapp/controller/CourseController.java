@@ -22,7 +22,7 @@ public class CourseController {
         this.repo = repo;
     }
 
-    @GetMapping("/courses/{id}")
+    @GetMapping("/courses/{id}/")
     public String coursePage(@PathVariable int id, Model model) {
         model.addAttribute("course", repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND)));
@@ -37,7 +37,8 @@ public class CourseController {
     @PostMapping("/courses/create")
     public String createCourse(@RequestParam String name, @RequestParam String termKind,
                                @RequestParam int termYear, @RequestParam String qualifier) {
-        repo.save(new Course(name, new Term(termYear, termKind), qualifier.isBlank() ? null : qualifier));
-        return "redirect:/";
+        var course = new Course(name, new Term(termYear, termKind), qualifier.isBlank() ? null : qualifier);
+        repo.save(course);
+        return "redirect:" + course.getId() + "/";
     }
 }

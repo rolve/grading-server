@@ -2,19 +2,22 @@ package ch.trick17.gradingserver.webapp.model;
 
 import ch.trick17.gradingserver.GradingConfig;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
 
 @Entity
-public class ProblemSet implements Serializable {
+public class ProblemSet {
 
     @Id
+    @GeneratedValue
+    private int id;
     @ManyToOne
     private Course course;
-    @Id
     private String name;
     private GradingConfig gradingConfig;
     private ZonedDateTime deadline;
@@ -29,12 +32,12 @@ public class ProblemSet implements Serializable {
         course.getProblemSets().add(this);
     }
 
-    public Course getCourse() {
-        return course;
+    public int getId() {
+        return id;
     }
 
-    public void setCourse(Course course) {
-        this.course = requireNonNull(course);
+    public Course getCourse() {
+        return course;
     }
 
     public String getName() {

@@ -11,7 +11,7 @@
             <a class="btn btn-primary" href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
         </p>
         <p th:each="course : ${courses}">
-            <a href="courses/course.html" th:href="@{/courses/{id}(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
+            <a href="courses/course.html" th:href="@{/courses/{id}/(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
         </p>
     </main>
 </body>

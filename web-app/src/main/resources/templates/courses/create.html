@@ -7,7 +7,7 @@
 <body>
     <main th:with="today = ${#temporals.createToday()}">
         <h1>Create New Course</h1>
-        <form th:action="@{/courses/create}" method="post">
+        <form method="post">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name"class="form-control">
@@ -16,10 +16,12 @@
                 <label for="termKind">Term</label>
                 <div class="form-row">
                     <div class="col">
-                        <input type="text" id="termKind" name="termKind" value="FS" th:value="(${#temporals.month(today)} < 7) ? ('FS') : ('HS')" class="form-control">
+                        <input type="text" id="termKind" name="termKind" class="form-control"
+                               value="FS" th:value="(${#temporals.month(today)} < 7) ? ('FS') : ('HS')">
                     </div>
                     <div class="col">
-                        <input type="number" id="termYear" name="termYear" value="2021" th:value="${#temporals.year(today)}" class="form-control">
+                        <input type="number" id="termYear" name="termYear" class="form-control"
+                               value="2021" th:value="${#temporals.year(today)}">
                     </div>
                 </div>
             </div>
@@ -27,7 +29,9 @@
                 <label for="qualifier">Qualifier</label>
                 <input type="text" id="qualifier" name="qualifier" class="form-control">
             </div>
-            <button type="submit" class="btn btn-primary">Create</button>
+            <p>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </p>
         </form>
     </main>
 </body>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="page::html(title=~{::title},main=~{::main})" th:object="${problemSet}">
+<head>
+    <title th:text="|*{name} (*{course.name})|">Problem Set Name (Course Name)</title>
+</head>
+<body>
+    <main>
+        <h1 th:text="|*{name} (*{course.name})|">Problem Set Name (Course Name)</h1>
+        <p>
+            Deadline: <span class="deadline" th:text="*{deadline}">Date</span>
+        </p>
+        <p>
+            <a href="../courses/course.html" th:href="@{../..}" class="btn btn-primary">Back to course</a>
+        </p>
+    </main>
+</body>
+</html>
