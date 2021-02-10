@@ -1,3 +1,25 @@
 body {
-    margin: 2em;
+    background-color: whitesmoke;
+}
+
+header {
+    padding: 1em 2em;
+}
+
+main {
+    padding: 2em;
+    background-color: white;
+}
+
+footer {
+    padding: 1em 2em;
+}
+
+h1, h2, h3 {
+    margin-top: 0.75em;
+    margin-bottom: 0.5em;
+}
+
+h1:first-child, h2:first-child, h3:first-child {
+    margin-top: 0;
 }

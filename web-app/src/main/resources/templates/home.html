@@ -7,12 +7,15 @@
 <body>
     <main>
         <h1>Grading Server</h1>
-        <p>
-            <a class="btn btn-primary" href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
-        </p>
+        <h2>Courses <span class="badge"></span></h2>
         <p th:each="course : ${courses}">
             <a href="courses/course.html" th:href="@{/courses/{id}/(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
         </p>
+        <p>
+            <a class="btn btn-primary" href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
+        </p>
+        <h2>About</h2>
+        <p>Grading Server <em>Alpha</em>. More to come...</p>
     </main>
 </body>
 </html>
