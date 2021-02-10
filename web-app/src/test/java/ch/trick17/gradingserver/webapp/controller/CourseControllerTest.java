@@ -41,7 +41,7 @@ class CourseControllerTest {
                 LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")));
         repo.save(course);
 
-        var response = rest.getForObject("/courses/" + course.getId(), String.class);
+        var response = rest.getForObject("/courses/" + course.getId() + "/", String.class);
         assertThat(response).contains("<title>OOPI2 (FS 2021 2Ibb1)</title>");
         assertThat(response).contains(problemSet.getName()).contains(Integer.toString(problemSet.getDeadline().getYear()));
     }

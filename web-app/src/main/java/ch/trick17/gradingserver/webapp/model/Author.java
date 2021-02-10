@@ -2,7 +2,6 @@ package ch.trick17.gradingserver.webapp.model;
 
 import ch.trick17.gradingserver.util.RandomHexStringGenerator;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
