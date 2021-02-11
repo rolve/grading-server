@@ -45,43 +45,6 @@ public class ProblemSetController {
         return "/problem-sets/problem-set";
     }
 
-    @GetMapping("/courses/{courseId}/problem-sets/{id}/register-solutions-gitlab")
-    public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id, Model model) {
-        var problemSet = findProblemSet(courseId, id);
-        model.addAttribute("problemSet", problemSet);
-        return "/problem-sets/register-solutions-gitlab";
-    }
-
-    @PostMapping("/courses/{courseId}/problem-sets/{id}/register-solutions-gitlab")
-    public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
-                                          @RequestParam String hostUrl, @RequestParam String token,
-                                          @RequestParam String groupPath) throws GitLabApiException {
-        var problemSet = findProblemSet(courseId, id);
-        var existingSols = problemSet.getSolutions().stream()
-                .map(Solution::getRepoUrl)
-                .collect(toSet());
-        // TODO: do in a background task
-        var solutions = new GitLabGroupSolutionSupplier(hostUrl, token, groupPath).get();
-        for (var info : solutions) {
-            if (existingSols.contains(info.repoUrl())) {
-                continue;
-            }
-            var authors = new ArrayList<Author>();
-            for (var name : info.authorNames()) {
-                var existing = authorRepo.findByName(name);
-                if (existing.isPresent()) {
-                    authors.add(existing.get());
-                } else {
-                    authors.add(new Author(name));
-                }
-            }
-            var sol = new Solution(info.repoUrl(), authors);
-            sol.setProblemSet(problemSet);
-        }
-        repo.save(problemSet);
-        return "redirect:./";
-    }
-
     private ProblemSet findProblemSet(int courseId, int id) {
         var problemSet = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
@@ -117,6 +80,44 @@ public class ProblemSetController {
         var problemSet = new ProblemSet(course, name, config,
                 ZonedDateTime.of(date, time, ZoneId.systemDefault()));
         courseRepo.save(course);
-        return "redirect:../";
+        repo.save(problemSet); // apparently required to update ID
+        return "redirect:" + problemSet.getId() + "/";
+    }
+
+    @GetMapping("/courses/{courseId}/problem-sets/{id}/register-solutions-gitlab")
+    public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id, Model model) {
+        var problemSet = findProblemSet(courseId, id);
+        model.addAttribute("problemSet", problemSet);
+        return "/problem-sets/register-solutions-gitlab";
+    }
+
+    @PostMapping("/courses/{courseId}/problem-sets/{id}/register-solutions-gitlab")
+    public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
+                                          @RequestParam String host, @RequestParam String groupPath,
+                                          @RequestParam String token) throws GitLabApiException {
+        var problemSet = findProblemSet(courseId, id);
+        var existingSols = problemSet.getSolutions().stream()
+                .map(Solution::getRepoUrl)
+                .collect(toSet());
+        // TODO: do in a background task
+        var solutions = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token).get();
+        for (var info : solutions) {
+            if (existingSols.contains(info.repoUrl())) {
+                continue;
+            }
+            var authors = new ArrayList<Author>();
+            for (var name : info.authorNames()) {
+                var existing = authorRepo.findByName(name);
+                if (existing.isPresent()) {
+                    authors.add(existing.get());
+                } else {
+                    authors.add(new Author(name));
+                }
+            }
+            var sol = new Solution(info.repoUrl(), authors);
+            sol.setProblemSet(problemSet);
+        }
+        repo.save(problemSet);
+        return "redirect:./";
     }
 }

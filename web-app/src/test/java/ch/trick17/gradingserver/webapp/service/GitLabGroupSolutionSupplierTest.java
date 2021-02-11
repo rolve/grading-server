@@ -15,7 +15,7 @@ class GitLabGroupSolutionSupplierTest {
         var host = "https://gitlab.com/";
         var group = "rolves-private-group/some-private-group";
         var supplier = new GitLabGroupSolutionSupplier(host,
-                "5jiBFYSUisc-xbpCyLAW", group); // read-only token from dummy user
+                group, "5jiBFYSUisc-xbpCyLAW"); // read-only token from dummy user
         var solutions = supplier.get();
         assertThat(solutions).hasSize(3);
         assertThat(solutions).contains(

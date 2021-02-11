@@ -24,7 +24,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier {
     private AccessLevel minAccessLevel = DEVELOPER;
     private boolean ignoringCommonMembers = true;
 
-    public GitLabGroupSolutionSupplier(String hostUrl, String token, String groupPath) {
+    public GitLabGroupSolutionSupplier(String hostUrl, String groupPath, String token) {
         this.hostUrl = requireNonNull(hostUrl);
         this.token = requireNonNull(token);
         this.groupPath = requireNonNull(groupPath);

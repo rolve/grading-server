@@ -16,10 +16,16 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="hostUrl" class="col-sm-3 col-form-label">GitLab host URL</label>
+                <label for="host" class="col-sm-3 col-form-label">GitLab Group</label>
                 <div class="col-sm-9">
-                    <input type="text" id="hostUrl" name="hostUrl" class="form-control"
-                           required value="https://gitlab.fhnw.ch">
+                    <div class="input-group">
+                        <span class="input-group-text">https://</span>
+                        <input type="text" id="host" name="host" class="form-control"
+                               required value="gitlab.fhnw.ch">
+                        <span class="input-group-text">/</span>
+                        <input type="text" id="groupPath" name="groupPath" class="form-control"
+                               required placeholder="group/subgroup">
+                    </div>
                 </div>
             </div>
             <div class="row mb-3">
@@ -28,13 +34,6 @@
                     <input type="text" id="token" name="token" class="form-control"
                            required placeholder="abcdEFGHI01234-vwXYZ">
                     <div class="form-text">The token must grant <strong>read_api</strong> access</div>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <label for="groupPath" class="col-sm-3 col-form-label">Group path</label>
-                <div class="col-sm-9">
-                    <input type="text" id="groupPath" name="groupPath" class="form-control"
-                           required placeholder="group/subgroup">
                 </div>
             </div>
 
