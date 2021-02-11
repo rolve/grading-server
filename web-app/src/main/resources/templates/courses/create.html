@@ -11,18 +11,18 @@
             <div class="row mb-3">
                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
-                    <input type="text" id="name" name="name"class="form-control">
+                    <input type="text" id="name" name="name"class="form-control" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <label for="termKind" class="col-sm-2 col-form-label">Term</label>
                 <div class="col">
-                    <input type="text" id="termKind" name="termKind" class="form-control"
+                    <input type="text" id="termKind" name="termKind" class="form-control" required
                            value="FS" th:value="(${#temporals.month(today)} < 7) ? ('FS') : ('HS')">
                 </div>
                 <div class="col ps-0">
                     <input type="number" id="termYear" name="termYear" class="form-control"
-                           value="2021" th:value="${#temporals.year(today)}">
+                           value="2021" th:value="${#temporals.year(today)}" required>
                 </div>
             </div>
             <div class="row mb-3">
@@ -31,7 +31,7 @@
                     <input type="text" id="qualifier" name="qualifier" class="form-control">
                 </div>
             </div>
-            <div class="row g-2">
+            <div class="row g-3">
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary w-100">Create</button>
                 </div>

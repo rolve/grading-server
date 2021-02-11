@@ -1,20 +1,25 @@
 package ch.trick17.gradingserver.webapp.controller;
 
 import ch.trick17.gradingserver.GradingConfig;
+import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
-import ch.trick17.gradingserver.webapp.model.*;
+import ch.trick17.gradingserver.GradingOptions.Compiler;
+import ch.trick17.gradingserver.webapp.model.CourseRepository;
+import ch.trick17.gradingserver.webapp.model.ProblemSet;
+import ch.trick17.gradingserver.webapp.model.ProblemSetRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.*;
 
-import static ch.trick17.gradingserver.GradingConfig.ProjectStructure.ECLIPSE;
-import static ch.trick17.gradingserver.GradingOptions.Compiler.JAVAC;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -49,15 +54,21 @@ public class ProblemSetController {
 
     @PostMapping("/courses/{courseId}/problem-sets/add")
     public String addProblemSet(@PathVariable int courseId, @RequestParam String name,
-                                @RequestParam String deadlineDate, @RequestParam String deadlineTime) {
+                                @RequestParam String deadlineDate, @RequestParam String deadlineTime,
+                                @RequestParam MultipartFile testClassFile, @RequestParam String structure,
+                                @RequestParam String projectRoot, @RequestParam String compiler,
+                                @RequestParam int repetitions, @RequestParam int repTimeoutMs,
+                                @RequestParam int testTimeoutMs) throws IOException {
         var course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         var date = LocalDate.parse(deadlineDate);
         var time = LocalTime.parse(deadlineTime);
-        // TODO
-        var config = new GradingConfig("class Foo {}", "", ECLIPSE,
-                new GradingOptions(JAVAC, 7, Duration.ofSeconds(3), Duration.ofSeconds(10), true));
-        var problemSet = new ProblemSet(course, name, config, ZonedDateTime.of(date, time, ZoneId.systemDefault()));
+        var testClass = new String(testClassFile.getBytes(), UTF_8);
+        var config = new GradingConfig(testClass, projectRoot, ProjectStructure.valueOf(structure),
+                new GradingOptions(Compiler.valueOf(compiler), repetitions,
+                        Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
+        var problemSet = new ProblemSet(course, name, config,
+                ZonedDateTime.of(date, time, ZoneId.systemDefault()));
         courseRepo.save(course);
         return "redirect:../";
     }
