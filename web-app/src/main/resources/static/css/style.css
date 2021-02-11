@@ -3,23 +3,26 @@ body {
 }
 
 header {
-    padding: 1em 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
-main {
-    padding: 2em;
+#main-outer {
     background-color: white;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
 }
 
 footer {
-    padding: 1em 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     margin-top: 0.75em;
     margin-bottom: 0.5em;
 }
 
-h1:first-child, h2:first-child, h3:first-child {
+h1:first-child, h2:first-child, h3:first-child, h4:first-child {
     margin-top: 0;
 }

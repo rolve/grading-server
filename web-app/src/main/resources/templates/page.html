@@ -2,19 +2,24 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="html(title,main)">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title th:replace="${title}">Title</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/css/bootstrap.min.css" integrity="sha512-aqT9YD5gLuLBr6ipQAS+72o5yHKzgZbGxEh6iY8lW/r6gG14e2kBTAJb8XrxzZrMOgSmDqtLaF76T0Z6YY2IHg==" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}">
 </head>
 <body>
-    <header>
+    <header class="container-lg">
         <a th:href="@{/}" class="fa fa-home text-decoration-none" title="Home"></a>
     </header>
-    <main th:replace="${main}">
-        <h1>Heading</h1>
-        <p>Example Text</p>
-    </main>
-    <footer><i class="fa fa-code"></i> Michael Faes</footer>
+    <div id="main-outer">
+        <div class="container-lg">
+            <main th:replace="${main}">
+                <h1>Heading</h1>
+                <p>Example Text</p>
+            </main>
+        </div>
+    </div>
+    <footer class="container-lg"><i class="fa fa-code"></i> Michael Faes</footer>
 </body>
 </html>
