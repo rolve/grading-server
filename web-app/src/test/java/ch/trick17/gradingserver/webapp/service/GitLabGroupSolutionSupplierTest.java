@@ -1,0 +1,28 @@
+package ch.trick17.gradingserver.webapp.service;
+
+import ch.trick17.gradingserver.webapp.service.SolutionSupplier.SolutionInfo;
+import org.gitlab4j.api.GitLabApiException;
+import org.junit.jupiter.api.Test;
+
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class GitLabGroupSolutionSupplierTest {
+
+    @Test
+    void privateSubgroup() throws GitLabApiException {
+        var host = "https://gitlab.com/";
+        var group = "rolves-private-group/some-private-group";
+        var supplier = new GitLabGroupSolutionSupplier(host,
+                "5jiBFYSUisc-xbpCyLAW", group); // read-only token from dummy user
+        var solutions = supplier.get();
+        assertThat(solutions).hasSize(3);
+        assertThat(solutions).contains(
+                new SolutionInfo(host + group + "/rolve.git", Set.of("rolve")));
+        assertThat(solutions).contains(
+                new SolutionInfo(host + group + "/michael.git", Set.of("michael-trick17")));
+        assertThat(solutions).contains(
+                new SolutionInfo(host + group + "/mike.git", Set.of("mike-trick17")));
+    }
+}
