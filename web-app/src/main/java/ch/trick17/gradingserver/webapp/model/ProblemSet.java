@@ -2,13 +2,13 @@ package ch.trick17.gradingserver.webapp.model;
 
 import ch.trick17.gradingserver.GradingConfig;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static javax.persistence.CascadeType.ALL;
 
 @Entity
 public class ProblemSet {
@@ -21,6 +21,9 @@ public class ProblemSet {
     private String name;
     private GradingConfig gradingConfig;
     private ZonedDateTime deadline;
+
+    @OneToMany(mappedBy = "problemSet", cascade = ALL, orphanRemoval = true)
+    private List<Solution> solutions = new ArrayList<>();
 
     protected ProblemSet() {}
 
@@ -62,5 +65,9 @@ public class ProblemSet {
 
     public void setDeadline(ZonedDateTime deadline) {
         this.deadline = requireNonNull(deadline);
+    }
+
+    public List<Solution> getSolutions() {
+        return solutions;
     }
 }

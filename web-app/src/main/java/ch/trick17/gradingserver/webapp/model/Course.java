@@ -19,6 +19,7 @@ public class Course {
     private String name;
     private Term term;
     private String qualifier;
+
     @OneToMany(mappedBy = "course", cascade = ALL, orphanRemoval = true)
     private List<ProblemSet> problemSets = new ArrayList<>();
 

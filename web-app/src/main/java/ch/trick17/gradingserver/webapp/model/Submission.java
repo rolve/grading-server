@@ -3,8 +3,10 @@ package ch.trick17.gradingserver.webapp.model;
 import ch.trick17.gradingserver.CodeLocation;
 import ch.trick17.gradingserver.GradingResult;
 
-import javax.persistence.*;
-
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
 import static ch.trick17.gradingserver.webapp.model.SubmissionState.*;
@@ -19,15 +21,15 @@ public class Submission implements Serializable {
     @Id
     @GeneratedValue
     private int number;
-    private CodeLocation location;
+    private String commitHash;
     private boolean gradingStarted;
     private GradingResult result;
 
     protected Submission() {}
 
-    public Submission(Solution solution, CodeLocation location) {
+    public Submission(Solution solution, String commitHash) {
         this.solution = requireNonNull(solution);
-        this.location = requireNonNull(location);
+        this.commitHash = requireNonNull(commitHash);
     }
 
     public Solution getSolution() {
@@ -38,8 +40,12 @@ public class Submission implements Serializable {
         return number;
     }
 
-    public CodeLocation getLocation() {
-        return location;
+    public String getCommitHash() {
+        return commitHash;
+    }
+
+    public CodeLocation getCodeLocation() {
+        return new CodeLocation(solution.getRepoUrl(), commitHash);
     }
 
     public boolean isGradingStarted() {

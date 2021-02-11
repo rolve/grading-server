@@ -132,7 +132,7 @@ class GradingJobControllerTest {
     @DirtiesContext
     void privateRepo() throws InterruptedException {
         var credResponse = rest.postForEntity("/api/v1/credentials", new Credentials("gitlab.com",
-                "grading-server", "VBgo1xky7z87tKdzXacw"), String.class); // read-only token
+                "grading-server", "VBgo1xky7z87tKdzXacw"), String.class); // read-only deploy token
         assertEquals(OK, credResponse.getStatusCode());
 
         var code = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",

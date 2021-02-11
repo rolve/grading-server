@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="page::html(title=~{::title},main=~{::main})">
+<head>
+    <title>Register Solutions from GitLab</title>
+</head>
+<body>
+    <main>
+        <h1>Register Solutions from GitLab</h1>
+        <form method="post">
+            <div class="row mb-3">
+                <label for="problemSet" class="col-sm-3 col-form-label">Problem set</label>
+                <div class="col-sm-9">
+                    <input type="text" id="problemSet" name="problemSet" class="form-control" readonly
+                           value="Problem set" th:value="|${problemSet.name} (${problemSet.course.name})|">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="hostUrl" class="col-sm-3 col-form-label">GitLab host URL</label>
+                <div class="col-sm-9">
+                    <input type="text" id="hostUrl" name="hostUrl" class="form-control"
+                           required value="https://gitlab.fhnw.ch">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="token" class="col-sm-3 col-form-label">Access token</label>
+                <div class="col-sm-9">
+                    <input type="text" id="token" name="token" class="form-control"
+                           required placeholder="abcdEFGHI01234-vwXYZ">
+                    <div class="form-text">The token must grant <strong>read_api</strong> access</div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="groupPath" class="col-sm-3 col-form-label">Group path</label>
+                <div class="col-sm-9">
+                    <input type="text" id="groupPath" name="groupPath" class="form-control"
+                           required placeholder="group/subgroup">
+                </div>
+            </div>
+
+            <div class="row gy-2">
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </div>
+                <div class="col-sm-2">
+                    <a href="problem-set.html" th:href="@{./}" class="btn btn-secondary w-100">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

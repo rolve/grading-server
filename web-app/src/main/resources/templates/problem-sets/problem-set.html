@@ -10,8 +10,37 @@
         <p>
             Deadline: <span class="deadline" th:text="*{#temporals.format(deadline)}">Date</span>
         </p>
+        <h2>Solutions</h2>
+        <p th:if="*{solutions.isEmpty}">No solutions registered yet.</p>
+        <table class="table" th:unless="*{solutions.isEmpty}">
+            <thead>
+                <tr>
+                    <th>Authors</th>
+                    <th>Commit</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="sol : *{solutions}">
+                    <td class="text-muted">(anonymous)</td>
+                    <td th:text="${sol.latestSubmission?.commitHash?.substring(0,8) ?: '—'}">c0f27a18</td>
+                    <td>
+                        <span th:if="${sol.latestSubmission == null}" class="badge bg-secondary">
+                            No submission yet
+                        </span>
+                        <span th:if="${sol.latestSubmission != null}" class="badge bg-primary">
+                            Stuff is going on
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <p>
-            <a href="../courses/course.html" th:href="@{../..}" class="btn btn-primary">Back to course</a>
+            <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
+               class="btn btn-primary">Register solutions</a>
+        </p>
+        <p>
+            <a href="../courses/course.html" th:href="@{../..}" class="btn btn-secondary">Back to course</a>
         </p>
     </main>
 </body>
