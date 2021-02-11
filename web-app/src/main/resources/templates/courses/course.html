@@ -7,7 +7,10 @@
 <body>
     <main th:object="${course}">
         <h1 th:text="*{fullName}">Course Name</h1>
-        <table class="table">
+        <p th:if="*{problemSets.isEmpty}">
+            No problem sets added yet.
+        </p>
+        <table class="table" th:unless="*{problemSets.isEmpty}">
             <thead>
                 <tr>
                     <th>Problem Set</th>
@@ -16,9 +19,11 @@
             </thead>
             <tbody>
                 <tr th:each="problemSet : *{problemSets}">
-                    <td th:text="${problemSet.name}">
-                        <a href="../problem-sets/problem-set.html" th:href="@{problem-sets/{id}/(id=${problemSet.id})}">Problem Set Name</a></td>
-                    <td th:text="${problemSet.deadline}">Deadline</td>
+                    <td>
+                        <a href="../problem-sets/problem-set.html"
+                           th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
+                           th:text="${problemSet.name}">Problem Set Name</a></td>
+                    <td th:text="${#temporals.format(problemSet.deadline)}">Deadline</td>
                 </tr>
             </tbody>
         </table>

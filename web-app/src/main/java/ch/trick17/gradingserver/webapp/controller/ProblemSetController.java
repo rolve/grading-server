@@ -37,7 +37,7 @@ public class ProblemSetController {
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
-        if (problemSet.getId() != courseId) {
+        if (problemSet.getCourse().getId() != courseId) {
             // silly, but allowing any course ID would be too
             throw new ResponseStatusException(NOT_FOUND);
         }
