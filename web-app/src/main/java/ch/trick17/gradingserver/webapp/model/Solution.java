@@ -71,6 +71,6 @@ public class Solution implements Serializable {
 
     public Submission latestSubmission() {
         return submissions.stream()
-                .max(comparingInt(Submission::getNumber)).orElse(null);
+                .max(comparingInt(Submission::getId)).orElse(null);
     }
 }

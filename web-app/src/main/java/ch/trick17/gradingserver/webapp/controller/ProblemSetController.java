@@ -28,12 +28,14 @@ public class ProblemSetController {
     private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
     private final AuthorRepository authorRepo;
+    private final SolutionRepo solRepo;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
-                                AuthorRepository authorRepo) {
+                                AuthorRepository authorRepo, SolutionRepo solRepo) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.authorRepo = authorRepo;
+        this.solRepo = solRepo;
     }
 
     @GetMapping("/{id}/")
@@ -113,8 +115,8 @@ public class ProblemSetController {
             }
             var sol = new Solution(info.repoUrl(), authors);
             sol.setProblemSet(problemSet);
+            solRepo.save(sol);
         }
-        repo.save(problemSet);
         return "redirect:./";
     }
 }

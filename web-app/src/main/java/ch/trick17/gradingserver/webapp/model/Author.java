@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import java.util.Objects;
+
 import static java.util.Objects.requireNonNull;
 
 @Entity
@@ -22,7 +24,7 @@ public class Author {
     protected Author() {}
 
     public Author(String name) {
-        this.name = requireNonNull(name);
+        setName(name);
         generateAccessToken();
     }
 
@@ -31,7 +33,10 @@ public class Author {
     }
 
     public void setName(String name) {
-        this.name = requireNonNull(name);
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException();
+        }
+        this.name = name;
     }
 
     public String getAccessToken() {
@@ -41,5 +46,22 @@ public class Author {
     public void generateAccessToken() {
         this.accessToken = new RandomHexStringGenerator(32)
                 .generate(i -> false);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        return Objects.equals(name, ((Author) o).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

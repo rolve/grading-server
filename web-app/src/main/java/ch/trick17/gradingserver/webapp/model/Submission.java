@@ -16,11 +16,10 @@ import static java.util.Objects.requireNonNull;
 public class Submission implements Serializable {
 
     @Id
+    @GeneratedValue
+    private int id;
     @ManyToOne
     private Solution solution;
-    @Id
-    @GeneratedValue
-    private int number;
     private String commitHash;
     private boolean gradingStarted;
     private GradingResult result;
@@ -36,8 +35,8 @@ public class Submission implements Serializable {
         return solution;
     }
 
-    public int getNumber() {
-        return number;
+    public int getId() {
+        return id;
     }
 
     public String getCommitHash() {
@@ -50,6 +49,10 @@ public class Submission implements Serializable {
 
     public boolean isGradingStarted() {
         return gradingStarted;
+    }
+
+    public void setGradingStarted(boolean gradingStarted) {
+        this.gradingStarted = gradingStarted;
     }
 
     public boolean hasResult() {
