@@ -36,7 +36,7 @@ public class CourseController {
     public String createCourse(@RequestParam String name, @RequestParam String termKind,
                                @RequestParam int termYear, @RequestParam String qualifier) {
         var course = new Course(name, new Term(termYear, termKind), qualifier.isBlank() ? null : qualifier);
-        repo.save(course);
+        course = repo.save(course);
         return "redirect:" + course.getId() + "/";
     }
 }

@@ -77,8 +77,7 @@ public class ProblemSetController {
                         Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
         var problemSet = new ProblemSet(course, name, config,
                 ZonedDateTime.of(date, time, ZoneId.systemDefault()));
-        courseRepo.save(course);
-        repo.save(problemSet); // apparently required to update ID
+        problemSet = repo.save(problemSet);
         return "redirect:" + problemSet.getId() + "/";
     }
 
