@@ -22,7 +22,7 @@
             </thead>
             <tbody>
                 <tr th:each="sol : *{solutions}">
-                    <td class="text-muted">(anonymous)</td>
+                    <td th:text="${#strings.setJoin(sol.authors, ', ')}">Authors</td>
                     <td th:text="${sol.latestSubmission?.commitHash?.substring(0,8) ?: '—'}">c0f27a18</td>
                     <td>
                         <span th:if="${sol.latestSubmission == null}" class="badge bg-secondary">
