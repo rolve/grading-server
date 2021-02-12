@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface AuthorRepository extends PagingAndSortingRepository<Author, Integer> {
     Optional<Author> findByName(String name);
 }
