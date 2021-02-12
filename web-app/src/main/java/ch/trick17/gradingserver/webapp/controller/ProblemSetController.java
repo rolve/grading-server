@@ -9,10 +9,7 @@ import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
 import org.gitlab4j.api.GitLabApiException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,6 +22,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
+@RequestMapping("/courses/{courseId}/problem-sets")
 public class ProblemSetController {
 
     private final ProblemSetRepository repo;
@@ -38,7 +36,7 @@ public class ProblemSetController {
         this.authorRepo = authorRepo;
     }
 
-    @GetMapping("/courses/{courseId}/problem-sets/{id}/")
+    @GetMapping("/{id}/")
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
@@ -55,14 +53,14 @@ public class ProblemSetController {
         return problemSet;
     }
 
-    @GetMapping("/courses/{courseId}/problem-sets/add")
+    @GetMapping("/add")
     public String addProblemSet(@PathVariable int courseId, Model model) {
         model.addAttribute("course", courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND)));
         return "problem-sets/add";
     }
 
-    @PostMapping("/courses/{courseId}/problem-sets/add")
+    @PostMapping("/add")
     public String addProblemSet(@PathVariable int courseId, @RequestParam String name,
                                 @RequestParam String deadlineDate, @RequestParam String deadlineTime,
                                 @RequestParam MultipartFile testClassFile, @RequestParam String structure,
@@ -84,14 +82,14 @@ public class ProblemSetController {
         return "redirect:" + problemSet.getId() + "/";
     }
 
-    @GetMapping("/courses/{courseId}/problem-sets/{id}/register-solutions-gitlab")
+    @GetMapping("/{id}/register-solutions-gitlab")
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
         return "/problem-sets/register-solutions-gitlab";
     }
 
-    @PostMapping("/courses/{courseId}/problem-sets/{id}/register-solutions-gitlab")
+    @PostMapping("/{id}/register-solutions-gitlab")
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
                                           @RequestParam String host, @RequestParam String groupPath,
                                           @RequestParam String token) throws GitLabApiException {
