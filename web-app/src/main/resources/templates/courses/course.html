@@ -7,7 +7,9 @@
 <body>
     <main th:object="${course}">
         <h1 th:text="*{fullName}">Course Name</h1>
-        <p th:if="*{problemSets.isEmpty}">No problem sets added yet.</p>
+        <div th:if="*{problemSets.isEmpty}" class="alert alert-warning" role="alert">
+            No problem sets added yet.
+        </div>
         <table class="table" th:unless="*{problemSets.isEmpty}">
             <thead>
                 <tr>

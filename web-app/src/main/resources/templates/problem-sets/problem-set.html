@@ -11,7 +11,12 @@
             Deadline: <span class="deadline" th:text="*{#temporals.format(deadline)}">Date</span>
         </p>
         <h2>Solutions</h2>
-        <p th:if="*{solutions.isEmpty}">No solutions registered yet.</p>
+        <div th:if="*{registeringSolutions}" class="alert alert-info" role="alert">
+            Solutions are being registered. Check back later.
+        </div>
+        <div th:if="*{!registeringSolutions and solutions.isEmpty}" class="alert alert-warning" role="alert">
+            No solutions registered yet.
+        </div>
         <table class="table" th:unless="*{solutions.isEmpty}">
             <thead>
                 <tr>

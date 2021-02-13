@@ -24,6 +24,7 @@ public class ProblemSet {
 
     @OneToMany(mappedBy = "problemSet", cascade = ALL, orphanRemoval = true)
     private List<Solution> solutions = new ArrayList<>();
+    private boolean registeringSolutions = false;
 
     protected ProblemSet() {}
 
@@ -69,5 +70,13 @@ public class ProblemSet {
 
     public List<Solution> getSolutions() {
         return solutions;
+    }
+
+    public boolean isRegisteringSolutions() {
+        return registeringSolutions;
+    }
+
+    public void setRegisteringSolutions(boolean loadingSolutions) {
+        this.registeringSolutions = loadingSolutions;
     }
 }

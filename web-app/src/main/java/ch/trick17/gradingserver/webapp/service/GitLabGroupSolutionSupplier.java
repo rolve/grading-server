@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
 import static org.gitlab4j.api.models.AccessLevel.DEVELOPER;
 
-public class GitLabGroupSolutionSupplier implements SolutionSupplier {
+public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiException> {
 
     private final String hostUrl;
     private final String token;

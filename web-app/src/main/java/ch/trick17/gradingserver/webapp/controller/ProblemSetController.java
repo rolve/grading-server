@@ -7,7 +7,7 @@ import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingOptions.Compiler;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
-import ch.trick17.gradingserver.webapp.service.SubmissionFetcher;
+import ch.trick17.gradingserver.webapp.service.SolutionService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
 import org.springframework.stereotype.Controller;
@@ -18,11 +18,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.*;
-import java.util.ArrayList;
-import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.toSet;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -31,21 +28,16 @@ public class ProblemSetController {
 
     private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
-    private final AuthorRepository authorRepo;
-    private final SolutionRepo solRepo;
     private final HostCredentialsRepository credRepo;
-    private final SubmissionFetcher fetcher;
+    private final SolutionService solutionService;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
-                                AuthorRepository authorRepo, SolutionRepo solRepo,
                                 HostCredentialsRepository credRepo,
-                                SubmissionFetcher fetcher) {
+                                SolutionService solutionService) {
         this.repo = repo;
         this.courseRepo = courseRepo;
-        this.authorRepo = authorRepo;
-        this.solRepo = solRepo;
         this.credRepo = credRepo;
-        this.fetcher = fetcher;
+        this.solutionService = solutionService;
     }
 
     @GetMapping("/{id}/")
@@ -117,31 +109,11 @@ public class ProblemSetController {
         }
 
         var problemSet = findProblemSet(courseId, id);
-        var existingSols = problemSet.getSolutions().stream()
-                .map(Solution::getRepoUrl)
-                .collect(toSet());
-        // TODO: do in a background task
-        var solutions = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token).get();
-        for (var info : solutions) {
-            if (existingSols.contains(info.repoUrl())) {
-                continue;
-            }
-            var authors = new ArrayList<Author>();
-            for (var name : info.authorNames()) {
-                var existing = authorRepo.findByName(name);
-                if (existing.isPresent()) {
-                    authors.add(existing.get());
-                } else {
-                    authors.add(new Author(name));
-                }
-            }
-            var sol = new Solution(info.repoUrl(), authors);
-            sol.setProblemSet(problemSet);
-            solRepo.save(sol);
+        problemSet.setRegisteringSolutions(true);
+        repo.save(problemSet);
 
-            var submission = fetcher.fetchSubmission(sol);
-            // TODO: start grading
-        }
+        var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
+        solutionService.registerSolutions(problemSet.getId(), supplier);
         return "redirect:./";
     }
 }
