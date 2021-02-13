@@ -3,6 +3,7 @@ package ch.trick17.gradingserver;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 import static java.util.Objects.requireNonNull;
 
@@ -10,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 public class GradingJob {
 
     private CodeLocation submission;
+    @Transient
     private Credentials credentials;
     private GradingConfig config;
     private GradingResult result;

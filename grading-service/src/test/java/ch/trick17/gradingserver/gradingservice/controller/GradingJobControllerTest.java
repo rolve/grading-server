@@ -40,16 +40,37 @@ class GradingJobControllerTest {
     void create() {
         var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
-        var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
-                Duration.ofMillis(10), true);
-        var job = new GradingJob(code, null, new GradingConfig("class Foo {}", "/",
-                ProjectStructure.ECLIPSE, options));
+        var config = new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE,
+                new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6), Duration.ofMillis(10), true));
+        var job = new GradingJob(code, null, config);
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
         assertTrue(matcher.matches(), uri.getPath());
 
         var response = rest.getForObject(uri, GradingJob.class);
         assertEquals(matcher.group(1), response.getId());
+        assertEquals(code, response.getSubmission());
+        assertNull(response.getCredentials());
+        assertEquals(config, response.getConfig());
+    }
+
+    @Test
+    @DirtiesContext
+    void doNotStoreCredentials() {
+        var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
+                "c61e753ad81f76cca7491efb441ce2fb915ef231");
+        var credentials = new Credentials("user", "pw");
+        var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var job = new GradingJob(code, credentials,
+                new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE, options));
+        var uri = rest.postForLocation("/api/v1/grading-jobs", job);
+        var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
+        assertTrue(matcher.matches(), uri.getPath());
+
+        var response = rest.getForObject(uri, GradingJob.class);
+        assertEquals(matcher.group(1), response.getId());
+        assertNull(response.getCredentials());
     }
 
     @Test
