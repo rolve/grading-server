@@ -26,13 +26,16 @@ public class Solution implements Serializable {
 
     @OneToMany(mappedBy = "solution", cascade = ALL, orphanRemoval = true)
     private List<Submission> submissions = new ArrayList<>();
+    private boolean fetchingSubmission = false;
 
     protected Solution() {}
 
-    public Solution(String repoUrl, Collection<Author> authors) {
+    public Solution(ProblemSet problemSet, String repoUrl, Collection<Author> authors) {
+        this.problemSet = requireNonNull(problemSet);
         this.repoUrl = requireNonNull(repoUrl);
         this.authors.addAll(authors);
         generateAccessToken();
+        problemSet.getSolutions().add(this);
     }
 
     public int getId() {
@@ -41,11 +44,6 @@ public class Solution implements Serializable {
 
     public ProblemSet getProblemSet() {
         return problemSet;
-    }
-
-    public void setProblemSet(ProblemSet problemSet) {
-        this.problemSet = requireNonNull(problemSet);
-        problemSet.getSolutions().add(this);
     }
 
     public String getRepoUrl() {
@@ -72,5 +70,13 @@ public class Solution implements Serializable {
     public Submission latestSubmission() {
         return submissions.stream()
                 .max(comparingInt(Submission::getId)).orElse(null);
+    }
+
+    public boolean isFetchingSubmission() {
+        return fetchingSubmission;
+    }
+
+    public void setFetchingSubmission(boolean fetchingSubmission) {
+        this.fetchingSubmission = fetchingSubmission;
     }
 }
