@@ -13,7 +13,7 @@ class GitLabGroupSolutionSupplierTest {
     @Test
     void privateSubgroup() throws GitLabApiException {
         var host = "https://gitlab.com/";
-        var group = "rolves-private-group/some-private-group";
+        var group = "rolves-private-group/some-subgroup";
         var supplier = new GitLabGroupSolutionSupplier(host,
                 group, "5jiBFYSUisc-xbpCyLAW"); // read-only token from dummy user
         var solutions = supplier.get();
