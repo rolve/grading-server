@@ -61,7 +61,7 @@ public class JobRunner {
     private GradingResult tryRun(GradingJob job) throws IOException {
         var dir = CODE_ROOT.resolve(job.getId());
         try {
-            downloader.downloadCode(job.getSubmission(), dir);
+            downloader.downloadCode(job.getSubmission(), dir, job.getCredentials());
             var config = job.getConfig();
             var codebase = new SingleCodebase(job.getId(), dir.resolve(config.getProjectRoot()),
                     valueOf(config.getStructure().name()));

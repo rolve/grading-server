@@ -1,8 +1,7 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
 import ch.trick17.gradingserver.CodeLocation;
-import ch.trick17.gradingserver.gradingservice.model.Credentials;
-import ch.trick17.gradingserver.gradingservice.model.CredentialsRepository;
+import ch.trick17.gradingserver.Credentials;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,21 +18,7 @@ import static java.util.Comparator.reverseOrder;
 @Service
 public class CodeDownloader {
 
-    private final CredentialsRepository credentialsRepo;
-
-    public CodeDownloader(CredentialsRepository credentialsRepo) {
-        this.credentialsRepo = credentialsRepo;
-    }
-
-    public void downloadCode(CodeLocation from, Path to) throws IOException {
-        Credentials credentials;
-        try {
-            var host = new URI(from.getRepoUrl()).getHost();
-            credentials = credentialsRepo.findByHost(host).stream().findFirst().orElse(null);
-        } catch (URISyntaxException e) {
-            throw new AssertionError(e);
-        }
-
+    public void downloadCode(CodeLocation from, Path to, Credentials credentials) throws IOException {
         int attempts = 3;
         while (attempts-- > 0) {
             try {

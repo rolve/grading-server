@@ -1,11 +1,7 @@
 package ch.trick17.gradingserver.gradingservice.controller;
 
-import ch.trick17.gradingserver.CodeLocation;
-import ch.trick17.gradingserver.GradingConfig;
+import ch.trick17.gradingserver.*;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
-import ch.trick17.gradingserver.GradingOptions;
-import ch.trick17.gradingserver.GradingResult;
-import ch.trick17.gradingserver.gradingservice.model.Credentials;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import org.junit.jupiter.api.Test;
@@ -46,7 +42,7 @@ class GradingJobControllerTest {
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, new GradingConfig("class Foo {}", "/",
+        var job = new GradingJob(code, null, new GradingConfig("class Foo {}", "/",
                 ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
@@ -77,7 +73,7 @@ class GradingJobControllerTest {
                 "7f9225c2e7b20cb1ff51b0220687c75305341392");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, new GradingConfig("class Foo {}", "/",
+        var job = new GradingJob(code, null, new GradingConfig("class Foo {}", "/",
                 ProjectStructure.ECLIPSE, options));
         var result = new GradingResult(null, List.of("foo", "bar"), List.of("fooTest"),
                 List.of("bazTest"), "no details");
@@ -105,7 +101,7 @@ class GradingJobControllerTest {
                         assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
                     }
                 }""";
-        var job = new GradingJob(code, new GradingConfig(test, "", MAVEN, options));
+        var job = new GradingJob(code, null, new GradingConfig(test, "", MAVEN, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;
@@ -131,10 +127,7 @@ class GradingJobControllerTest {
     @Test
     @DirtiesContext
     void privateRepo() throws InterruptedException {
-        var credResponse = rest.postForEntity("/api/v1/credentials", new Credentials("gitlab.com",
-                "grading-server", "VBgo1xky7z87tKdzXacw"), String.class); // read-only deploy token
-        assertEquals(OK, credResponse.getStatusCode());
-
+        var credentials = new Credentials("grading-server", "VBgo1xky7z87tKdzXacw"); // read-only deploy token
         var code = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
                 "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
         var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
@@ -149,7 +142,8 @@ class GradingJobControllerTest {
                         assertEquals(3, Foo.add(1, 2));
                     }
                 }""";
-        var job = new GradingJob(code, new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
+        var job = new GradingJob(code, credentials,
+                new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;
@@ -189,7 +183,8 @@ class GradingJobControllerTest {
                         assertEquals(3, Foo.add(1, 2));
                     }
                 }""";
-        var job = new GradingJob(code, new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
+        var job = new GradingJob(code, null, // <- no credentials
+                new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;

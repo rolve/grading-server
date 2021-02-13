@@ -2,29 +2,23 @@ package ch.trick17.gradingserver;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Embeddable;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-@MappedSuperclass
+@Embeddable
 public class Credentials {
 
-    private String host;
     private String username;
     private String password;
 
     protected Credentials() {}
 
     @JsonCreator
-    public Credentials(String host, String username, String password) {
-        this.host = requireNonNull(host);
+    public Credentials(String username, String password) {
         this.username = requireNonNull(username);
         this.password = requireNonNull(password);
-    }
-
-    public String getHost() {
-        return host;
     }
 
     public String getUsername() {
@@ -40,20 +34,12 @@ public class Credentials {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Credentials) obj;
-        return Objects.equals(this.host, that.host) &&
-                Objects.equals(this.username, that.username) &&
+        return Objects.equals(this.username, that.username) &&
                 Objects.equals(this.password, that.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(host, username, password);
-    }
-
-    @Override
-    public String toString() {
-        return "Credentials[" +
-                "host=" + host + ", " +
-                "username=" + username + "]";
+        return Objects.hash(username, password);
     }
 }

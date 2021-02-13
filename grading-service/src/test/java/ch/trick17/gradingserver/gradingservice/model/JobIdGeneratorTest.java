@@ -24,7 +24,7 @@ public class JobIdGeneratorTest {
     void generate() {
         var ids = new HashSet<String>();
         for (int i = 0; i < 1000; i++) {
-            var job = new GradingJob(new CodeLocation("", ""),
+            var job = new GradingJob(new CodeLocation("", ""), null,
                     new GradingConfig("", "", ECLIPSE,
                             new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(1), true)));
             repo.save(job);
