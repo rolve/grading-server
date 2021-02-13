@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Comparator.comparingInt;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -97,10 +98,17 @@ public class ProblemSetController {
                                           @RequestParam String host, @RequestParam String groupPath,
                                           @RequestParam String token)
             throws GitLabApiException, GitAPIException {
-        // if a token is provided, store it
-        if (!token.isBlank()) {
-            var existing = credRepo.findByHost(host);
-            var known = existing.stream()
+        var existingTokens = credRepo.findByHost(host);
+        if (token.isBlank()) {
+            // if no token is provided, try to use an existing one
+            token = existingTokens.stream()
+                    .max(comparingInt(HostCredentials::getId))
+                    .map(HostCredentials::getCredentials)
+                    .map(Credentials::getPassword)
+                    .orElse(null);
+        } else {
+            // otherwise, if the provided token is new, store it
+            var known = existingTokens.stream()
                     .map(c -> c.getCredentials().getPassword())
                     .anyMatch(token::equals);
             if (!known) {
@@ -113,7 +121,7 @@ public class ProblemSetController {
         repo.save(problemSet);
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
-        solutionService.registerSolutions(problemSet.getId(), supplier);
+        solutionService.registerSolutions(problemSet.getId(), supplier); // async
         return "redirect:./";
     }
 }
