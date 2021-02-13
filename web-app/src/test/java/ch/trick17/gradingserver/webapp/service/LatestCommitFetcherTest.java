@@ -13,7 +13,7 @@ class LatestCommitFetcherTest {
     void fetchLatestCommit() throws GitAPIException {
         var latest = new LatestCommitFetcher().fetchLatestCommit(
                 "https://gitlab.com/rolves-private-group/some-subgroup/rolve.git",
-                "5jiBFYSUisc-xbpCyLAW");
+                "5jiBFYSUisc-xbpCyLAW"); // read-only token from dummy user
         assertEquals(Optional.of("e876d3e1d934879958937574aba3fa25b57f5ab5"), latest);
     }
 
@@ -21,7 +21,7 @@ class LatestCommitFetcherTest {
     void noCommitYet() throws GitAPIException {
         var latest = new LatestCommitFetcher().fetchLatestCommit(
                 "https://gitlab.com/rolves-private-group/some-subgroup/mike.git",
-                "5jiBFYSUisc-xbpCyLAW");
+                "5jiBFYSUisc-xbpCyLAW"); // read-only token from dummy user
         assertEquals(Optional.empty(), latest);
     }
 }

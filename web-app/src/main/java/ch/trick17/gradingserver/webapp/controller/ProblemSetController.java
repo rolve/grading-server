@@ -1,11 +1,14 @@
 package ch.trick17.gradingserver.webapp.controller;
 
+import ch.trick17.gradingserver.Credentials;
 import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingOptions.Compiler;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
+import ch.trick17.gradingserver.webapp.service.SubmissionFetcher;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toSet;
@@ -29,13 +33,19 @@ public class ProblemSetController {
     private final CourseRepository courseRepo;
     private final AuthorRepository authorRepo;
     private final SolutionRepo solRepo;
+    private final HostCredentialsRepository credRepo;
+    private final SubmissionFetcher fetcher;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
-                                AuthorRepository authorRepo, SolutionRepo solRepo) {
+                                AuthorRepository authorRepo, SolutionRepo solRepo,
+                                HostCredentialsRepository credRepo,
+                                SubmissionFetcher fetcher) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.authorRepo = authorRepo;
         this.solRepo = solRepo;
+        this.credRepo = credRepo;
+        this.fetcher = fetcher;
     }
 
     @GetMapping("/{id}/")
@@ -93,7 +103,19 @@ public class ProblemSetController {
     @PostMapping("/{id}/register-solutions-gitlab")
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
                                           @RequestParam String host, @RequestParam String groupPath,
-                                          @RequestParam String token) throws GitLabApiException {
+                                          @RequestParam String token)
+            throws GitLabApiException, GitAPIException {
+        // if a token is provided, store it
+        if (!token.isBlank()) {
+            var existing = credRepo.findByHost(host);
+            var known = existing.stream()
+                    .map(c -> c.getCredentials().getPassword())
+                    .anyMatch(token::equals);
+            if (!known) {
+                credRepo.save(new HostCredentials(host, new Credentials("", token)));
+            }
+        }
+
         var problemSet = findProblemSet(courseId, id);
         var existingSols = problemSet.getSolutions().stream()
                 .map(Solution::getRepoUrl)
@@ -116,6 +138,9 @@ public class ProblemSetController {
             var sol = new Solution(info.repoUrl(), authors);
             sol.setProblemSet(problemSet);
             solRepo.save(sol);
+
+            var submission = fetcher.fetchSubmission(sol);
+            // TODO: start grading
         }
         return "redirect:./";
     }
