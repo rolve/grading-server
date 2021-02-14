@@ -17,16 +17,16 @@ public class SolutionService {
     private final SolutionRepository repo;
     private final ProblemSetRepository problemSetRepo;
     private final AuthorRepository authorRepo;
-    private final SubmissionService submissionService;
+    private final SubmissionFetcher fetcher;
     private final PlatformTransactionManager txManager;
 
     public SolutionService(SolutionRepository repo, ProblemSetRepository problemSetRepo,
-                           AuthorRepository authorRepo, SubmissionService submissionService,
+                           AuthorRepository authorRepo, SubmissionFetcher fetcher,
                            PlatformTransactionManager txManager) {
         this.repo = repo;
         this.problemSetRepo = problemSetRepo;
         this.authorRepo = authorRepo;
-        this.submissionService = submissionService;
+        this.fetcher = fetcher;
         this.txManager = txManager;
     }
 
@@ -67,7 +67,7 @@ public class SolutionService {
         }
 
         for (var sol : sols) {
-            submissionService.fetchSubmission(sol.getId());
+            fetcher.fetchSubmission(sol.getId());
         }
     }
 }

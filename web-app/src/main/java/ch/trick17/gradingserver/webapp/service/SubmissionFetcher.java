@@ -13,7 +13,7 @@ import static java.util.Comparator.comparingInt;
 import static java.util.regex.Pattern.compile;
 
 @Service
-public class SubmissionService {
+public class SubmissionFetcher {
 
     private static final Pattern HOST_PATTERN = compile("https?://([^/]+)/.*");
 
@@ -22,7 +22,7 @@ public class SubmissionService {
     private final SolutionRepository solRepo;
     private final LatestCommitFetcher fetcher;
 
-    public SubmissionService(SubmissionRepository repo, HostCredentialsRepository credRepo,
+    public SubmissionFetcher(SubmissionRepository repo, HostCredentialsRepository credRepo,
                              SolutionRepository solRepo, LatestCommitFetcher fetcher) {
         this.repo = repo;
         this.credRepo = credRepo;

@@ -69,7 +69,7 @@ public class Submission implements Serializable {
 
     public SubmissionState getState() {
         if (!gradingStarted) {
-            return RECEIVED;
+            return FETCHED;
         } else if (!hasResult()) {
             return GRADING;
         } else if (result.successful()) {
