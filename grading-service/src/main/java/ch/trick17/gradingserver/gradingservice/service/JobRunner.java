@@ -28,7 +28,7 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 @Service
 public class JobRunner {
 
-    private static final Path CODE_ROOT = Path.of("grading-jobs-code");
+    private static final Path CODE_ROOT = Path.of("grading-jobs-code").toAbsolutePath();
 
     private final CodeDownloader downloader;
     private final Grader grader;
