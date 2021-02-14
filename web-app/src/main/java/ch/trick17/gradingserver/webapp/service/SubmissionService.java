@@ -39,7 +39,7 @@ public class SubmissionService {
             var token = credRepo.findLatestForUrl(sol.getRepoUrl())
                     .map(Credentials::getPassword).orElse(null);
             fetcher.fetchLatestCommit(sol.getRepoUrl(), token).ifPresent(commitHash -> {
-                if (!repo.existsByCommitHash(commitHash)) {
+                if (!repo.existsBySolutionAndCommitHash(sol, commitHash)) {
                     var submission = new Submission(sol, commitHash);
                     repo.save(submission);
                     gradingService.grade(submission);
