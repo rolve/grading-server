@@ -11,6 +11,7 @@ import java.io.Serializable;
 
 import static ch.trick17.gradingserver.webapp.model.SubmissionState.*;
 import static java.util.Objects.requireNonNull;
+import static javax.persistence.CascadeType.PERSIST;
 
 @Entity
 public class Submission implements Serializable {
@@ -18,7 +19,7 @@ public class Submission implements Serializable {
     @Id
     @GeneratedValue
     private int id;
-    @ManyToOne
+    @ManyToOne(cascade = PERSIST)
     private Solution solution;
     private String commitHash;
     private boolean gradingStarted;

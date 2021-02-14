@@ -17,7 +17,7 @@ public class Solution implements Serializable {
     @Id
     @GeneratedValue
     private int id;
-    @ManyToOne
+    @ManyToOne(cascade = PERSIST)
     private ProblemSet problemSet;
     private String repoUrl;
     @ManyToMany(cascade = PERSIST)

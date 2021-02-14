@@ -16,7 +16,7 @@ public class ProblemSet {
     @Id
     @GeneratedValue
     private int id;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Course course;
     private String name;
     private GradingConfig gradingConfig;

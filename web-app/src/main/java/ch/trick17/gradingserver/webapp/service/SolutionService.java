@@ -17,11 +17,11 @@ public class SolutionService {
     private final SolutionRepository repo;
     private final ProblemSetRepository problemSetRepo;
     private final AuthorRepository authorRepo;
-    private final SubmissionFetcher fetcher;
+    private final SubmissionService fetcher;
     private final PlatformTransactionManager txManager;
 
     public SolutionService(SolutionRepository repo, ProblemSetRepository problemSetRepo,
-                           AuthorRepository authorRepo, SubmissionFetcher fetcher,
+                           AuthorRepository authorRepo, SubmissionService fetcher,
                            PlatformTransactionManager txManager) {
         this.repo = repo;
         this.problemSetRepo = problemSetRepo;
