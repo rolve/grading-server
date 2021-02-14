@@ -42,7 +42,14 @@ public class JobRunner {
     }
 
     public void submit(GradingJob job) {
-        threadPool.submit(() -> run(job));
+        submit(job, () -> {});
+    }
+
+    public void submit(GradingJob job, Runnable onCompletion) {
+        threadPool.submit(() -> {
+            run(job);
+            onCompletion.run();
+        });
     }
 
     private void run(GradingJob job) {

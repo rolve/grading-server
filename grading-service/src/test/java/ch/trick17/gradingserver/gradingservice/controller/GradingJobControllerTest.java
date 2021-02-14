@@ -4,6 +4,7 @@ import ch.trick17.gradingserver.*;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -43,11 +45,11 @@ class GradingJobControllerTest {
         var config = new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE,
                 new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6), Duration.ofMillis(10), true));
         var job = new GradingJob(code, null, config);
-        var uri = rest.postForLocation("/api/v1/grading-jobs", job);
-        var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
-        assertTrue(matcher.matches(), uri.getPath());
+        var location = rest.postForLocation("/api/v1/grading-jobs", job);
+        var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(location.getPath());
+        assertTrue(matcher.matches(), location.getPath());
 
-        var response = rest.getForObject(uri, GradingJob.class);
+        var response = rest.getForObject(location, GradingJob.class);
         assertEquals(matcher.group(1), response.getId());
         assertEquals(code, response.getSubmission());
         assertNull(response.getCredentials());
@@ -137,6 +139,48 @@ class GradingJobControllerTest {
         } while (status == NOT_FOUND);
 
         var result = response.getBody();
+        assertNotNull(result);
+        assertTrue(result.successful());
+        assertNull(result.getError());
+        assertEquals(List.of("compiled"), result.getProperties());
+        assertEquals(List.of("testToRgbInt"), result.getPassedTests());
+        assertEquals(emptyList(), result.getFailedTests());
+    }
+
+    @Test
+    @DirtiesContext
+    void createAndWait() {
+        var code = new CodeLocation("https://github.com/rolve/gui.git",
+                "7f9225c2e7b20cb1ff51b0220687c75305341392");
+        var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
+                Duration.ofMillis(10), true);
+        var test = """
+                package gui;
+                import org.junit.jupiter.api.Test;
+                import static org.junit.jupiter.api.Assertions.assertEquals;
+                class ColorTest {
+                    @Test
+                    void testToRgbInt() {
+                        assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
+                    }
+                }""";
+        var config = new GradingConfig(test, "", MAVEN, options);
+        var job = new GradingJob(code, null, config);
+        var entity = rest.postForEntity("/api/v1/grading-jobs?waitUntilDone=true", job, GradingJob.class);
+
+        var location = entity.getHeaders().getLocation();
+        assertNotNull(location);
+        var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(location.getPath());
+        assertTrue(matcher.matches(), location.getPath());
+
+        var response = entity.getBody();
+        assertNotNull(response);
+        assertEquals(matcher.group(1), response.getId());
+        assertEquals(code, response.getSubmission());
+        assertNull(response.getCredentials());
+        assertEquals(config, response.getConfig());
+
+        var result = response.getResult();
         assertNotNull(result);
         assertTrue(result.successful());
         assertNull(result.getError());
