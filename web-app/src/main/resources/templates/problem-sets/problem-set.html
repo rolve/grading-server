@@ -42,9 +42,20 @@
                         <span th:if="${!sol.fetchingSubmission && sol.latestSubmission == null}" class="badge bg-warning">
                             No submission yet
                         </span>
-                        <span th:if="${sol.latestSubmission != null}" class="badge bg-primary">
-                            Stuff is going on
-                        </span>
+                        <th:block th:if="${sol.latestSubmission != null}" th:switch="${sol.latestSubmission.state.name}">
+                            <span th:case="'QUEUED'" class="badge bg-secondary">
+                                Queued
+                            </span>
+                            <span th:case="'GRADING'" class="badge bg-info">
+                                Grading...
+                            </span>
+                            <span th:case="'GRADED'" class="badge bg-primary">
+                                Graded
+                            </span>
+                            <span th:case="'ERROR'" class="badge bg-danger">
+                                Error
+                            </span>
+                        </th:block>
                     </td>
                 </tr>
             </tbody>

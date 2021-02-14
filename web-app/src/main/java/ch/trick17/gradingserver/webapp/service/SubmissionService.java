@@ -52,6 +52,12 @@ public class SubmissionService {
     }
 
     @Transactional
+    public void setGradingStarted(Submission submission) {
+        submission.setGradingStarted(true);
+        repo.save(submission);
+    }
+
+    @Transactional
     public void setResult(Submission submission, GradingResult result) {
         submission.setResult(result);
         repo.save(submission);

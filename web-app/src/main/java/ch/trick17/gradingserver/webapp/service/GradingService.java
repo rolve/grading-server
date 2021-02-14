@@ -43,11 +43,14 @@ public class GradingService {
         var credentials = credentialsRepo.findLatestForUrl(code.getRepoUrl()).orElse(null);
         var config = submission.getSolution().getProblemSet().getGradingConfig();
         var job = new GradingJob(code, credentials, config);
+
         var response = client.post()
                 .uri("/api/v1/grading-jobs?waitUntilDone=true")
                 .accept(APPLICATION_JSON)
                 .bodyValue(job)
                 .retrieve().bodyToMono(GradingJob.class);
+
+        submissionService.setGradingStarted(submission);
         var result = response.block().getResult();
         // set result in separate, @Transactional method:
         submissionService.setResult(submission, result);

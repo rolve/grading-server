@@ -70,7 +70,7 @@ public class Submission implements Serializable {
 
     public SubmissionState getState() {
         if (!gradingStarted) {
-            return FETCHED;
+            return QUEUED;
         } else if (!hasResult()) {
             return GRADING;
         } else if (result.successful()) {
