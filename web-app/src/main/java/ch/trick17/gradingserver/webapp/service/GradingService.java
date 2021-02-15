@@ -4,6 +4,8 @@ import ch.trick17.gradingserver.GradingJob;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.HostCredentialsRepository;
 import ch.trick17.gradingserver.webapp.model.Submission;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -20,6 +22,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Service
 public class GradingService {
 
+    private static final Logger logger = LoggerFactory.getLogger(GradingService.class);
+
     private final HostCredentialsRepository credentialsRepo;
     private final SubmissionService submissionService;
     private final WebClient client;
@@ -29,7 +33,10 @@ public class GradingService {
                           WebAppProperties props, WebClient.Builder clientBuilder) {
         this.credentialsRepo = credentialsRepo;
         this.submissionService = submissionService;
-        client = clientBuilder.baseUrl(props.getGradingServiceBaseUrl()).build();
+
+        var baseUrl = props.getGradingServiceBaseUrl();
+        logger.info("Using grading service base URL: {}\n", baseUrl);
+        client = clientBuilder.baseUrl(baseUrl).build();
     }
 
     @Bean
