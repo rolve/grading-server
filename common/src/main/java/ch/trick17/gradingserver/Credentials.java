@@ -17,7 +17,7 @@ public class Credentials {
 
     @JsonCreator
     public Credentials(String username, String password) {
-        this.username = requireNonNull(username);
+        this.username = username == null || username.isBlank() ? "" : username;
         this.password = requireNonNull(password);
     }
 
