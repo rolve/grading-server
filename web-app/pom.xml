@@ -81,20 +81,18 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.4.2</version>
-                <configuration>
-                    <jvmArguments>--enable-preview</jvmArguments>
-                    <image>
-                        <name>trick17/${parent.artifactId}-${artifactId}</name>
-                        <env>
-                            <BP_JVM_VERSION>15</BP_JVM_VERSION>
-                            <BPE_DELIM_JAVA_TOOL_OPTIONS xml:space="preserve"> </BPE_DELIM_JAVA_TOOL_OPTIONS>
-                            <BPE_APPEND_JAVA_TOOL_OPTIONS>--enable-preview</BPE_APPEND_JAVA_TOOL_OPTIONS>
-                        </env>
-                    </image>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
