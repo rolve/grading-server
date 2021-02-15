@@ -21,6 +21,6 @@ public class HomeController {
         var courses = courseRepo.findAll(by("term.year", "term.kind").descending()
                 .and(by("name", "qualifier").ascending()));
         model.addAttribute("courses", courses);
-        return "/home";
+        return "home";
     }
 }

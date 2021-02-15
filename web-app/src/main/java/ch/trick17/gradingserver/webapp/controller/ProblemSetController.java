@@ -45,7 +45,7 @@ public class ProblemSetController {
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
-        return "/problem-sets/problem-set";
+        return "problem-sets/problem-set";
     }
 
     private ProblemSet findProblemSet(int courseId, int id) {
@@ -90,7 +90,7 @@ public class ProblemSetController {
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
-        return "/problem-sets/register-solutions-gitlab";
+        return "problem-sets/register-solutions-gitlab";
     }
 
     @PostMapping("/{id}/register-solutions-gitlab")

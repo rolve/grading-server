@@ -24,12 +24,12 @@ public class CourseController {
     public String coursePage(@PathVariable int id, Model model) {
         model.addAttribute("course", repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND)));
-        return "/courses/course";
+        return "courses/course";
     }
 
     @GetMapping("/create")
     public String createCourse(Model model) {
-        return "/courses/create";
+        return "courses/create";
     }
 
     @PostMapping("/create")
