@@ -86,6 +86,14 @@
                 <version>2.4.2</version>
                 <configuration>
                     <jvmArguments>--enable-preview</jvmArguments>
+                    <image>
+                        <name>trick17/${parent.artifactId}-${artifactId}</name>
+                        <env>
+                            <BP_JVM_VERSION>15</BP_JVM_VERSION>
+                            <BPE_DELIM_JAVA_TOOL_OPTIONS xml:space="preserve"> </BPE_DELIM_JAVA_TOOL_OPTIONS>
+                            <BPE_APPEND_JAVA_TOOL_OPTIONS>--enable-preview</BPE_APPEND_JAVA_TOOL_OPTIONS>
+                        </env>
+                    </image>
                 </configuration>
                 <executions>
                     <execution>
