@@ -10,7 +10,16 @@
 </head>
 <body>
     <header class="container-lg">
-        <a th:href="@{/}" class="fa fa-home text-decoration-none" title="Home"></a>
+        <div class="row justify-content-between">
+            <nav class="col-auto">
+                <a th:href="@{/}" class="btn btn-link" title="Home"><i class="fa fa-home"></i></a>
+            </nav>
+            <div th:if="${#httpServletRequest.remoteUser != null}" class="col-auto">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-secondary">Sign out</button>
+                </form>
+            </div>
+        </div>
     </header>
     <div id="main-outer">
         <div class="container-lg">

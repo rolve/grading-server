@@ -7,7 +7,7 @@
 <body>
     <main th:with="today = ${#temporals.createToday()}">
         <h1>Create New Course</h1>
-        <form method="post">
+        <form th:action="@{create}" method="post">
             <div class="row mb-3">
                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
