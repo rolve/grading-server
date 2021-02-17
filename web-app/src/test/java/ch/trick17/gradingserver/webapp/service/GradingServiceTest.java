@@ -46,7 +46,7 @@ class GradingServiceTest {
 
         gradingServiceApp = new JavaProcessBuilder(GradingServiceApplication.class)
                 .autoExit(true)
-                .addVmArgs("-Dserver.port=" + port)
+                .addVmArgs("-Dserver.port=" + port, "-Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
                 .build()
                 .redirectOutput(INHERIT)
                 .redirectError(INHERIT)
