@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
     <title th:text="|*{problemSet.name} (*{problemSet.course.name})|">Problem Set Name (Course Name)</title>
@@ -14,10 +15,10 @@
         <div th:if="*{registeringSolutions}" class="alert alert-info" role="alert">
             Solutions are being registered. Check back later.
         </div>
-        <div th:if="*{!registeringSolutions and solutions.isEmpty}" class="alert alert-warning" role="alert">
+        <div th:if="*{!registeringSolutions and solutions.empty}" class="alert alert-warning" role="alert">
             No solutions registered yet.
         </div>
-        <table class="table" th:unless="*{solutions.isEmpty}">
+        <table class="table" th:unless="*{solutions.empty}">
             <thead>
                 <tr>
                     <th>Authors</th>
@@ -60,7 +61,7 @@
                 </tr>
             </tbody>
         </table>
-        <p>
+        <p sec:authorize="isAuthenticated()">
             <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
                class="btn btn-primary">Register solutions</a>
         </p>

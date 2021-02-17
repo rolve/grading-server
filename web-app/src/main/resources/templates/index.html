@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
     <title>Grading Server</title>
@@ -8,10 +9,13 @@
     <main>
         <h1>Grading Server</h1>
         <h2>Courses <span class="badge"></span></h2>
-        <p th:each="course : ${courses}">
+        <p th:unless="${courses.empty}" th:each="course : ${courses}">
             <a href="courses/course.html" th:href="@{/courses/{id}/(id=${course.id})}" th:text="${course.fullName}">OOPI2 (FS 2021 2Ibb1)</a>
         </p>
-        <p>
+        <p th:if="${courses.empty}">
+            No courses created yet.
+        </p>
+        <p sec:authorize="isAuthenticated()">
             <a class="btn btn-primary" href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
         </p>
         <h2>About</h2>

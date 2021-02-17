@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
     <title th:text="${course.fullName}">Course Name</title>
@@ -7,10 +8,10 @@
 <body>
     <main th:object="${course}">
         <h1 th:text="*{fullName}">Course Name</h1>
-        <div th:if="*{problemSets.isEmpty}" class="alert alert-warning" role="alert">
+        <div th:if="*{problemSets.empty}" class="alert alert-warning" role="alert">
             No problem sets added yet.
         </div>
-        <table class="table" th:unless="*{problemSets.isEmpty}">
+        <table class="table" th:unless="*{problemSets.empty}">
             <thead>
                 <tr>
                     <th>Problem Set</th>
@@ -27,7 +28,7 @@
                 </tr>
             </tbody>
         </table>
-        <p>
+        <p sec:authorize="isAuthenticated()">
             <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">Add problem set</a>
         </p>
     </main>

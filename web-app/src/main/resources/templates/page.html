@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="html(title,main)">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="html(title,main)"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -14,8 +15,9 @@
             <nav class="col-auto">
                 <a th:href="@{/}" class="btn btn-link" title="Home"><i class="fa fa-home"></i></a>
             </nav>
-            <div th:if="${#httpServletRequest.remoteUser != null}" class="col-auto">
-                <form th:action="@{/logout}" method="post">
+            <div class="col-auto">
+                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-primary">Sign in</a>
+                <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                     <button type="submit" class="btn btn-secondary">Sign out</button>
                 </form>
             </div>
