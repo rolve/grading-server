@@ -2,6 +2,7 @@ image: maven:3-openjdk-15
 
 variables:
   MVN_REPO: $CI_PROJECT_DIR/maven-repo
+  IMG_BASE_NAME: registry.gitlab.com/rolve/grading-server
 
 cache:
   paths:
@@ -10,3 +11,24 @@ cache:
 test:
   script:
     - mvn install -B -Dmaven.repo.local=$MVN_REPO
+
+.deploy-docker: &deploy-docker
+  stage: deploy
+  image: docker
+  services:
+    - docker:dind
+  script:
+    - cd $MODULE
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build -t $IMG_BASE_NAME/$MODULE .
+    - docker push $IMG_BASE_NAME/$MODULE
+
+deploy-docker-grading-service:
+  variables:
+    MODULE: grading-service
+  <<: *deploy-docker
+
+deploy-docker-web-app:
+  variables:
+    MODULE: web-app
+  <<: *deploy-docker
