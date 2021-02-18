@@ -11,6 +11,11 @@ cache:
 test:
   script:
     - mvn install -B -Dmaven.repo.local=$MVN_REPO
+  artifacts:
+    paths:
+      - "*/target/dependency/*.jar"
+      - "*/target/*.jar"
+    expire_in: 1 day
 
 .deploy-docker: &deploy-docker
   stage: deploy
