@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -79,7 +80,8 @@ class GradingServiceTest {
         var problemSet = new ProblemSet(course, "Test", config, now());
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
                 List.of(new Author("rolve")));
-        var submission = new Submission(solution, "7f9225c2e7b20cb1ff51b0220687c75305341392");
+        var submission = new Submission(solution, "7f9225c2e7b20cb1ff51b0220687c75305341392",
+                ZonedDateTime.now());
         submissionRepo.save(submission);
 
         service.grade(submission).get();

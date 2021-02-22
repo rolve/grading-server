@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 import static ch.trick17.gradingserver.webapp.model.SubmissionState.*;
 import static java.util.Objects.requireNonNull;
@@ -22,14 +23,16 @@ public class Submission implements Serializable {
     @ManyToOne(cascade = PERSIST)
     private Solution solution;
     private String commitHash;
+    private ZonedDateTime receivedDate;
     private boolean gradingStarted;
     private GradingResult result;
 
     protected Submission() {}
 
-    public Submission(Solution solution, String commitHash) {
+    public Submission(Solution solution, String commitHash, ZonedDateTime receivedDate) {
         this.solution = requireNonNull(solution);
         this.commitHash = requireNonNull(commitHash);
+        this.receivedDate = requireNonNull(receivedDate);
     }
 
     public Solution getSolution() {
@@ -42,6 +45,10 @@ public class Submission implements Serializable {
 
     public String getCommitHash() {
         return commitHash;
+    }
+
+    public ZonedDateTime getReceivedDate() {
+        return receivedDate;
     }
 
     public CodeLocation getCodeLocation() {

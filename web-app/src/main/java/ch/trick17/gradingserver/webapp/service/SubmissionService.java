@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.ZonedDateTime;
 
 @Service
 public class SubmissionService {
@@ -40,7 +41,7 @@ public class SubmissionService {
                     .map(Credentials::getPassword).orElse(null);
             fetcher.fetchLatestCommit(sol.getRepoUrl(), token).ifPresent(commitHash -> {
                 if (!repo.existsBySolutionAndCommitHash(sol, commitHash)) {
-                    var submission = new Submission(sol, commitHash);
+                    var submission = new Submission(sol, commitHash, ZonedDateTime.now());
                     repo.save(submission);
                     gradingService.grade(submission);
                 }
