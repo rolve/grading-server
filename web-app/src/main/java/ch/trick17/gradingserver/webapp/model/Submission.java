@@ -75,7 +75,7 @@ public class Submission implements Serializable {
         this.result = requireNonNull(result);
     }
 
-    public SubmissionState getState() {
+    public SubmissionState getStatus() {
         if (!gradingStarted) {
             return QUEUED;
         } else if (!hasResult()) {

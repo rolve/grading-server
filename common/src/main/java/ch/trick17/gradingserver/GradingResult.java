@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.List.copyOf;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
 
 @Embeddable
 public class GradingResult {
@@ -49,12 +51,34 @@ public class GradingResult {
         return properties;
     }
 
+    public boolean compiled() {
+        return properties != null && properties.contains("compiled");
+    }
+
     public List<String> getPassedTests() {
         return passedTests;
     }
 
     public List<String> getFailedTests() {
         return failedTests;
+    }
+
+    public int totalTests() {
+        if (passedTests == null || failedTests == null) {
+            return 0;
+        } else {
+            return passedTests.size() + failedTests.size();
+        }
+    }
+
+    public double passedTestsRatio() {
+        return passedTests.size() / (double) (totalTests());
+    }
+
+    public List<String> allTests() {
+        return concat(passedTests.stream(), failedTests.stream())
+                .sorted()
+                .collect(toList());
     }
 
     public String getDetails() {

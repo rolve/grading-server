@@ -23,27 +23,38 @@
                 <tr>
                     <th>Authors</th>
                     <th>Commit</th>
+                    <th class="d-none d-md-table-cell">Date received</th>
+                    <th>Status</th>
                     <th>Result</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="sol : *{solutions}">
+                <tr th:each="sol : *{solutions}" th:with="latest = ${sol.latestSubmission}">
                     <td th:text="${#strings.setJoin(sol.authors, ', ')}">Authors</td>
                     <td>
-                        <span th:if="${sol.latestSubmission != null}" class="font-monospace"
-                              th:text="${sol.latestSubmission.commitHash.substring(0,8)}">
+                        <a th:if="${latest != null}" class="font-monospace"
+                            th:text="${latest.commitHash.substring(0,8)}"
+                            th:href="@{solutions/{solId}/submissions/{id}/(solId=${sol.id},id=${latest.id})}"
+                            href="../submissions/submission.html">
                             c0f27a18
+                        </a>
+                        <span th:if="${latest == null}">—</span>
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                        <span th:if="${latest != null}"
+                              th:text="${#temporals.format(latest.receivedDate)}">
+                            Date
                         </span>
-                        <span th:if="${sol.latestSubmission == null}">—</span>
+                        <span th:if="${latest == null}">—</span>
                     </td>
                     <td>
                         <span th:if="${sol.fetchingSubmission}" class="badge bg-secondary">
                             Fetching submission...
                         </span>
-                        <span th:if="${!sol.fetchingSubmission && sol.latestSubmission == null}" class="badge bg-warning">
+                        <span th:if="${!sol.fetchingSubmission && latest == null}" class="badge bg-warning">
                             No submission yet
                         </span>
-                        <th:block th:if="${sol.latestSubmission != null}" th:switch="${sol.latestSubmission.state.name}">
+                        <th:block th:if="${latest != null}" th:switch="${latest.status.name}">
                             <span th:case="'QUEUED'" class="badge bg-secondary">
                                 Queued
                             </span>
@@ -58,16 +69,34 @@
                             </span>
                         </th:block>
                     </td>
+                    <td>
+                        <span th:if="${latest == null || !latest.hasResult}">—</span>
+                        <th:block th:if="${latest != null && latest.hasResult}">
+                            <span th:if="${!latest.result.compiled}" class="badge bg-danger">
+                                Compile errors
+                            </span>
+                            <span th:if="${latest.result.compiled && latest.result.totalTests == 0}" class="badge bg-secondary">
+                                No tests
+                            </span>
+                            <span th:if="${latest.result.compiled && latest.result.totalTests > 0}"
+                                  class="test-bar d-inline-block align-middle" style="width: 8rem; height: 1rem;">
+                                <span class="passed d-inline-block" style="width: 50%;"
+                                      th:style="|width: ${latest.result.passedTestsRatio * 100}%;|"></span>
+                            </span>
+                        </th:block>
+                    </td>
                 </tr>
             </tbody>
         </table>
-        <p sec:authorize="isAuthenticated()">
-            <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
-               class="btn btn-primary">Register solutions</a>
-        </p>
-        <p>
-            <a href="../courses/course.html" th:href="@{../..}" class="btn btn-secondary">Back to course</a>
-        </p>
+        <div class="mt-4">
+            <p sec:authorize="isAuthenticated()">
+                <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
+                   class="btn btn-primary">Register solutions</a>
+            </p>
+            <p>
+                <a href="../courses/course.html" th:href="@{../..}" class="btn btn-secondary">Back to course</a>
+            </p>
+        </div>
     </main>
 </body>
 </html>
