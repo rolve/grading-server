@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.webapp.service;
 
+import ch.trick17.gradingserver.webapp.model.Solution;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.AccessLevel;
@@ -8,16 +9,14 @@ import org.gitlab4j.api.models.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toSet;
 import static org.gitlab4j.api.Constants.ActionType.PUSHED;
 import static org.gitlab4j.api.models.AccessLevel.DEVELOPER;
 
@@ -66,13 +65,19 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
     }
 
     @Override
-    public List<SolutionInfo> get() throws GitLabApiException {
+    public List<SolutionInfo> get(Collection<Solution> existing) throws GitLabApiException {
+        var existingRepos = existing.stream()
+                .map(Solution::getRepoUrl)
+                .collect(toSet());
         try (var api = new GitLabApi(hostUrl, token)) {
             var projects = api.getGroupApi().getProjects(groupPath);
-            logger.info("{} GitLab projects found", projects.size());
+
+            projects.removeIf(p -> existingRepos.contains(p.getHttpUrlToRepo()));
+            logger.info("{} new GitLab projects found", projects.size());
             if (projects.isEmpty()) {
                 return emptyList();
             }
+
             var authors = new ArrayList<Set<String>>();
             for (var project : projects) {
                 var members = api.getProjectApi().getMembers(project);

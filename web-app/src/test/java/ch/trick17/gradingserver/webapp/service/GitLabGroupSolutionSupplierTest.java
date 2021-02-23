@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GitLabGroupSolutionSupplierTest {
@@ -16,7 +17,7 @@ class GitLabGroupSolutionSupplierTest {
         var group = "rolves-private-group/some-subgroup";
         var supplier = new GitLabGroupSolutionSupplier(host,
                 group, "5jiBFYSUisc-xbpCyLAW"); // read-only token from dummy user
-        var solutions = supplier.get();
+        var solutions = supplier.get(emptyList());
         assertThat(solutions).hasSize(3);
         assertThat(solutions).contains(
                 new SolutionInfo(host + group + "/rolve.git", Set.of("rolve"), null));

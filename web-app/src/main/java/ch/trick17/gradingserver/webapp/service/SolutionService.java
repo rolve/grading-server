@@ -11,8 +11,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.ArrayList;
 
-import static java.util.stream.Collectors.toSet;
-
 @Service
 public class SolutionService {
 
@@ -43,14 +41,8 @@ public class SolutionService {
         logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
         var sols = new ArrayList<Solution>();
         try {
-            var existingSols = problemSet.getSolutions().stream()
-                    .map(Solution::getRepoUrl)
-                    .collect(toSet());
-
-            for (var info : supplier.get()) {
-                if (existingSols.contains(info.repoUrl())) {
-                    continue;
-                }
+            var existingSols = problemSet.getSolutions();
+            for (var info : supplier.get(existingSols)) {
                 var authors = new ArrayList<Author>();
                 for (var name : info.authorNames()) {
                     var existing = authorRepo.findByName(name);
