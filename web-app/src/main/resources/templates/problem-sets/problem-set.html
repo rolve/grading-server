@@ -9,7 +9,8 @@
     <main th:object="${problemSet}">
         <h1 th:text="|*{name} (*{course.name})|">Problem Set Name (Course Name)</h1>
         <p>
-            Deadline: <span class="deadline" th:text="*{#temporals.format(deadline)}">Date</span>
+            Deadline:
+            <span class="deadline" th:text="|${#temporals.format(problemSet.deadline)} (${@prettyTime.get.format(problemSet.deadline)})|">Date</span>
         </p>
         <h2>Solutions</h2>
         <div th:if="*{registeringSolutions}" class="alert alert-info" role="alert">
@@ -23,7 +24,7 @@
                 <tr>
                     <th>Authors</th>
                     <th>Commit</th>
-                    <th class="d-none d-md-table-cell">Date received</th>
+                    <th class="d-none d-md-table-cell">Received</th>
                     <th>Status</th>
                     <th>Result</th>
                 </tr>
@@ -42,7 +43,8 @@
                     </td>
                     <td class="d-none d-md-table-cell">
                         <span th:if="${latest != null}"
-                              th:text="${#temporals.format(latest.receivedDate)}">
+                              th:text="${@prettyTime.get.format(latest.receivedDate)}"
+                              th:title="${#temporals.format(latest.receivedDate)}">
                             Date
                         </span>
                         <span th:if="${latest == null}">—</span>

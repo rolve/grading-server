@@ -26,7 +26,12 @@
                 </tr>
                 <tr>
                     <td>Received:</td>
-                    <td th:text="*{#temporals.format(receivedDate)}">name1, name2</td>
+                    <td>
+                        <span th:text="${@prettyTime.get.format(submission.receivedDate)}"
+                              th:title="*{#temporals.format(receivedDate)}">
+                            Date
+                        </span>
+                    </td>
                 </tr>
                 <tr>
                     <td>Status:</td>

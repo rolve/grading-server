@@ -24,7 +24,9 @@
                         <a href="../problem-sets/problem-set.html"
                            th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
                            th:text="${problemSet.name}">Problem Set Name</a></td>
-                    <td th:text="${#temporals.format(problemSet.deadline)}">Deadline</td>
+                    <td th:text="|${#temporals.format(problemSet.deadline)} (${@prettyTime.get.format(problemSet.deadline)})|">
+                        Deadline
+                    </td>
                 </tr>
             </tbody>
         </table>
