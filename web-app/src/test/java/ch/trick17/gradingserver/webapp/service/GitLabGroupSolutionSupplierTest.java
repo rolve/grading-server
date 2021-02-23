@@ -19,10 +19,10 @@ class GitLabGroupSolutionSupplierTest {
         var solutions = supplier.get();
         assertThat(solutions).hasSize(3);
         assertThat(solutions).contains(
-                new SolutionInfo(host + group + "/rolve.git", Set.of("rolve")));
+                new SolutionInfo(host + group + "/rolve.git", Set.of("rolve"), null));
         assertThat(solutions).contains(
-                new SolutionInfo(host + group + "/michael.git", Set.of("michael-trick17")));
+                new SolutionInfo(host + group + "/michael.git", Set.of("michael-trick17"), null));
         assertThat(solutions).contains(
-                new SolutionInfo(host + group + "/mike.git", Set.of("mike-trick17")));
+                new SolutionInfo(host + group + "/mike.git", Set.of("mike-trick17"), null));
     }
 }

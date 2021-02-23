@@ -3,19 +3,27 @@ package ch.trick17.gradingserver.webapp.service;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.AccessLevel;
+import org.gitlab4j.api.models.Event;
 import org.gitlab4j.api.models.Member;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.String.join;
 import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
+import static org.gitlab4j.api.Constants.ActionType.PUSHED;
 import static org.gitlab4j.api.models.AccessLevel.DEVELOPER;
 
 public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiException> {
+
+    private static final Logger logger = LoggerFactory.getLogger(GitLabGroupSolutionSupplier.class);
 
     private final String hostUrl;
     private final String token;
@@ -59,29 +67,61 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
 
     @Override
     public List<SolutionInfo> get() throws GitLabApiException {
-        try (GitLabApi api = new GitLabApi(hostUrl, token)) {
+        try (var api = new GitLabApi(hostUrl, token)) {
             var projects = api.getGroupApi().getProjects(groupPath);
+            logger.info("{} GitLab projects found", projects.size());
             if (projects.isEmpty()) {
                 return emptyList();
             }
-            var result = new ArrayList<SolutionInfo>();
+            var authors = new ArrayList<Set<String>>();
             for (var project : projects) {
                 var members = api.getProjectApi().getMembers(project);
-                var authorNames = members.stream()
+                authors.add(members.stream()
                         .filter(m -> m.getAccessLevel().compareTo(minAccessLevel) >= 0)
                         .map(Member::getUsername)
-                        .collect(toCollection(HashSet::new));
-                result.add(new SolutionInfo(project.getHttpUrlToRepo(), authorNames));
+                        .collect(toCollection(HashSet::new)));
             }
+
+            var ignoredPushUsers = new HashSet<String>();
             if (ignoringCommonMembers) {
-                var common = result.stream().skip(1)
-                        .map(SolutionInfo::authorNames)
-                        .collect(() -> new HashSet<>(result.get(0).authorNames()), Set::retainAll, Set::retainAll);
-                result.stream()
-                        .map(SolutionInfo::authorNames)
-                        .forEach(s -> s.removeAll(common));
+                var common = authors.stream().skip(1)
+                        .collect(() -> new HashSet<>(authors.get(0)),
+                                Set::retainAll, Set::retainAll);
+                if (!common.isEmpty()) {
+                    logger.info("Ignoring authorship from common project members: {}",
+                            join(", ", common));
+                    authors.forEach(s -> s.removeAll(common));
+                    ignoredPushUsers.addAll(common);
+                }
             }
-            return result;
+
+            api.getGroupApi().getMembers(groupPath).stream()
+                    .map(Member::getUsername)
+                    .forEach(ignoredPushUsers::add);
+            logger.info("Ignoring initial pushes from users: {}",
+                    join(", ", ignoredPushUsers));
+            var sols = new ArrayList<SolutionInfo>();
+            for (int i = 0, projectsSize = projects.size(); i < projectsSize; i++) {
+                var pushes = api.getEventsApi().getProjectEvents(projects.get(i),
+                        PUSHED, null, null, null, null);
+                var ignoredInitialCommit = pushes.stream()
+                        .sorted(comparing(Event::getCreatedAt))
+                        .takeWhile(p -> ignoredPushUsers.contains(p.getAuthorUsername()))
+                        .map(p -> p.getPushData().getCommitTo())
+                        .reduce((first, second) -> second) // last
+                        .orElse(null);
+                var repoUrl = projects.get(i).getHttpUrlToRepo();
+                if (ignoredInitialCommit != null) {
+                    logger.debug("Ignoring initial commit {} for {}", ignoredInitialCommit, repoUrl);
+                }
+                sols.add(new SolutionInfo(repoUrl, authors.get(i), ignoredInitialCommit));
+            }
+            return sols;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "GitLab group " + hostUrl + "/" + groupPath;
     }
 }

@@ -21,19 +21,22 @@ public class Solution implements Serializable {
     private ProblemSet problemSet;
     private String repoUrl;
     @ManyToMany(cascade = PERSIST)
-    private Set<Author> authors = new HashSet<>();
+    private final Set<Author> authors = new HashSet<>();
     private String accessToken;
+    private String ignoredInitialCommit;
 
     @OneToMany(mappedBy = "solution", cascade = ALL, orphanRemoval = true)
-    private List<Submission> submissions = new ArrayList<>();
+    private final List<Submission> submissions = new ArrayList<>();
     private boolean fetchingSubmission = false;
 
     protected Solution() {}
 
-    public Solution(ProblemSet problemSet, String repoUrl, Collection<Author> authors) {
+    public Solution(ProblemSet problemSet, String repoUrl, Collection<Author> authors,
+                    String ignoredInitialCommit) {
         this.problemSet = requireNonNull(problemSet);
         this.repoUrl = requireNonNull(repoUrl);
         this.authors.addAll(authors);
+        this.ignoredInitialCommit = ignoredInitialCommit;
         generateAccessToken();
         problemSet.getSolutions().add(this);
     }
@@ -61,6 +64,10 @@ public class Solution implements Serializable {
     public void generateAccessToken() {
         this.accessToken = new RandomHexStringGenerator(32)
                 .generate(i -> false);
+    }
+
+    public String getIgnoredInitialCommit() {
+        return ignoredInitialCommit;
     }
 
     public List<Submission> getSubmissions() {

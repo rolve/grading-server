@@ -2,6 +2,8 @@ package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.webapp.model.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -13,6 +15,8 @@ import static java.util.stream.Collectors.toSet;
 
 @Service
 public class SolutionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SolutionService.class);
 
     private final SolutionRepository repo;
     private final ProblemSetRepository problemSetRepo;
@@ -36,6 +40,7 @@ public class SolutionService {
             throws E, GitAPIException {
         var tx = txManager.getTransaction(new DefaultTransactionDefinition());
         var problemSet = problemSetRepo.findById(problemSetId).get();
+        logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
         var sols = new ArrayList<Solution>();
         try {
             var existingSols = problemSet.getSolutions().stream()
@@ -55,7 +60,7 @@ public class SolutionService {
                         authors.add(new Author(name));
                     }
                 }
-                var sol = new Solution(problemSet, info.repoUrl(), authors);
+                var sol = new Solution(problemSet, info.repoUrl(), authors, info.ignoredInitialCommit());
                 sol.setFetchingSubmission(true);
                 repo.save(sol);
                 sols.add(sol);
@@ -65,6 +70,7 @@ public class SolutionService {
             problemSetRepo.save(problemSet);
             txManager.commit(tx); // need to commit before calling fetch below
         }
+        logger.info("{} solutions registered", sols.size());
 
         for (var sol : sols) {
             fetcher.fetchSubmission(sol.getId());

@@ -57,7 +57,8 @@
                 <i class="fa fa-2x fa-times-circle" style="vertical-align: -0.2em;"></i>
                 The submission contains compile errors. No tests were executed.
             </div>
-            <div th:if="*{compiled && properties.contains('compile errors') && !failedTests.isEmpty}" class="alert alert-warning">
+            <div th:if="*{compiled && properties.contains('compile errors') && !failedTests.isEmpty}"
+                 class="alert alert-warning">
                 <i class="fa fa-2x fa-exclamation-triangle" style="vertical-align: -0.2em;"></i>
                 The submission contains compile errors. Tests may have failed because of this.
             </div>
@@ -99,10 +100,12 @@
                         <tr th:each="test : *{allTests}">
                             <td th:text="${test}">testName</td>
                             <td>
-                                <span th:if="${#lists.contains(submission.result.passedTests,test)}" class="badge bg-success font-monospace">
+                                <span th:if="${#lists.contains(submission.result.passedTests,test)}"
+                                      class="badge bg-success font-monospace">
                                     PASSED
                                 </span>
-                                <span th:unless="${#lists.contains(submission.result.passedTests,test)}" class="badge bg-danger font-monospace">
+                                <span th:unless="${#lists.contains(submission.result.passedTests,test)}"
+                                      class="badge bg-danger font-monospace">
                                     FAILED
                                 </span>
                             </td>
@@ -113,7 +116,9 @@
         </div>
 
         <p class="mt-4">
-            <a href="../problem-sets/problem-set.html" th:href="@{../../../..}" class="btn btn-secondary">Back to problem set</a>
+            <a href="../problem-sets/problem-set.html" th:href="@{../../../..}" class="btn btn-secondary">
+                Back to problem set
+            </a>
         </p>
     </main>
 </body>
