@@ -13,6 +13,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .regexMatchers("/",
                             "/css/.*",
+                            "/favicon/.*",
                             "/courses/\\d+/",
                             "/courses/\\d+/problem-sets/\\d+/",
                             "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/").permitAll()

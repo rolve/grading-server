@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="196"
+   height="196"
+   viewBox="0 0 51.858332 51.858335"
+   version="1.1"
+   id="svg8"
+   inkscape:export-filename="C:\Users\Michael\Desktop\favicon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="favicon.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="-10.524909"
+     inkscape:cy="37.488107"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="3000"
+     inkscape:window-height="1955"
+     inkscape:window-x="-13"
+     inkscape:window-y="-13"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-245.14165)">
+    <rect
+       style="fill:#2179fc;fill-opacity:1;stroke:#2179fc;stroke-width:16.46144867;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       id="rect4542"
+       width="35.396885"
+       height="35.396885"
+       x="8.2307243"
+       y="253.37236" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.5498004px;line-height:1.25;font-family:'Zapfino Forte LT Pro';-inkscape-font-specification:'Zapfino Forte LT Pro';letter-spacing:0px;word-spacing:0px;fill:#035bde;fill-opacity:1;stroke:none;stroke-width:0.29731071"
+       x="9.6368332"
+       y="292.69797"
+       id="text4520-4"><tspan
+         sodipodi:role="line"
+         id="tspan4518-2"
+         x="9.6368332"
+         y="292.69797"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.08366013px;font-family:'Fira Code';-inkscape-font-specification:'Fira Code, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#035bde;fill-opacity:1;stroke-width:0.29731071">J</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.5498004px;line-height:1.25;font-family:'Zapfino Forte LT Pro';-inkscape-font-specification:'Zapfino Forte LT Pro';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.29731071"
+       x="7.646482"
+       y="290.28253"
+       id="text4520"><tspan
+         sodipodi:role="line"
+         id="tspan4518"
+         x="7.646482"
+         y="290.28253"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.08366013px;font-family:'Fira Code';-inkscape-font-specification:'Fira Code, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke-width:0.29731071">J</tspan></text>
+  </g>
+</svg>
