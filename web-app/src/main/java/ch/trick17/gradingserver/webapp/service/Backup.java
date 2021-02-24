@@ -16,6 +16,6 @@ public class Backup {
     @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
     @Transactional
     public void backupDatabase() {
-        entityManager.createNativeQuery("BACKUP TO 'db/web-app-backup.zip'").executeUpdate();
+        entityManager.createNativeQuery("BACKUP TO 'backup/web-app-backup.zip'").executeUpdate();
     }
 }

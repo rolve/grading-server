@@ -2,10 +2,16 @@ version: "3.8"
 
 services:
   web-app:
-    image: trick17/grading-server-web-app
+    build: web-app
+    volumes:
+      - "web-app-db:/app/db"
+      - "~/grading-server-backup:/app/backup"
     ports:
       - 8080:8080
     environment:
       GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-service
   grading-service:
-    image: trick17/grading-server-grading-service
+    build: grading-service
+
+volumes:
+  web-app-db:
