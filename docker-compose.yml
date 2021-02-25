@@ -6,12 +6,14 @@ services:
     volumes:
       - "web-app-db:/app/db"
       - "${BACKUP_DIR}:/app/backup"
+    hostname: web-app
     ports:
       - 8080:8080
     environment:
-      GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-server_grading-service
+      GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-service
   grading-service:
     build: grading-service
+    hostname: grading-service
 
 volumes:
   web-app-db:
