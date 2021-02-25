@@ -91,10 +91,14 @@
             </tbody>
         </table>
         <div class="mt-4">
-            <p sec:authorize="isAuthenticated()">
+            <div sec:authorize="isAuthenticated()" class="mb-3">
                 <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
                    class="btn btn-primary">Register solutions</a>
-            </p>
+                <form th:action="@{delete}" method="post" class="d-inline"
+                      onSubmit="return confirm('Sure?');">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
             <p>
                 <a href="../courses/course.html" th:href="@{../..}" class="btn btn-secondary">Back to course</a>
             </p>

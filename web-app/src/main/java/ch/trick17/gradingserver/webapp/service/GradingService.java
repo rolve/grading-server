@@ -87,7 +87,7 @@ public class GradingService {
         lastStatusCheck.set(now());
         var request = client.get().uri("/api/v1/status").retrieve().toBodilessEntity();
         try {
-            var response = request.blockOptional(Duration.ofSeconds(1));
+            var response = request.blockOptional(Duration.ofSeconds(5));
             if (response.isPresent() && response.get().getStatusCode().is2xxSuccessful()) {
                 status.set(UP);
                 return;

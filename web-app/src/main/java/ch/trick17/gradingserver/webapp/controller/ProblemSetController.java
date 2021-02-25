@@ -98,6 +98,8 @@ public class ProblemSetController {
                                           @RequestParam String host, @RequestParam String groupPath,
                                           @RequestParam String token)
             throws GitLabApiException, GitAPIException {
+        var problemSet = findProblemSet(courseId, id);
+
         var existingTokens = credRepo.findByHost(host);
         if (token.isBlank()) {
             // if no token is provided, try to use an existing one
@@ -116,12 +118,18 @@ public class ProblemSetController {
             }
         }
 
-        var problemSet = findProblemSet(courseId, id);
         problemSet.setRegisteringSolutions(true);
         repo.save(problemSet);
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
         solutionService.registerSolutions(problemSet.getId(), supplier); // async
         return "redirect:./";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable int courseId, @PathVariable int id) {
+        var problemSet = findProblemSet(courseId, id);
+        repo.delete(problemSet);
+        return "redirect:../..";
     }
 }
