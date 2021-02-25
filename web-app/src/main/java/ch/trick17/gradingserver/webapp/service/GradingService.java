@@ -12,9 +12,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static ch.trick17.gradingserver.webapp.service.GradingService.Status.DOWN;
+import static ch.trick17.gradingserver.webapp.service.GradingService.Status.UP;
+import static java.time.Instant.now;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -28,6 +34,10 @@ public class GradingService {
     private final SubmissionService submissionService;
     private final WebClient client;
 
+    public enum Status { UP, DOWN }
+    private final AtomicReference<Status> status = new AtomicReference<>();
+    private final AtomicReference<Instant> lastStatusCheck = new AtomicReference<>();
+
     public GradingService(HostCredentialsRepository credentialsRepo,
                           @Lazy SubmissionService submissionService,
                           WebAppProperties props, WebClient.Builder clientBuilder) {
@@ -37,6 +47,7 @@ public class GradingService {
         var baseUrl = props.getGradingServiceBaseUrl();
         logger.info("Using grading service base URL: {}\n", baseUrl);
         client = clientBuilder.baseUrl(baseUrl).build();
+        checkStatus();
     }
 
     @Bean
@@ -62,5 +73,26 @@ public class GradingService {
         // set result in separate, @Transactional method:
         submissionService.setResult(submission, result);
         return completedFuture(null);
+    }
+
+    public Status status() {
+        var timeSinceCheck = Duration.between(lastStatusCheck.get(), now());
+        if (timeSinceCheck.toSeconds() > 30) {
+            checkStatus();
+        }
+        return status.get();
+    }
+
+    private void checkStatus() {
+        lastStatusCheck.set(now());
+        var request = client.get().uri("/api/v1/status").retrieve().toBodilessEntity();
+        try {
+            var response = request.blockOptional(Duration.ofSeconds(1));
+            if (response.isPresent() && response.get().getStatusCode().is2xxSuccessful()) {
+                status.set(UP);
+                return;
+            }
+        } catch (Exception ignored) {}
+        status.set(DOWN);
     }
 }

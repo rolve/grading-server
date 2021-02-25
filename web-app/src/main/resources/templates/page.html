@@ -32,6 +32,18 @@
             </main>
         </div>
     </div>
-    <footer class="container-lg"><i class="fa fa-code"></i> Michael Faes</footer>
+    <footer class="container-lg">
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <i class="fa fa-code"></i> Michael Faes
+            </div>
+            <div class="col-auto">
+                Grading service is
+                <span class="badge bg-success"
+                      th:class="|badge bg-${@gradingService.status.name == 'UP' ? 'success' : 'danger'}|"
+                      th:text="${@gradingService.status}">UP</span>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
