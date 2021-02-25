@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   web-app:
-    build: web-app
+    build:
+      context: web-app
+      dockerfile: "${DOCKERFILE}"
     volumes:
       - "web-app-db:/app/db"
       - "${BACKUP_DIR}:/app/backup"
@@ -12,7 +14,9 @@ services:
     environment:
       GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-service
   grading-service:
-    build: grading-service
+    build:
+      context: grading-service
+      dockerfile: "${DOCKERFILE}"
     hostname: grading-service
 
 volumes:
