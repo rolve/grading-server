@@ -14,6 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static ch.trick17.gradingserver.webapp.service.GradingService.Status.DOWN;
 import static ch.trick17.gradingserver.webapp.service.GradingService.Status.UP;
 import static java.time.Instant.now;
+import static java.util.Collections.newSetFromMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -33,6 +36,8 @@ public class GradingService {
     private final HostCredentialsRepository credentialsRepo;
     private final SubmissionService submissionService;
     private final WebClient client;
+
+    private final Set<Integer> queued = newSetFromMap(new ConcurrentHashMap<>());
 
     public enum Status { UP, DOWN }
     private final AtomicReference<Status> status = new AtomicReference<>();
@@ -52,11 +57,17 @@ public class GradingService {
 
     @Bean
     Executor gradingExecutor() {
+        // TODO: adjust to remote grading service
         return newFixedThreadPool(4); // allow 4 grading jobs at once
     }
 
     @Async("gradingExecutor")
     public Future<Void> grade(Submission submission) {
+        var added = queued.add(submission.getId());
+        if (!added) {
+            return completedFuture(null);
+        }
+
         var code = submission.getCodeLocation();
         var credentials = credentialsRepo.findLatestForUrl(code.getRepoUrl()).orElse(null);
         var config = submission.getSolution().getProblemSet().getGradingConfig();
@@ -68,10 +79,18 @@ public class GradingService {
                 .bodyValue(job)
                 .retrieve().bodyToMono(GradingJob.class);
 
-        submissionService.setGradingStarted(submission);
-        var result = response.block().getResult();
-        // set result in separate, @Transactional method:
-        submissionService.setResult(submission, result);
+        submissionService.setGradingStarted(submission, true);
+        try {
+            var result = response.block().getResult();
+            // set result in separate, @Transactional method:
+            submissionService.setResult(submission, result);
+        } catch (RuntimeException e) {
+            logger.warn("Exception while waiting for grading result of " +
+                    submission.getCommitHash().substring(0, 8) + " (id " + submission.getId() + ")", e);
+            submissionService.setGradingStarted(submission, false);
+        } finally {
+            queued.remove(submission.getId());
+        }
         return completedFuture(null);
     }
 

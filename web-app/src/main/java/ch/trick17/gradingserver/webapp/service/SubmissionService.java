@@ -8,6 +8,7 @@ import ch.trick17.gradingserver.webapp.model.Submission;
 import ch.trick17.gradingserver.webapp.model.SubmissionRepository;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -54,8 +55,8 @@ public class SubmissionService {
     }
 
     @Transactional
-    public void setGradingStarted(Submission submission) {
-        submission.setGradingStarted(true);
+    public void setGradingStarted(Submission submission, boolean gradingStarted) {
+        submission.setGradingStarted(gradingStarted);
         repo.save(submission);
     }
 
@@ -63,5 +64,15 @@ public class SubmissionService {
     public void setResult(Submission submission, GradingResult result) {
         submission.setResult(result);
         repo.save(submission);
+    }
+
+    @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
+    @Transactional
+    public void requeueUngradedSubmissions() {
+        var ungraded = repo.findByGradingStartedIsFalse();
+        // some of these may already be queued and ignored by GradingService
+        for (var submission : ungraded) {
+            gradingService.grade(submission);
+        }
     }
 }
