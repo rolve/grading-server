@@ -10,13 +10,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf()
+                    .ignoringAntMatchers("/webhooks/**")
+                    .and()
                 .authorizeRequests()
                     .regexMatchers("/",
                             "/css/.*",
                             "/favicon/.*",
                             "/courses/\\d+/",
                             "/courses/\\d+/problem-sets/\\d+/",
-                            "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/").permitAll()
+                            "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/",
+                            "/webhooks/.*").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .formLogin()

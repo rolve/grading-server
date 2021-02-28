@@ -14,13 +14,9 @@ public interface SolutionSupplier<E extends Exception> {
     record SolutionInfo(String repoUrl, Set<String> authorNames, String ignoredInitialCommit) {
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            } else if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            return repoUrl.equals(((SolutionInfo) o).repoUrl);
+        public boolean equals(Object other) {
+            return other instanceof SolutionInfo
+                    && repoUrl.equals(((SolutionInfo) other).repoUrl);
         }
 
         @Override

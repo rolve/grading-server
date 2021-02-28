@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.*;
 
@@ -96,7 +97,7 @@ public class ProblemSetController {
     @PostMapping("/{id}/register-solutions-gitlab")
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
                                           @RequestParam String host, @RequestParam String groupPath,
-                                          @RequestParam String token)
+                                          @RequestParam String token, HttpServletRequest req)
             throws GitLabApiException, GitAPIException {
         var problemSet = findProblemSet(courseId, id);
 
@@ -121,7 +122,9 @@ public class ProblemSetController {
         problemSet.setRegisteringSolutions(true);
         repo.save(problemSet);
 
+        var serverBaseUrl = String.format("%s://%s:%s", req.getScheme(), req.getServerName(), req.getServerPort());
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
+        supplier.setWebhookBaseUrl(serverBaseUrl);
         solutionService.registerSolutions(problemSet.getId(), supplier); // async
         return "redirect:./";
     }

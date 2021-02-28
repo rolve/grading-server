@@ -1,11 +1,13 @@
 package ch.trick17.gradingserver.webapp.service;
 
+import ch.trick17.gradingserver.webapp.controller.WebhookReceiver;
 import ch.trick17.gradingserver.webapp.model.Solution;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.AccessLevel;
 import org.gitlab4j.api.models.Event;
 import org.gitlab4j.api.models.Member;
+import org.gitlab4j.api.models.ProjectHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
 
     private AccessLevel minAccessLevel = DEVELOPER;
     private boolean ignoringCommonMembers = true;
+    private String webhookBaseUrl = null;
 
     public GitLabGroupSolutionSupplier(String hostUrl, String groupPath, String token) {
         this.hostUrl = requireNonNull(hostUrl);
@@ -64,6 +67,14 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
         this.ignoringCommonMembers = ignoringCommonMembers;
     }
 
+    public String getWebhookBaseUrl() {
+        return webhookBaseUrl;
+    }
+
+    public void setWebhookBaseUrl(String webhookBaseUrl) {
+        this.webhookBaseUrl = webhookBaseUrl;
+    }
+
     @Override
     public List<SolutionInfo> get(Collection<Solution> existing) throws GitLabApiException {
         var existingRepos = existing.stream()
@@ -76,6 +87,17 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             logger.info("{} new GitLab projects found", projects.size());
             if (projects.isEmpty()) {
                 return emptyList();
+            }
+
+            if (webhookBaseUrl != null) {
+                var url = webhookBaseUrl + WebhookReceiver.GITLAB_PUSH_PATH;
+                var enabledHooks = new ProjectHook();
+                enabledHooks.setPushEvents(true);
+                var sslEnabled = url.startsWith("https");
+                logger.info("Adding push webhooks with URL {}", url);
+                for (var project : projects) {
+                    api.getProjectApi().addHook(project, url, enabledHooks, sslEnabled, null);
+                }
             }
 
             var authors = new ArrayList<Set<String>>();
