@@ -95,9 +95,15 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                 enabledHooks.setPushEvents(true);
                 var sslEnabled = url.startsWith("https");
                 logger.info("Adding push webhooks with URL {}", url);
+                var added = 0;
                 for (var project : projects) {
-                    api.getProjectApi().addHook(project, url, enabledHooks, sslEnabled, null);
+                    var hooks = api.getProjectApi().getHooks(project);
+                    if (hooks.stream().noneMatch(h -> h.getUrl().equals(url))) {
+                        api.getProjectApi().addHook(project, url, enabledHooks, sslEnabled, null);
+                        added++;
+                    }
                 }
+                logger.info("{} new hooks added", added);
             }
 
             var authors = new ArrayList<Set<String>>();
