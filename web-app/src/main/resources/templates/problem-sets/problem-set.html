@@ -53,7 +53,7 @@
                         <span th:if="${sol.fetchingSubmission}" class="badge bg-secondary">
                             Fetching submission...
                         </span>
-                        <span th:if="${!sol.fetchingSubmission && latest == null}" class="badge bg-warning">
+                        <span th:if="${!sol.fetchingSubmission && latest == null}" class="badge bg-secondary">
                             No submission yet
                         </span>
                         <th:block th:if="${latest != null}" th:switch="${latest.status.name}">
@@ -94,6 +94,10 @@
             <div sec:authorize="isAuthenticated()" class="mb-3">
                 <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
                    class="btn btn-primary">Register solutions</a>
+                <form th:action="@{remove-solutions}" method="post" class="d-inline"
+                      onSubmit="return confirm('Sure?');">
+                    <button type="submit" class="btn btn-danger">Remove solutions</button>
+                </form>
                 <form th:action="@{delete}" method="post" class="d-inline"
                       onSubmit="return confirm('Sure?');">
                     <button type="submit" class="btn btn-danger">Delete</button>

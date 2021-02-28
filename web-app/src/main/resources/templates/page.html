@@ -40,7 +40,7 @@
             <div class="col-auto">
                 Grading service is
                 <span class="badge bg-success"
-                      th:class="|badge bg-${@gradingService.status.name == 'UP' ? 'success' : 'danger'}|"
+                      th:class="|badge bg-${@gradingService.status.name == 'UP' ? 'primary' : 'danger'}|"
                       th:text="${@gradingService.status}">UP</span>
             </div>
         </div>

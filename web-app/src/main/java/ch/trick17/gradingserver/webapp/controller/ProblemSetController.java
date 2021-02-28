@@ -138,4 +138,12 @@ public class ProblemSetController {
         repo.delete(problemSet);
         return "redirect:../..";
     }
+
+    @PostMapping("/{id}/remove-solutions")
+    public String removeSolutions(@PathVariable int courseId, @PathVariable int id) {
+        var problemSet = findProblemSet(courseId, id);
+        problemSet.getSolutions().clear();
+        repo.save(problemSet);
+        return "redirect:.";
+    }
 }
