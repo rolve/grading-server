@@ -32,6 +32,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
 
     private AccessLevel minAccessLevel = DEVELOPER;
     private boolean ignoringCommonMembers = true;
+    private boolean ignoringAuthorless = true;
     private String webhookBaseUrl = null;
 
     public GitLabGroupSolutionSupplier(String hostUrl, String groupPath, String token) {
@@ -67,6 +68,14 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
         this.ignoringCommonMembers = ignoringCommonMembers;
     }
 
+    public boolean isIgnoringAuthorless() {
+        return ignoringAuthorless;
+    }
+
+    public void setIgnoringAuthorless(boolean ignoringAuthorless) {
+        this.ignoringAuthorless = ignoringAuthorless;
+    }
+
     public String getWebhookBaseUrl() {
         return webhookBaseUrl;
     }
@@ -87,23 +96,6 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             logger.info("{} new GitLab projects found", projects.size());
             if (projects.isEmpty()) {
                 return emptyList();
-            }
-
-            if (webhookBaseUrl != null) {
-                var url = webhookBaseUrl + WebhooksController.GITLAB_PUSH_PATH;
-                var enabledHooks = new ProjectHook();
-                enabledHooks.setPushEvents(true);
-                var sslEnabled = url.startsWith("https");
-                logger.info("Adding push webhooks with URL {}", url);
-                var added = 0;
-                for (var project : projects) {
-                    var hooks = api.getProjectApi().getHooks(project);
-                    if (hooks.stream().noneMatch(h -> h.getUrl().equals(url))) {
-                        api.getProjectApi().addHook(project, url, enabledHooks, sslEnabled, null);
-                        added++;
-                    }
-                }
-                logger.info("{} new hooks added", added);
             }
 
             var authors = new ArrayList<Set<String>>();
@@ -128,13 +120,41 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                 }
             }
 
+            if (ignoringAuthorless) {
+                for (int i = 0; i < projects.size(); i++) {
+                    if (authors.get(i).isEmpty()) {
+                        logger.info("Ignoring authorless project: {}", projects.get(i).getName());
+                        authors.remove(i);
+                        projects.remove(i);
+                        i--;
+                    }
+                }
+            }
+
+            if (webhookBaseUrl != null) {
+                var url = webhookBaseUrl + WebhooksController.GITLAB_PUSH_PATH;
+                var enabledHooks = new ProjectHook();
+                enabledHooks.setPushEvents(true);
+                var sslEnabled = url.startsWith("https");
+                logger.info("Adding push webhooks with URL {}", url);
+                var added = 0;
+                for (var project : projects) {
+                    var hooks = api.getProjectApi().getHooks(project);
+                    if (hooks.stream().noneMatch(h -> h.getUrl().equals(url))) {
+                        api.getProjectApi().addHook(project, url, enabledHooks, sslEnabled, null);
+                        added++;
+                    }
+                }
+                logger.info("{} new hooks added", added);
+            }
+
             api.getGroupApi().getMembers(groupPath).stream()
                     .map(Member::getUsername)
                     .forEach(ignoredPushUsers::add);
             logger.info("Ignoring initial pushes from users: {}",
                     join(", ", ignoredPushUsers));
             var sols = new ArrayList<SolutionInfo>();
-            for (int i = 0, projectsSize = projects.size(); i < projectsSize; i++) {
+            for (int i = 0; i < projects.size(); i++) {
                 var pushes = api.getEventsApi().getProjectEvents(projects.get(i),
                         PUSHED, null, null, null, null);
                 var ignoredInitialCommit = pushes.stream()

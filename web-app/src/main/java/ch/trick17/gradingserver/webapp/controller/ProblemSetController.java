@@ -97,7 +97,9 @@ public class ProblemSetController {
     @PostMapping("/{id}/register-solutions-gitlab")
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
                                           @RequestParam String host, @RequestParam String groupPath,
-                                          @RequestParam String token, HttpServletRequest req)
+                                          @RequestParam String token,
+                                          @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
+                                          HttpServletRequest req)
             throws GitLabApiException, GitAPIException {
         var problemSet = findProblemSet(courseId, id);
 
@@ -125,6 +127,7 @@ public class ProblemSetController {
         var serverBaseUrl = String.format("%s://%s:%s", req.getScheme(), req.getServerName(), req.getServerPort());
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
         supplier.setWebhookBaseUrl(serverBaseUrl);
+        supplier.setIgnoringAuthorless(ignoreAuthorless);
         solutionService.registerSolutions(problemSet.getId(), supplier); // async
         return "redirect:./";
     }
