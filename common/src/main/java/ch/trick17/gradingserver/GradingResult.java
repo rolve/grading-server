@@ -20,8 +20,10 @@ public class GradingResult {
     private String error;
     @Convert(converter = StringListConverter.class)
     private List<String> properties;
+    @Lob
     @Convert(converter = StringListConverter.class)
     private List<String> passedTests;
+    @Lob
     @Convert(converter = StringListConverter.class)
     private List<String> failedTests;
     @Lob
