@@ -2,4 +2,8 @@ package ch.trick17.gradingserver.webapp.model;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface SolutionRepository extends PagingAndSortingRepository<Solution, Integer> {}
+import java.util.List;
+
+public interface SolutionRepository extends PagingAndSortingRepository<Solution, Integer> {
+    List<Solution> findByRepoUrl(String repoUrl);
+}

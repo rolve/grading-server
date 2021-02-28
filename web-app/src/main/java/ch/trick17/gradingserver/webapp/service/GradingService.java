@@ -79,13 +79,15 @@ public class GradingService {
                 .bodyValue(job)
                 .retrieve().bodyToMono(GradingJob.class);
 
+        logger.info("Start grading submission {} (id {})",
+                submission.getShortCommitHash(), submission.getId());
         submissionService.setGradingStarted(submission, true);
         try {
             var result = response.block().getResult();
             // set result in separate, @Transactional method:
             submissionService.setResult(submission, result);
         } catch (RuntimeException e) {
-            logger.warn("Exception while waiting for grading result of " +
+            logger.warn("Exception while waiting for grading result of submission " +
                     submission.getShortCommitHash() + " (id " + submission.getId() + ")", e);
             submissionService.setGradingStarted(submission, false);
         } finally {
