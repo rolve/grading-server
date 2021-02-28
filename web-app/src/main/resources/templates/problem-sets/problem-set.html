@@ -34,7 +34,7 @@
                     <td th:text="${#strings.setJoin(sol.authors, ', ')}">Authors</td>
                     <td>
                         <a th:if="${latest != null}" class="font-monospace"
-                            th:text="${latest.commitHash.substring(0,8)}"
+                            th:text="${latest.shortCommitHash}"
                             th:href="@{solutions/{solId}/submissions/{id}/(solId=${sol.id},id=${latest.id})}"
                             href="../submissions/submission.html">
                             c0f27a18

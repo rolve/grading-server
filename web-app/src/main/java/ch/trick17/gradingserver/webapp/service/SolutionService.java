@@ -19,16 +19,16 @@ public class SolutionService {
     private final SolutionRepository repo;
     private final ProblemSetRepository problemSetRepo;
     private final AuthorRepository authorRepo;
-    private final SubmissionService fetcher;
+    private final SubmissionService submissionService;
     private final PlatformTransactionManager txManager;
 
     public SolutionService(SolutionRepository repo, ProblemSetRepository problemSetRepo,
-                           AuthorRepository authorRepo, SubmissionService fetcher,
+                           AuthorRepository authorRepo, SubmissionService submissionService,
                            PlatformTransactionManager txManager) {
         this.repo = repo;
         this.problemSetRepo = problemSetRepo;
         this.authorRepo = authorRepo;
-        this.fetcher = fetcher;
+        this.submissionService = submissionService;
         this.txManager = txManager;
     }
 
@@ -60,12 +60,12 @@ public class SolutionService {
         } finally {
             problemSet.setRegisteringSolutions(false);
             problemSetRepo.save(problemSet);
-            txManager.commit(tx); // need to commit before calling fetch below
+            txManager.commit(tx); // need to commit the new solutions before calling fetch below
         }
         logger.info("{} solutions registered", sols.size());
 
         for (var sol : sols) {
-            fetcher.fetchSubmission(sol.getId());
+            submissionService.fetchSubmission(sol.getId());
         }
     }
 }

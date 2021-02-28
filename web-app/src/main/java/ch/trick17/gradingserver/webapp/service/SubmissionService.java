@@ -33,6 +33,14 @@ public class SubmissionService {
         this.gradingService = gradingService;
     }
 
+    /**
+     * Checks if the Git repository of the given submission contains a
+     * new commit and, if so, creates a new submission for that commit
+     * and inserts it into the grading queue.
+     * Note that the solution should be marked to be "fetching
+     * submission" before calling this method. At the end, this
+     * method sets the "fetching submission" flag back to false.
+     */
     @Async
     @Transactional
     public void fetchSubmission(int solId) throws GitAPIException {

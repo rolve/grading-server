@@ -47,6 +47,10 @@ public class Submission implements Serializable {
         return commitHash;
     }
 
+    public String getShortCommitHash() {
+        return commitHash.substring(0, 8);
+    }
+
     public ZonedDateTime getReceivedDate() {
         return receivedDate;
     }

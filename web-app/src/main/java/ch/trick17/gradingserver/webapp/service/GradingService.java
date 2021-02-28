@@ -86,7 +86,7 @@ public class GradingService {
             submissionService.setResult(submission, result);
         } catch (RuntimeException e) {
             logger.warn("Exception while waiting for grading result of " +
-                    submission.getCommitHash().substring(0, 8) + " (id " + submission.getId() + ")", e);
+                    submission.getShortCommitHash() + " (id " + submission.getId() + ")", e);
             submissionService.setGradingStarted(submission, false);
         } finally {
             queued.remove(submission.getId());
