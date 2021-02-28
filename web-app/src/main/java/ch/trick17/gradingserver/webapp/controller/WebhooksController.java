@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class WebhookReceiver {
+public class WebhooksController {
 
     public static final String GITLAB_PUSH_PATH = "/webhooks/gitlab-push";
 
-    private static final Logger logger = LoggerFactory.getLogger(WebhookReceiver.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebhooksController.class);
 
     private final SolutionRepository solRepo;
     private final SubmissionService submissionService;
 
-    public WebhookReceiver(SolutionRepository solRepo,
-                           SubmissionService submissionService) {
+    public WebhooksController(SolutionRepository solRepo,
+                              SubmissionService submissionService) {
         this.solRepo = solRepo;
         this.submissionService = submissionService;
     }

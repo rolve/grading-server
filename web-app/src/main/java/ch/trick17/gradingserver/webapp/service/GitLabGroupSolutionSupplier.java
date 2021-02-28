@@ -1,6 +1,6 @@
 package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.webapp.controller.WebhookReceiver;
+import ch.trick17.gradingserver.webapp.controller.WebhooksController;
 import ch.trick17.gradingserver.webapp.model.Solution;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
@@ -90,7 +90,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             }
 
             if (webhookBaseUrl != null) {
-                var url = webhookBaseUrl + WebhookReceiver.GITLAB_PUSH_PATH;
+                var url = webhookBaseUrl + WebhooksController.GITLAB_PUSH_PATH;
                 var enabledHooks = new ProjectHook();
                 enabledHooks.setPushEvents(true);
                 var sslEnabled = url.startsWith("https");
