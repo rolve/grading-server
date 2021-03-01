@@ -22,6 +22,7 @@ import java.time.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -46,6 +47,11 @@ public class ProblemSetController {
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
+        // somehow, sorting in the template doesn't work, so do it here:
+        var solutions = problemSet.getSolutions().stream()
+                .sorted(Solution.bestLast().reversed())
+                .collect(toList());
+        model.addAttribute("solutions", solutions);
         return "problem-sets/problem-set";
     }
 

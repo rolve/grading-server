@@ -30,7 +30,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="sol : *{solutions}" th:with="latest = ${sol.latestSubmission}">
+                <tr th:each="sol : ${solutions}" th:with="latest = ${sol.latestSubmission}">
                     <td th:text="${#strings.setJoin(sol.authors, ', ')}">Authors</td>
                     <td>
                         <a th:if="${latest != null}" class="font-monospace"

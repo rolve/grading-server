@@ -1,12 +1,14 @@
 package ch.trick17.gradingserver.webapp.model;
 
+import ch.trick17.gradingserver.GradingResult;
 import ch.trick17.gradingserver.util.RandomHexStringGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-import static java.util.Comparator.comparingInt;
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.*;
 import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.CascadeType.PERSIST;
@@ -85,5 +87,15 @@ public class Solution implements Serializable {
 
     public void setFetchingSubmission(boolean fetchingSubmission) {
         this.fetchingSubmission = fetchingSubmission;
+    }
+
+    public static Comparator<Solution> bestLast() {
+        // totally unreadable, but the following sorts first by number of passed
+        // tests and then by received date (earlier -> greater)
+        return comparing(Solution::latestSubmission, nullsFirst(
+                comparing(Submission::getResult, nullsFirst(
+                        comparing(GradingResult::getPassedTests, nullsFirst(
+                                comparing(List::size)))))
+                        .thenComparing(Submission::getReceivedDate, reverseOrder())));
     }
 }
