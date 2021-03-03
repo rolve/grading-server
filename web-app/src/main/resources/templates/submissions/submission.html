@@ -60,30 +60,30 @@
              th:object="${submission.result}" class="mt-3">
             <h2>Results</h2>
             <div th:if="*{!compiled}" class="alert alert-danger">
-                <i class="fa fa-2x fa-times-circle" style="vertical-align: -0.2em;"></i>
+                <i class="fa fa-fw fs-4 fa-times-circle" style="vertical-align: -0.2em;"></i>
                 The submission contains compile errors. No tests were executed.
             </div>
             <div th:if="*{compiled && properties.contains('compile errors') && !failedTests.isEmpty}"
                  class="alert alert-warning">
-                <i class="fa fa-2x fa-exclamation-triangle" style="vertical-align: -0.2em;"></i>
+                <i class="fa fa-fw fs-4 fa-exclamation-triangle" style="vertical-align: -0.2em;"></i>
                 The submission contains compile errors. Tests may have failed because of this.
             </div>
             <div th:if="*{properties.contains('nondeterministic')}" class="alert alert-warning">
-                <i class="fa fa-2x fa-random" style="vertical-align: -0.2em;"></i>
+                <i class="fa fa-fw fs-4 fa-random" style="vertical-align: -0.2em;"></i>
                 The submission produced multiple different results when executed repeatedly. Only tests that were
                 successful in <em>every</em> repetition are counted as passed. Check for randomness.
             </div>
             <div th:if="*{properties.contains('timeout')}" class="alert alert-warning">
-                <i class="fa fa-2x fa-hourglass-half" style="vertical-align: -0.2em;"></i>
+                <i class="fa fa-fw fs-4 fa-hourglass-half" style="vertical-align: -0.2em;"></i>
                 Some tests took too long to execute. Check for infinite loops.
             </div>
             <div th:if="*{properties.contains('timeout')}" class="alert alert-warning">
-                <i class="fa fa-2x fa-hand-paper" style="vertical-align: -0.2em;"></i>
+                <i class="fa fa-fw fs-4 fa-ban" style="vertical-align: -0.2em;"></i>
                 The code tried to attempt illegal operations, such as accessing system properties or the file system.
             </div>
 
             <div th:if="*{compiled && totalTests == 0}" class="alert alert-secondary">
-                <i class="fa fa-2x fa-question" style="vertical-align: -0.2em;"></i>
+                <i class="fa fa-fw fs-4 fa-question" style="vertical-align: -0.2em;"></i>
                 No tests were executed. You may want to inform the person responsible for this course about this.
             </div>
 
