@@ -77,7 +77,7 @@
                 <i class="fa fa-fw fs-4 fa-hourglass-half" style="vertical-align: -0.2em;"></i>
                 Some tests took too long to execute. Check for infinite loops.
             </div>
-            <div th:if="*{properties.contains('timeout')}" class="alert alert-warning">
+            <div th:if="*{properties.contains('illegal operation')}" class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-ban" style="vertical-align: -0.2em;"></i>
                 The code tried to attempt illegal operations, such as accessing system properties or the file system.
             </div>
