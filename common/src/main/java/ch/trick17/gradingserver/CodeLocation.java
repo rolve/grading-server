@@ -29,6 +29,10 @@ public class CodeLocation {
         return commitHash;
     }
 
+    public String shortCommitHash() {
+        return commitHash.substring(0, 8);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -45,8 +49,6 @@ public class CodeLocation {
 
     @Override
     public String toString() {
-        return "CodeLocation[" +
-                "repoUrl=" + repoUrl + ", " +
-                "commitHash=" + commitHash + "]";
+        return repoUrl + ":" + shortCommitHash();
     }
 }

@@ -7,6 +7,8 @@ import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.SingleCodebase;
 import ch.trick17.jtt.grader.Task;
 import ch.trick17.jtt.grader.result.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,6 +31,8 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 public class JobRunner {
 
     private static final Path CODE_ROOT = Path.of("grading-jobs-code").toAbsolutePath();
+
+    private static final Logger logger = LoggerFactory.getLogger(JobRunner.class);
 
     private final CodeDownloader downloader;
     private final Grader grader;
@@ -66,6 +70,8 @@ public class JobRunner {
     }
 
     private GradingResult tryRun(GradingJob job) throws IOException {
+        logger.info("Running grading job for {} (job id: {})",
+                job.getSubmission(), job.getId());
         var dir = CODE_ROOT.resolve(job.getId());
         try {
             downloader.downloadCode(job.getSubmission(), dir, job.getCredentials());

@@ -80,7 +80,7 @@ public class GradingService {
                 .retrieve().bodyToMono(GradingJob.class);
 
         logger.info("Start grading submission {} (id {})",
-                submission.getShortCommitHash(), submission.getId());
+                submission.shortCommitHash(), submission.getId());
         submissionService.setGradingStarted(submission, true);
         try {
             var result = response.block().getResult();
@@ -88,7 +88,7 @@ public class GradingService {
             submissionService.setResult(submission, result);
         } catch (RuntimeException e) {
             logger.warn("Exception while waiting for grading result of submission " +
-                    submission.getShortCommitHash() + " (id " + submission.getId() + ")", e);
+                    submission.shortCommitHash() + " (id " + submission.getId() + ")", e);
             submissionService.setGradingStarted(submission, false);
         } finally {
             queued.remove(submission.getId());

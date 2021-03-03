@@ -47,7 +47,7 @@ public class Submission implements Serializable {
         return commitHash;
     }
 
-    public String getShortCommitHash() {
+    public String shortCommitHash() {
         return commitHash.substring(0, 8);
     }
 
