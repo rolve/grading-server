@@ -121,11 +121,18 @@
             </div>
         </div>
 
-        <p class="mt-4">
-            <a href="../problem-sets/problem-set.html" th:href="@{../../../..}" class="btn btn-secondary">
-                Back to problem set
-            </a>
-        </p>
+        <div class="mt-4">
+            <div sec:authorize="isAuthenticated()" class="mb-3">
+                <form th:action="@{re-grade}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-primary">Re-grade</button>
+                </form>
+            </div>
+            <p>
+                <a href="../problem-sets/problem-set.html" th:href="@{../../../..}" class="btn btn-secondary">
+                    Back to problem set
+                </a>
+            </p>
+        </div>
     </main>
 </body>
 </html>
