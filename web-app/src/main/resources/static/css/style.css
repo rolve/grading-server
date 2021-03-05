@@ -36,6 +36,8 @@ h1:first-child, h2:first-child, h3:first-child, h4:first-child {
 .test-bar .passed {
     height: 100%;
     background-color: var(--bs-success);
+    border-right: solid 2px white;
+    box-sizing: content-box; /* border overflows at 100% */
 }
 
 .test-bar .passed::before {
