@@ -72,11 +72,13 @@ public class JobRunner {
     private GradingResult tryRun(GradingJob job) throws IOException {
         logger.info("Running grading job for {} (job id: {})",
                 job.getSubmission(), job.getId());
-        var dir = CODE_ROOT.resolve(job.getId());
+        var repoDir = CODE_ROOT.resolve(job.getId());
         try {
-            downloader.downloadCode(job.getSubmission(), dir, job.getCredentials());
+            downloader.downloadCode(job.getSubmission(), repoDir, job.getCredentials());
             var config = job.getConfig();
-            var codebase = new SingleCodebase(job.getId(), dir.resolve(config.getProjectRoot()),
+            var codebaseDir = repoDir.resolve(config.getProjectRoot());
+            // TODO: handle case when project root is missing
+            var codebase = new SingleCodebase(job.getId(), codebaseDir,
                     valueOf(config.getStructure().name()));
             var task = Task.fromString(config.getTestClass());
 
@@ -88,7 +90,7 @@ public class JobRunner {
             return new GradingResult(null, props, res.passedTests(), res.failedTests(), null);
         } finally {
             try {
-                deleteDirectory(dir.toFile());
+                deleteDirectory(repoDir.toFile());
             } catch (IOException ignored) {}
         }
     }

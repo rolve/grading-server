@@ -40,6 +40,10 @@ h1:first-child, h2:first-child, h3:first-child, h4:first-child {
     box-sizing: content-box; /* border overflows at 100% */
 }
 
+.test-bar .passed[style="width: 0.0%;"] { /* brittle, but easiest fix for now... */
+    border: none;
+}
+
 .test-bar .passed::before {
     content: "\200b"; /* unicode zero width space character */
 }
