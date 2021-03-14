@@ -77,7 +77,7 @@ public class ProblemSetController {
     @PostMapping("/add")
     public String addProblemSet(@PathVariable int courseId, @RequestParam String name,
                                 @RequestParam String deadlineDate, @RequestParam String deadlineTime,
-                                @RequestParam boolean anonymous,
+                                @RequestParam(defaultValue = "false") boolean anonymous,
                                 @RequestParam MultipartFile testClassFile, @RequestParam String structure,
                                 @RequestParam String projectRoot, @RequestParam String compiler,
                                 @RequestParam int repetitions, @RequestParam int repTimeoutMs,
