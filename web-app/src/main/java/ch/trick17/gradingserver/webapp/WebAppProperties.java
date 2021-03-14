@@ -8,6 +8,8 @@ public class WebAppProperties {
     private String gradingServiceHost;
     private int gradingServicePort;
 
+    private int dbPort;
+
     public String getGradingServiceHost() {
         return gradingServiceHost;
     }
@@ -26,5 +28,13 @@ public class WebAppProperties {
 
     public String getGradingServiceBaseUrl() {
         return "http://" + gradingServiceHost + ":" + gradingServicePort;
+    }
+
+    public int getDbPort() {
+        return dbPort;
+    }
+
+    public void setDbPort(int dbPort) {
+        this.dbPort = dbPort;
     }
 }

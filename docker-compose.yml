@@ -11,6 +11,7 @@ services:
     hostname: web-app
     ports:
       - 8080:8080
+      - 9092:9092
     environment:
       GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-service
   grading-service:
