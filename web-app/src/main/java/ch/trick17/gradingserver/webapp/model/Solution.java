@@ -89,7 +89,7 @@ public class Solution implements Serializable {
         this.fetchingSubmission = fetchingSubmission;
     }
 
-    public static Comparator<Solution> bestLast() {
+    public static Comparator<Solution> byResult() {
         // totally unreadable, but the following sorts first by number of passed
         // tests and then by received date (earlier -> greater)
         return comparing(Solution::latestSubmission, nullsFirst(
@@ -97,5 +97,10 @@ public class Solution implements Serializable {
                         comparing(GradingResult::getPassedTests, nullsFirst(
                                 comparing(List::size)))))
                         .thenComparing(Submission::getReceivedDate, reverseOrder())));
+    }
+
+    public static Comparator<Solution> byCommitHash() {
+        return comparing(Solution::latestSubmission, nullsFirst(
+                comparing(Submission::getCommitHash)));
     }
 }

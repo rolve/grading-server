@@ -31,7 +31,12 @@
             </thead>
             <tbody>
                 <tr th:each="sol : ${solutions}" th:with="latest = ${sol.latestSubmission}">
-                    <td th:text="${#strings.setJoin(sol.authors, ', ')}">Authors</td>
+                    <td>
+                        <span th:unless="*{anonymous}" th:text="${#strings.setJoin(sol.authors, ', ')}">
+                            Authors
+                        </span>
+                        <span th:if="*{anonymous}" class="text-muted fst-italic">(anonymous)</span>
+                    </td>
                     <td>
                         <a th:if="${latest != null}" class="font-monospace"
                             th:text="${latest.shortCommitHash}"

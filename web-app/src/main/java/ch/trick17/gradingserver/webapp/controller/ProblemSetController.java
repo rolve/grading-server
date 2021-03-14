@@ -20,6 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.*;
 
+import static ch.trick17.gradingserver.webapp.model.Solution.byCommitHash;
+import static ch.trick17.gradingserver.webapp.model.Solution.byResult;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
@@ -48,9 +50,9 @@ public class ProblemSetController {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
         // somehow, sorting in the template doesn't work, so do it here:
+        var sort = problemSet.isAnonymous() ? byCommitHash() : byResult().reversed();
         var solutions = problemSet.getSolutions().stream()
-                .sorted(Solution.bestLast().reversed())
-                .collect(toList());
+                .sorted(sort).collect(toList());
         model.addAttribute("solutions", solutions);
         return "problem-sets/problem-set";
     }
@@ -75,6 +77,7 @@ public class ProblemSetController {
     @PostMapping("/add")
     public String addProblemSet(@PathVariable int courseId, @RequestParam String name,
                                 @RequestParam String deadlineDate, @RequestParam String deadlineTime,
+                                @RequestParam boolean anonymous,
                                 @RequestParam MultipartFile testClassFile, @RequestParam String structure,
                                 @RequestParam String projectRoot, @RequestParam String compiler,
                                 @RequestParam int repetitions, @RequestParam int repTimeoutMs,
@@ -88,7 +91,7 @@ public class ProblemSetController {
                 new GradingOptions(Compiler.valueOf(compiler), repetitions,
                         Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
         var problemSet = new ProblemSet(course, name, config,
-                ZonedDateTime.of(date, time, ZoneId.systemDefault()));
+                ZonedDateTime.of(date, time, ZoneId.systemDefault()), anonymous);
         problemSet = repo.save(problemSet);
         return "redirect:" + problemSet.getId() + "/";
     }
