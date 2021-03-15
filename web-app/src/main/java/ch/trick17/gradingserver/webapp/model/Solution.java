@@ -91,16 +91,16 @@ public class Solution implements Serializable {
 
     public static Comparator<Solution> byResult() {
         // totally unreadable, but the following sorts first by number of passed
-        // tests and then by received date (earlier -> greater)
-        return comparing(Solution::latestSubmission, nullsFirst(
-                comparing(Submission::getResult, nullsFirst(
-                        comparing(GradingResult::getPassedTests, nullsFirst(
-                                comparing(List::size)))))
-                        .thenComparing(Submission::getReceivedDate, reverseOrder())));
+        // tests (higher -> "less") and then by received date (earlier -> "less")
+        return comparing(Solution::latestSubmission, nullsLast(
+                comparing(Submission::getResult, nullsLast(
+                        comparing(GradingResult::getPassedTests, nullsLast(
+                                reverseOrder(comparingInt(List::size))))))
+                        .thenComparing(Submission::getReceivedDate)));
     }
 
     public static Comparator<Solution> byCommitHash() {
-        return comparing(Solution::latestSubmission, nullsFirst(
+        return comparing(Solution::latestSubmission, nullsLast(
                 comparing(Submission::getCommitHash)));
     }
 }

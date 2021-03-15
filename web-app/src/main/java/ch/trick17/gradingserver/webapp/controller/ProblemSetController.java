@@ -50,7 +50,7 @@ public class ProblemSetController {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
         // somehow, sorting in the template doesn't work, so do it here:
-        var sort = problemSet.isAnonymous() ? byCommitHash() : byResult().reversed();
+        var sort = problemSet.isAnonymous() ? byCommitHash() : byResult();
         var solutions = problemSet.getSolutions().stream()
                 .sorted(sort).collect(toList());
         model.addAttribute("solutions", solutions);
