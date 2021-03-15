@@ -27,7 +27,8 @@
                               th:text="*{#strings.setJoin(solution.authors, ', ')}">
                             Author1, Author2
                         </span>
-                        <span th:if="*{solution.problemSet.anonymous}" class="text-muted fst-italic">
+                        <span th:if="*{solution.problemSet.anonymous}" class="text-muted fst-italic"
+                              th:title="*{#authorization.expr('isAuthenticated()') ? #strings.setJoin(solution.authors, ', ') : ''}">
                             (anonymous)
                         </span>
                     </td>

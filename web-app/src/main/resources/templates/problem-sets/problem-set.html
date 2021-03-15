@@ -35,7 +35,10 @@
                         <span th:unless="*{anonymous}" th:text="${#strings.setJoin(sol.authors, ', ')}">
                             Authors
                         </span>
-                        <span th:if="*{anonymous}" class="text-muted fst-italic">(anonymous)</span>
+                        <span th:if="*{anonymous}" class="text-muted fst-italic"
+                              th:title="${#authorization.expr('isAuthenticated()') ? #strings.setJoin(sol.authors, ', ') : ''}">
+                            (anonymous)
+                        </span>
                     </td>
                     <td>
                         <a th:if="${latest != null}" class="font-monospace"
