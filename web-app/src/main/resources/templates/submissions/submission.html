@@ -22,7 +22,15 @@
                 </tr>
                 <tr>
                     <td>Authors:</td>
-                    <td th:text="*{#strings.setJoin(solution.authors, ', ')}">name1, name2</td>
+                    <td>
+                        <span th:unless="*{solution.problemSet.anonymous}"
+                              th:text="*{#strings.setJoin(solution.authors, ', ')}">
+                            Author1, Author2
+                        </span>
+                        <span th:if="*{solution.problemSet.anonymous}" class="text-muted fst-italic">
+                            (anonymous)
+                        </span>
+                    </td>
                 </tr>
                 <tr>
                     <td>Received:</td>
