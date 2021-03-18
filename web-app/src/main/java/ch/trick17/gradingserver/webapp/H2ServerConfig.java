@@ -11,15 +11,21 @@ import static org.h2.tools.Server.createTcpServer;
 @Configuration
 public class H2ServerConfig {
 
-    private final int dbPort;
+    private final boolean enabled;
+    private final int port;
 
     public H2ServerConfig(WebAppProperties props) {
-        dbPort = props.getDbPort();
+        enabled = props.getDbServer().isEnabled();
+        port = props.getDbServer().getPort();
     }
 
     @Bean
     public Server server() throws SQLException {
-        return createTcpServer("-tcp", "-tcpAllowOthers",
-                "-tcpPort", Integer.toString(dbPort)).start();
+        if (enabled) {
+            return createTcpServer("-tcp", "-tcpAllowOthers",
+                    "-tcpPort", Integer.toString(port)).start();
+        } else {
+            return null;
+        }
     }
 }

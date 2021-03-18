@@ -8,7 +8,7 @@ public class WebAppProperties {
     private String gradingServiceHost;
     private int gradingServicePort;
 
-    private int dbPort;
+    private DbServer dbServer;
 
     public String getGradingServiceHost() {
         return gradingServiceHost;
@@ -30,11 +30,33 @@ public class WebAppProperties {
         return "http://" + gradingServiceHost + ":" + gradingServicePort;
     }
 
-    public int getDbPort() {
-        return dbPort;
+    public DbServer getDbServer() {
+        return dbServer;
     }
 
-    public void setDbPort(int dbPort) {
-        this.dbPort = dbPort;
+    public void setDbServer(DbServer dbServer) {
+        this.dbServer = dbServer;
+    }
+
+    public static class DbServer {
+
+        private boolean enabled = false;
+        private int port = -1;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
     }
 }
