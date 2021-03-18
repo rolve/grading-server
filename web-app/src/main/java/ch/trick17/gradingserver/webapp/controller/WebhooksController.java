@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.webapp.controller;
 import ch.trick17.gradingserver.webapp.model.GitLabPushEvent;
 import ch.trick17.gradingserver.webapp.model.SolutionRepository;
 import ch.trick17.gradingserver.webapp.model.Submission;
+import ch.trick17.gradingserver.webapp.model.SubmissionRepository;
 import ch.trick17.gradingserver.webapp.service.GradingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,14 @@ public class WebhooksController {
     private static final Logger logger = LoggerFactory.getLogger(WebhooksController.class);
 
     private final SolutionRepository solRepo;
+    private final SubmissionRepository submissionRepo;
     private final GradingService gradingService;
 
     public WebhooksController(SolutionRepository solRepo,
+                              SubmissionRepository submissionRepo,
                               GradingService gradingService) {
         this.solRepo = solRepo;
+        this.submissionRepo = submissionRepo;
         this.gradingService = gradingService;
     }
 
@@ -47,6 +51,7 @@ public class WebhooksController {
                 ignored++;
             } else {
                 var submission = new Submission(sol, event.commitHash(), now());
+                submission = submissionRepo.save(submission);
                 gradingService.grade(submission); // async
             }
         }
