@@ -58,10 +58,7 @@
                         <span th:if="${latest == null}">—</span>
                     </td>
                     <td>
-                        <span th:if="${sol.fetchingSubmission}" class="badge bg-secondary">
-                            Fetching submission...
-                        </span>
-                        <span th:if="${!sol.fetchingSubmission && latest == null}" class="badge bg-secondary">
+                        <span th:if="${latest == null}" class="badge bg-secondary">
                             No submission yet
                         </span>
                         <th:block th:if="${latest != null}" th:switch="${latest.status.name}">

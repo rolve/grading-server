@@ -4,10 +4,7 @@ import ch.trick17.gradingserver.webapp.controller.WebhooksController;
 import ch.trick17.gradingserver.webapp.model.Solution;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
-import org.gitlab4j.api.models.AccessLevel;
-import org.gitlab4j.api.models.Event;
-import org.gitlab4j.api.models.Member;
-import org.gitlab4j.api.models.ProjectHook;
+import org.gitlab4j.api.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,11 +12,11 @@ import java.util.*;
 
 import static java.lang.String.join;
 import static java.util.Collections.emptyList;
-import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toSet;
 import static org.gitlab4j.api.Constants.ActionType.PUSHED;
+import static org.gitlab4j.api.Constants.SortOrder.DESC;
 import static org.gitlab4j.api.models.AccessLevel.DEVELOPER;
 
 public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiException> {
@@ -85,7 +82,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
     }
 
     @Override
-    public List<SolutionInfo> get(Collection<Solution> existing) throws GitLabApiException {
+    public List<NewSolution> get(Collection<Solution> existing) throws GitLabApiException {
         var existingRepos = existing.stream()
                 .map(Solution::getRepoUrl)
                 .collect(toSet());
@@ -107,7 +104,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                         .collect(toCollection(HashSet::new)));
             }
 
-            var ignoredPushUsers = new HashSet<String>();
+            var ignoredPushers = new HashSet<String>();
             if (ignoringCommonMembers) {
                 var common = authors.stream().skip(1)
                         .collect(() -> new HashSet<>(authors.get(0)),
@@ -116,7 +113,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                     logger.info("Ignoring authorship from common project members: {}",
                             join(", ", common));
                     authors.forEach(s -> s.removeAll(common));
-                    ignoredPushUsers.addAll(common);
+                    ignoredPushers.addAll(common);
                 }
             }
 
@@ -150,24 +147,21 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
 
             api.getGroupApi().getMembers(groupPath).stream()
                     .map(Member::getUsername)
-                    .forEach(ignoredPushUsers::add);
-            logger.info("Ignoring initial pushes from users: {}",
-                    join(", ", ignoredPushUsers));
-            var sols = new ArrayList<SolutionInfo>();
+                    .forEach(ignoredPushers::add);
+            logger.info("Ignoring pushes from users: {}", join(", ", ignoredPushers));
+
+            var sols = new ArrayList<NewSolution>();
             for (int i = 0; i < projects.size(); i++) {
-                var pushes = api.getEventsApi().getProjectEvents(projects.get(i),
-                        PUSHED, null, null, null, null);
-                var ignoredInitialCommit = pushes.stream()
-                        .sorted(comparing(Event::getCreatedAt))
-                        .takeWhile(p -> ignoredPushUsers.contains(p.getAuthorUsername()))
-                        .map(p -> p.getPushData().getCommitTo())
-                        .reduce((first, second) -> second) // last
-                        .orElse(null);
                 var repoUrl = projects.get(i).getHttpUrlToRepo();
-                if (ignoredInitialCommit != null) {
-                    logger.debug("Ignoring initial commit {} for {}", ignoredInitialCommit, repoUrl);
-                }
-                sols.add(new SolutionInfo(repoUrl, authors.get(i), ignoredInitialCommit));
+                var pushEvents = api.getEventsApi().getProjectEvents(projects.get(i), PUSHED,
+                        null, null, null, DESC);
+                var initialCommit = pushEvents.stream()
+                        .filter(e -> !ignoredPushers.contains(e.getAuthorUsername()))
+                        .map(Event::getPushData)
+                        .filter(p -> p.getRef().equals("master"))
+                        .map(PushData::getCommitTo)
+                        .findFirst().orElse(null);
+                sols.add(new NewSolution(repoUrl, authors.get(i), ignoredPushers, initialCommit));
             }
             return sols;
         }

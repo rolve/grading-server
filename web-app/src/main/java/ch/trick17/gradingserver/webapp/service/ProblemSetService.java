@@ -1,0 +1,74 @@
+package ch.trick17.gradingserver.webapp.service;
+
+import ch.trick17.gradingserver.webapp.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
+import java.util.ArrayList;
+import java.util.Objects;
+
+import static java.time.ZonedDateTime.now;
+
+@Service
+public class ProblemSetService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProblemSetService.class);
+
+    private final ProblemSetRepository repo;
+    private final AuthorRepository authorRepo;
+    private final GradingService gradingService;
+    private final PlatformTransactionManager txManager;
+
+    public ProblemSetService(ProblemSetRepository repo,
+                             AuthorRepository authorRepo, GradingService gradingService,
+                             PlatformTransactionManager txManager) {
+        this.repo = repo;
+        this.authorRepo = authorRepo;
+        this.gradingService = gradingService;
+        this.txManager = txManager;
+    }
+
+    @Async
+    public <E extends Exception> void registerSolutions(int problemSetId,
+                                                        SolutionSupplier<E> supplier) throws E {
+        var tx = txManager.getTransaction(new DefaultTransactionDefinition());
+        var problemSet = repo.findById(problemSetId).get();
+        var prevSols = problemSet.getSolutions().size();
+        logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
+        try {
+            var existingSols = problemSet.getSolutions();
+            for (var newSol : supplier.get(existingSols)) {
+                var authors = new ArrayList<Author>();
+                for (var name : newSol.authorNames()) {
+                    var existing = authorRepo.findByName(name);
+                    if (existing.isPresent()) {
+                        authors.add(existing.get());
+                    } else {
+                        authors.add(new Author(name));
+                    }
+                }
+                var sol = new Solution(problemSet, newSol.repoUrl(), authors, newSol.ignoredPushers());
+                if (newSol.latestCommitHash() != null) {
+                    var subm = new Submission(sol, newSol.latestCommitHash(), now());
+                    sol.getSubmissions().add(subm);
+                }
+                problemSet.getSolutions().add(sol);
+            }
+        } finally {
+            problemSet.setRegisteringSolutions(false);
+            repo.save(problemSet);
+            txManager.commit(tx); // need to commit the new solutions before starting to grade
+        }
+
+        problemSet.getSolutions().stream()
+                .map(Solution::latestSubmission)
+                .filter(Objects::nonNull)
+                .forEach(gradingService::grade); // async
+
+        logger.info("{} solutions registered", problemSet.getSolutions().size() - prevSols);
+    }
+}

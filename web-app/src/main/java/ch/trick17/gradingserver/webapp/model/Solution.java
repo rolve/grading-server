@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.webapp.model;
 
 import ch.trick17.gradingserver.GradingResult;
 import ch.trick17.gradingserver.util.RandomHexStringGenerator;
+import ch.trick17.gradingserver.util.StringListConverter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -24,21 +25,22 @@ public class Solution implements Serializable {
     private String repoUrl;
     @ManyToMany(cascade = PERSIST)
     private final Set<Author> authors = new HashSet<>();
+    @Lob
+    @Convert(converter = StringListConverter.class)
+    private final List<String> ignoredPushers = new ArrayList<>();
     private String accessToken;
-    private String ignoredInitialCommit;
 
     @OneToMany(mappedBy = "solution", cascade = ALL, orphanRemoval = true)
     private final List<Submission> submissions = new ArrayList<>();
-    private boolean fetchingSubmission = false;
 
     protected Solution() {}
 
     public Solution(ProblemSet problemSet, String repoUrl, Collection<Author> authors,
-                    String ignoredInitialCommit) {
+                    Collection<String> ignoredPushers) {
         this.problemSet = requireNonNull(problemSet);
         this.repoUrl = requireNonNull(repoUrl);
         this.authors.addAll(authors);
-        this.ignoredInitialCommit = ignoredInitialCommit;
+        this.ignoredPushers.addAll(ignoredPushers);
         generateAccessToken();
         problemSet.getSolutions().add(this);
     }
@@ -68,8 +70,8 @@ public class Solution implements Serializable {
                 .generate(i -> false);
     }
 
-    public String getIgnoredInitialCommit() {
-        return ignoredInitialCommit;
+    public List<String> getIgnoredPushers() {
+        return ignoredPushers;
     }
 
     public List<Submission> getSubmissions() {
@@ -79,14 +81,6 @@ public class Solution implements Serializable {
     public Submission latestSubmission() {
         return submissions.stream()
                 .max(comparingInt(Submission::getId)).orElse(null);
-    }
-
-    public boolean isFetchingSubmission() {
-        return fetchingSubmission;
-    }
-
-    public void setFetchingSubmission(boolean fetchingSubmission) {
-        this.fetchingSubmission = fetchingSubmission;
     }
 
     public static Comparator<Solution> byResult() {

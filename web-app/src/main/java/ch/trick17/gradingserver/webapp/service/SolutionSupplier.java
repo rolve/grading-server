@@ -9,14 +9,15 @@ import java.util.Set;
 
 public interface SolutionSupplier<E extends Exception> {
 
-    List<SolutionInfo> get(Collection<Solution> existing) throws E;
+    List<NewSolution> get(Collection<Solution> existing) throws E;
 
-    record SolutionInfo(String repoUrl, Set<String> authorNames, String ignoredInitialCommit) {
+    record NewSolution(String repoUrl, Set<String> authorNames, Set<String> ignoredPushers,
+                       String latestCommitHash) {
 
         @Override
         public boolean equals(Object other) {
-            return other instanceof SolutionInfo
-                    && repoUrl.equals(((SolutionInfo) other).repoUrl);
+            return other instanceof SolutionSupplier.NewSolution
+                    && repoUrl.equals(((NewSolution) other).repoUrl);
         }
 
         @Override

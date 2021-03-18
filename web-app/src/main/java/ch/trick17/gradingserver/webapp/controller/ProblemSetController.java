@@ -7,8 +7,7 @@ import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingOptions.Compiler;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
-import ch.trick17.gradingserver.webapp.service.SolutionService;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import ch.trick17.gradingserver.webapp.service.ProblemSetService;
 import org.gitlab4j.api.GitLabApiException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,15 +33,15 @@ public class ProblemSetController {
     private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
     private final HostCredentialsRepository credRepo;
-    private final SolutionService solutionService;
+    private final ProblemSetService problemSetService;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
                                 HostCredentialsRepository credRepo,
-                                SolutionService solutionService) {
+                                ProblemSetService problemSetService) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.credRepo = credRepo;
-        this.solutionService = solutionService;
+        this.problemSetService = problemSetService;
     }
 
     @GetMapping("/{id}/")
@@ -109,7 +108,7 @@ public class ProblemSetController {
                                           @RequestParam String token,
                                           @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
                                           HttpServletRequest req)
-            throws GitLabApiException, GitAPIException {
+            throws GitLabApiException {
         var problemSet = findProblemSet(courseId, id);
 
         var existingTokens = credRepo.findByHost(host);
@@ -137,7 +136,7 @@ public class ProblemSetController {
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
         supplier.setWebhookBaseUrl(serverBaseUrl);
         supplier.setIgnoringAuthorless(ignoreAuthorless);
-        solutionService.registerSolutions(problemSet.getId(), supplier); // async
+        problemSetService.registerSolutions(problemSet.getId(), supplier); // async
         return "redirect:./";
     }
 
