@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.webapp.service.SolutionSupplier.NewSolution;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,7 @@ import java.util.Set;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GitLabGroupSolutionSupplierTest {
 
@@ -24,14 +24,16 @@ class GitLabGroupSolutionSupplierTest {
     static List<NewSolution> solutions;
 
     @BeforeAll
-    static void getSolutions() throws GitLabApiException {
+    static void getSolutions() throws GitLabApiException, GitAPIException {
         // not so nice to do this here, but saves quite some time
-        solutions = new GitLabGroupSolutionSupplier(HOST, GROUP, TOKEN).get(emptyList());
+        var supplier = new GitLabGroupSolutionSupplier(HOST, GROUP, "", TOKEN);
+        assertTrue(supplier.isIgnoringAuthorless());
+        solutions = supplier.get(emptyList());
     }
 
     @Test
     void solutionsFound() {
-        assertThat(solutions).hasSize(3);
+        assertThat(solutions).hasSize(4);
     }
 
     @Test
@@ -42,57 +44,84 @@ class GitLabGroupSolutionSupplierTest {
 
     @Test
     void repoUrlAndAuthorNames() {
-        var repoRolve = solutions.stream()
+        var solRolve = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/rolve.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
-        assertEquals(Set.of("rolve"), repoRolve.authorNames());
+        assertEquals(Set.of("rolve"), solRolve.authorNames());
 
-        var repoMichael = solutions.stream()
+        var solMichael = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/michael.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
-        assertEquals(Set.of("michael-trick17"), repoMichael.authorNames());
+        assertEquals(Set.of("michael-trick17"), solMichael.authorNames());
 
-        var repoMike = solutions.stream()
+        var solMike = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/mike.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
-        assertEquals(Set.of("mike-trick17"), repoMike.authorNames());
+        assertEquals(Set.of("mike-trick17"), solMike.authorNames());
     }
 
     @Test
     void latestCommitHash() {
-        var repoRolve = solutions.stream()
+        var solRolve = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/rolve.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
         // multiple pushes, but all from the group owner, who is ignored
-        assertNull(repoRolve.latestCommitHash());
+        assertNull(solRolve.latestCommitHash());
 
-        var repoMichael = solutions.stream()
+        var solMichael = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/michael.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
         // no pushes at all
-        assertNull(repoMichael.latestCommitHash());
+        assertNull(solMichael.latestCommitHash());
 
-        var repoMike = solutions.stream()
+        var solMike = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/mike.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
         // multiple pushes from non-ignored user, followed by pushes from
         // group owner (later), which should be ignored. Also, commit author
         // (should be irrelevant) is different from pusher and the last push
         // from the non-ignored user contains two commits
-        assertEquals("e0ad1c713b80833375f9a4170f74b84ce4625096", repoMike.latestCommitHash());
+        assertEquals("e0ad1c713b80833375f9a4170f74b84ce4625096", solMike.latestCommitHash());
     }
 
     @Test
-    void authorless() throws GitLabApiException {
-        var supplier = new GitLabGroupSolutionSupplier(HOST, GROUP, TOKEN);
+    void latestCommitHashWithProjectRoot() throws GitLabApiException, GitAPIException {
+        var solutions = new GitLabGroupSolutionSupplier(HOST, GROUP, "foo", TOKEN)
+                .get(emptyList());
+        var solRolve2 = solutions.stream()
+                .filter(s -> s.repoUrl().equals(HOST + GROUP + "/rolve2.git"))
+                .findFirst().orElseThrow(AssertionFailedError::new);
+        // last couple of pushes did not change anything inside foo/, so should be ignored
+        assertEquals("5f4961d694e0224343cec6b1e999a15569e0343a", solRolve2.latestCommitHash());
+
+        solutions = new GitLabGroupSolutionSupplier(HOST, GROUP, "bar", TOKEN)
+                .get(emptyList());
+        solRolve2 = solutions.stream()
+                .filter(s -> s.repoUrl().equals(HOST + GROUP + "/rolve2.git"))
+                .findFirst().orElseThrow(AssertionFailedError::new);
+        // last push affected bar/
+        assertEquals("392dc0cc14c5be947310aff311264c22265adcb3", solRolve2.latestCommitHash());
+
+        solutions = new GitLabGroupSolutionSupplier(HOST, GROUP, "baz", TOKEN)
+                .get(emptyList());
+        solRolve2 = solutions.stream()
+                .filter(s -> s.repoUrl().equals(HOST + GROUP + "/rolve2.git"))
+                .findFirst().orElseThrow(AssertionFailedError::new);
+        // no push for baz/
+        assertNull(solRolve2.latestCommitHash());
+    }
+
+    @Test
+    void authorless() throws GitLabApiException, GitAPIException {
+        var supplier = new GitLabGroupSolutionSupplier(HOST, GROUP, "", TOKEN);
         supplier.setIgnoringAuthorless(false);
         var solutions = supplier.get(emptyList());
 
-        assertEquals(4, solutions.size());
+        assertEquals(5, solutions.size());
 
-        var repoWithoutMember = solutions.stream()
+        var authorlessSol = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/without-member.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
-        assertEquals(emptySet(), repoWithoutMember.authorNames());
+        assertEquals(emptySet(), authorlessSol.authorNames());
     }
 }

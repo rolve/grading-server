@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.webapp.model.Solution;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 public interface SolutionSupplier<E extends Exception> {
 
-    List<NewSolution> get(Collection<Solution> existing) throws E;
+    List<NewSolution> get(Collection<Solution> existing) throws E, GitAPIException;
 
     record NewSolution(String repoUrl, Set<String> authorNames, Set<String> ignoredPushers,
                        String latestCommitHash) {

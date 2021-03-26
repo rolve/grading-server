@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.webapp.service;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.ObjectId;
@@ -35,26 +36,36 @@ public class GitRepoDiffFetcher implements Closeable {
         repo = new InMemoryRepository(new DfsRepositoryDescription());
         git = new Git(repo);
         var credentials = new UsernamePasswordCredentialsProvider(user, passwort);
-        git.fetch()
-                .setRemote(repoUrl)
-                .setCredentialsProvider(credentials)
-                .setRefSpecs("+refs/heads/master:refs/heads/master")
-                .call();
+        try {
+            git.fetch()
+                    .setRemote(repoUrl)
+                    .setCredentialsProvider(credentials)
+                    .setRefSpecs("+refs/heads/master:refs/heads/master")
+                    .call();
+        } catch (TransportException e) {
+            // ignore errors caused by empty repos
+            if (!e.getMessage().contains("does not have refs/heads/master available for fetch")) {
+                throw e;
+            }
+        }
     }
 
-    public Set<String> affectedPaths(String fromCommitHash, String toCommitHash)
-            throws IOException, GitAPIException {
-        var fromIterator = fromCommitHash == null
-                ? new CanonicalTreeParser()
-                : treeIterator(repo, fromString(fromCommitHash));
-        var toIterator = treeIterator(repo, fromString(toCommitHash));
-        return git.diff()
-                .setOldTree(fromIterator)
-                .setNewTree(toIterator)
-                .call().stream()
-                .flatMap(e -> Stream.of(e.getOldPath(), e.getNewPath()))
-                .filter(not("/dev/null"::equals))
-                .collect(toSet());
+    public Set<String> affectedPaths(String fromCommitHash, String toCommitHash) {
+        try {
+            var fromIterator = fromCommitHash == null
+                    ? new CanonicalTreeParser()
+                    : treeIterator(repo, fromString(fromCommitHash));
+            var toIterator = treeIterator(repo, fromString(toCommitHash));
+            return git.diff()
+                    .setOldTree(fromIterator)
+                    .setNewTree(toIterator)
+                    .call().stream()
+                    .flatMap(e -> Stream.of(e.getOldPath(), e.getNewPath()))
+                    .filter(not("/dev/null"::equals))
+                    .collect(toSet());
+        } catch (IOException | GitAPIException e) {
+            throw new AssertionError(e); // shouldn't happen, everything is in-memory
+        }
     }
 
     private static AbstractTreeIterator treeIterator(Repository repo, ObjectId commit)

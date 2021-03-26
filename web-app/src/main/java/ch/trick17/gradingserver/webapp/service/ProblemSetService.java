@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.webapp.model.*;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -34,7 +35,8 @@ public class ProblemSetService {
 
     @Async
     public <E extends Exception> void registerSolutions(int problemSetId,
-                                                        SolutionSupplier<E> supplier) throws E {
+                                                        SolutionSupplier<E> supplier)
+            throws E, GitAPIException {
         var tx = txManager.getTransaction(new DefaultTransactionDefinition());
         var problemSet = repo.findById(problemSetId).get();
         var prevSols = problemSet.getSolutions().size();

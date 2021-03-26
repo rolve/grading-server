@@ -8,6 +8,7 @@ import ch.trick17.gradingserver.GradingOptions.Compiler;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.webapp.service.ProblemSetService;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -108,7 +109,7 @@ public class ProblemSetController {
                                           @RequestParam String token,
                                           @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
                                           HttpServletRequest req)
-            throws GitLabApiException {
+            throws GitLabApiException, GitAPIException {
         var problemSet = findProblemSet(courseId, id);
 
         var existingTokens = credRepo.findByHost(host);
@@ -133,7 +134,8 @@ public class ProblemSetController {
         repo.save(problemSet);
 
         var serverBaseUrl = String.format("%s://%s:%s", req.getScheme(), req.getServerName(), req.getServerPort());
-        var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath, token);
+        var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
+                problemSet.getGradingConfig().getProjectRoot(), token);
         supplier.setWebhookBaseUrl(serverBaseUrl);
         supplier.setIgnoringAuthorless(ignoreAuthorless);
         problemSetService.registerSolutions(problemSet.getId(), supplier); // async

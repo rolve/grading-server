@@ -2,11 +2,11 @@ package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.webapp.controller.WebhooksController;
 import ch.trick17.gradingserver.webapp.model.Solution;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.*;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -18,24 +18,28 @@ import static java.util.stream.Collectors.toSet;
 import static org.gitlab4j.api.Constants.ActionType.PUSHED;
 import static org.gitlab4j.api.Constants.SortOrder.DESC;
 import static org.gitlab4j.api.models.AccessLevel.DEVELOPER;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(GitLabGroupSolutionSupplier.class);
+    private static final Logger logger = getLogger(GitLabGroupSolutionSupplier.class);
 
     private final String hostUrl;
-    private final String token;
     private final String groupPath;
+    private final String projectRoot;
+    private final String token;
 
     private AccessLevel minAccessLevel = DEVELOPER;
     private boolean ignoringCommonMembers = true;
     private boolean ignoringAuthorless = true;
     private String webhookBaseUrl = null;
 
-    public GitLabGroupSolutionSupplier(String hostUrl, String groupPath, String token) {
+    public GitLabGroupSolutionSupplier(String hostUrl, String groupPath,
+                                       String projectRoot, String token) {
         this.hostUrl = requireNonNull(hostUrl);
-        this.token = requireNonNull(token);
         this.groupPath = requireNonNull(groupPath);
+        this.projectRoot = requireNonNull(projectRoot);
+        this.token = requireNonNull(token);
     }
 
     public AccessLevel getMinAccessLevel() {
@@ -82,7 +86,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
     }
 
     @Override
-    public List<NewSolution> get(Collection<Solution> existing) throws GitLabApiException {
+    public List<NewSolution> get(Collection<Solution> existing) throws GitLabApiException, GitAPIException {
         var existingRepos = existing.stream()
                 .map(Solution::getRepoUrl)
                 .collect(toSet());
@@ -153,15 +157,19 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             var sols = new ArrayList<NewSolution>();
             for (int i = 0; i < projects.size(); i++) {
                 var repoUrl = projects.get(i).getHttpUrlToRepo();
-                var pushEvents = api.getEventsApi().getProjectEvents(projects.get(i), PUSHED,
-                        null, null, null, DESC);
-                var initialCommit = pushEvents.stream()
-                        .filter(e -> !ignoredPushers.contains(e.getAuthorUsername()))
-                        .map(Event::getPushData)
-                        .filter(p -> p.getRef().equals("master"))
-                        .map(PushData::getCommitTo)
-                        .findFirst().orElse(null);
-                sols.add(new NewSolution(repoUrl, authors.get(i), ignoredPushers, initialCommit));
+                try (var fetcher = new GitRepoDiffFetcher(repoUrl, "", token)) {
+                    var pushEvents = api.getEventsApi().getProjectEvents(projects.get(i), PUSHED,
+                            null, null, null, DESC);
+                    var latestCommit = pushEvents.stream()
+                            .filter(e -> !ignoredPushers.contains(e.getAuthorUsername()))
+                            .map(Event::getPushData)
+                            .filter(p -> p.getRef().equals("master"))
+                            .filter(p -> fetcher.affectedPaths(p.getCommitFrom(), p.getCommitTo())
+                                    .stream().anyMatch(path -> path.startsWith(projectRoot)))
+                            .map(PushData::getCommitTo)
+                            .findFirst().orElse(null);
+                    sols.add(new NewSolution(repoUrl, authors.get(i), ignoredPushers, latestCommit));
+                }
             }
             return sols;
         }
