@@ -62,7 +62,7 @@ class GitLabGroupSolutionSupplierTest {
         var repoRolve = solutions.stream()
                 .filter(s -> s.repoUrl().equals(HOST + GROUP + "/rolve.git"))
                 .findFirst().orElseThrow(AssertionFailedError::new);
-        // two pushes, but all from the group owner, who is ignored
+        // multiple pushes, but all from the group owner, who is ignored
         assertNull(repoRolve.latestCommitHash());
 
         var repoMichael = solutions.stream()
