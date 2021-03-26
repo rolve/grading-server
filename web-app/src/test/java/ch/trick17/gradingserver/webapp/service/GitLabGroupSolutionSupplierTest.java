@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -79,5 +80,19 @@ class GitLabGroupSolutionSupplierTest {
         // (should be irrelevant) is different from pusher and the last push
         // from the non-ignored user contains two commits
         assertEquals("e0ad1c713b80833375f9a4170f74b84ce4625096", repoMike.latestCommitHash());
+    }
+
+    @Test
+    void authorless() throws GitLabApiException {
+        var supplier = new GitLabGroupSolutionSupplier(HOST, GROUP, TOKEN);
+        supplier.setIgnoringAuthorless(false);
+        var solutions = supplier.get(emptyList());
+
+        assertEquals(4, solutions.size());
+
+        var repoWithoutMember = solutions.stream()
+                .filter(s -> s.repoUrl().equals(HOST + GROUP + "/without-member.git"))
+                .findFirst().orElseThrow(AssertionFailedError::new);
+        assertEquals(emptySet(), repoWithoutMember.authorNames());
     }
 }
