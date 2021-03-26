@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record GitLabPushEvent(
         @JsonProperty("project") Project project,
         @JsonProperty("ref") String ref,
-        @JsonProperty("after") String commitHash,
+        @JsonProperty("before") String beforeCommit,
+        @JsonProperty("after") String afterCommit,
         @JsonProperty("user_username") String username) {
 
     public static record Project(
