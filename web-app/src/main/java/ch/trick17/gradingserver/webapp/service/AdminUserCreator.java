@@ -30,7 +30,7 @@ public class AdminUserCreator {
     }
 
     public void createInitialUser() {
-        if (userRepo.findByUsername("admin") == null) {
+        if (userRepo.findByUsername("admin").isEmpty()) {
             var encoder = createDelegatingPasswordEncoder();
             var random = new SecureRandom();
             var password = new BigInteger(128, random).toString(32);
