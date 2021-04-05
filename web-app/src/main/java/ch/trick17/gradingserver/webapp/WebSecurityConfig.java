@@ -1,11 +1,20 @@
 package ch.trick17.gradingserver.webapp;
 
+import ch.trick17.gradingserver.webapp.model.UserRepository;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserRepository userRepo;
+
+    public WebSecurityConfig(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -29,5 +38,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                 .logout()
                     .permitAll();
+    }
+
+    @Bean
+    @Override
+    public UserDetailsService userDetailsService() {
+        return userRepo::findByUsername;
     }
 }
