@@ -2,7 +2,6 @@ package ch.trick17.gradingserver.webapp.model;
 
 import ch.trick17.gradingserver.Credentials;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
