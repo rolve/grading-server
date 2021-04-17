@@ -22,6 +22,7 @@ public class ProblemSet {
     private GradingConfig gradingConfig;
     private ZonedDateTime deadline;
     private boolean anonymous;
+    private boolean hidden;
 
     @OneToMany(mappedBy = "problemSet", cascade = ALL, orphanRemoval = true)
     private List<Solution> solutions = new ArrayList<>();
@@ -29,12 +30,14 @@ public class ProblemSet {
 
     protected ProblemSet() {}
 
-    public ProblemSet(Course course, String name, GradingConfig gradingConfig, ZonedDateTime deadline, boolean anonymous) {
+    public ProblemSet(Course course, String name, GradingConfig gradingConfig,
+                      ZonedDateTime deadline, boolean anonymous, boolean hidden) {
         this.course = requireNonNull(course);
         this.name = requireNonNull(name);
         this.deadline = deadline;
         this.gradingConfig = gradingConfig;
         this.anonymous = anonymous;
+        this.hidden = hidden;
         course.getProblemSets().add(this);
     }
 
@@ -76,6 +79,14 @@ public class ProblemSet {
 
     public void setAnonymous(boolean anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     public List<Solution> getSolutions() {

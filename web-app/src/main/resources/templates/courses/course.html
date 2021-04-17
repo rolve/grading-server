@@ -19,15 +19,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="problemSet : *{problemSets}">
-                    <td>
-                        <a href="../problem-sets/problem-set.html"
-                           th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
-                           th:text="${problemSet.name}">Problem Set Name</a></td>
-                    <td th:text="|${#temporals.format(problemSet.deadline)} (${@prettyTime.get.format(problemSet.deadline)})|">
-                        Deadline
-                    </td>
-                </tr>
+                <th:block th:each="problemSet : *{problemSets}">
+                    <tr sec:authorize="!#vars.problemSet.hidden || isAuthenticated()">
+                        <td>
+                            <a href="../problem-sets/problem-set.html"
+                               th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
+                               th:text="${problemSet.name}">Problem Set Name</a></td>
+                        <td th:text="|${#temporals.format(problemSet.deadline)} (${@prettyTime.get.format(problemSet.deadline)})|">
+                            Deadline
+                        </td>
+                    </tr>
+                </th:block>
             </tbody>
         </table>
         <p sec:authorize="isAuthenticated()">

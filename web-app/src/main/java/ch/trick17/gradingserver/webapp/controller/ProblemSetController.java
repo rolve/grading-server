@@ -10,6 +10,9 @@ import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.webapp.service.ProblemSetService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +22,11 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.*;
+import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Solution.byCommitHash;
 import static ch.trick17.gradingserver.webapp.model.Solution.byResult;
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
@@ -30,6 +35,10 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Controller
 @RequestMapping("/courses/{courseId}/problem-sets")
 public class ProblemSetController {
+
+    private static final Set<String> LOCALHOST = Set.of("localhost", "127.0.0.1", "[::1]");
+
+    private static final Logger logger = LoggerFactory.getLogger(ProblemSetController.class);
 
     private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
@@ -46,6 +55,7 @@ public class ProblemSetController {
     }
 
     @GetMapping("/{id}/")
+    @PreAuthorize("!this.findProblemSet(#courseId, #id).hidden || isAuthenticated()")
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
@@ -57,7 +67,7 @@ public class ProblemSetController {
         return "problem-sets/problem-set";
     }
 
-    private ProblemSet findProblemSet(int courseId, int id) {
+    public ProblemSet findProblemSet(int courseId, int id) {
         var problemSet = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         if (problemSet.getCourse().getId() != courseId) {
@@ -78,6 +88,7 @@ public class ProblemSetController {
     public String addProblemSet(@PathVariable int courseId, @RequestParam String name,
                                 @RequestParam String deadlineDate, @RequestParam String deadlineTime,
                                 @RequestParam(defaultValue = "false") boolean anonymous,
+                                @RequestParam(defaultValue = "false") boolean hidden,
                                 @RequestParam MultipartFile testClassFile, @RequestParam String structure,
                                 @RequestParam String projectRoot, @RequestParam String compiler,
                                 @RequestParam int repetitions, @RequestParam int repTimeoutMs,
@@ -91,7 +102,7 @@ public class ProblemSetController {
                 new GradingOptions(Compiler.valueOf(compiler), repetitions,
                         Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
         var problemSet = new ProblemSet(course, name, config,
-                ZonedDateTime.of(date, time, ZoneId.systemDefault()), anonymous);
+                ZonedDateTime.of(date, time, ZoneId.systemDefault()), anonymous, hidden);
         problemSet = repo.save(problemSet);
         return "redirect:" + problemSet.getId() + "/";
     }
@@ -133,10 +144,14 @@ public class ProblemSetController {
         problemSet.setRegisteringSolutions(true);
         repo.save(problemSet);
 
-        var serverBaseUrl = String.format("%s://%s:%s", req.getScheme(), req.getServerName(), req.getServerPort());
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
                 problemSet.getGradingConfig().getProjectRoot(), token);
-        supplier.setWebhookBaseUrl(serverBaseUrl);
+        if (LOCALHOST.contains(req.getServerName())) {
+            logger.warn("Cannot determine server name (access via localhost), will not add webhooks");
+        } else {
+            var serverBaseUrl = format("%s://%s:%s", req.getScheme(), req.getServerName(), req.getServerPort());
+            supplier.setWebhookBaseUrl(serverBaseUrl);
+        }
         supplier.setIgnoringAuthorless(ignoreAuthorless);
         problemSetService.registerSolutions(problemSet.getId(), supplier); // async
         return "redirect:./";

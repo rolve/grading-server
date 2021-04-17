@@ -40,7 +40,8 @@ class CourseControllerTest {
         var config = new GradingConfig("class Foo {}", "", ECLIPSE,
                 new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
         var problemSet = new ProblemSet(course, "Woche 3", config, ZonedDateTime.of(
-                LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")), false);
+                LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")),
+                false, false);
         repo.save(course);
 
         var response = rest.getForObject("/courses/" + course.getId() + "/", String.class);

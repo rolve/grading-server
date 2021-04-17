@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.webapp.controller;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import ch.trick17.gradingserver.webapp.model.SubmissionRepository;
 import ch.trick17.gradingserver.webapp.service.GradingService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/{id}/")
+    @PreAuthorize("!this.findSubmission(#courseId, #probId, #solId, #id).solution.problemSet.hidden || isAuthenticated()")
     public String submissionPage(@PathVariable int courseId, @PathVariable int probId,
                                  @PathVariable int solId, @PathVariable int id,
                                  Model model) {
@@ -44,7 +46,7 @@ public class SubmissionController {
         return "redirect:.";
     }
 
-    private Submission findSubmission(int courseId, int probId, int solId, int id) {
+    public Submission findSubmission(int courseId, int probId, int solId, int id) {
         var submission = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         if (submission.getSolution().getId() != solId ||
