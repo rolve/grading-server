@@ -13,11 +13,12 @@ services:
       - "${WEBAPP_PORT}:8080"
       - "127.0.0.1:9092:9092"
     environment:
+      SERVER_SERVLET_CONTEXT_PATH: ${WEBAPP_CONTEXT_PATH}
       GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-service
   grading-service:
     build:
       context: grading-service
-      dockerfile: "${DOCKERFILE}"
+      dockerfile: ${DOCKERFILE}
     hostname: grading-service
 
 volumes:
