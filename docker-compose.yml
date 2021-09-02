@@ -10,8 +10,8 @@ services:
       - "${BACKUP_DIR}:/app/backup"
     hostname: web-app
     ports:
-      - 8080:8080
-      - 9092:9092
+      - "${WEBAPP_PORT}:8080"
+      - "127.0.0.1:9092:9092"
     environment:
       GRADINGSERVER_WEBAPP_GRADINGSERVICEHOST: grading-service
   grading-service:

@@ -1,6 +1,8 @@
 package ch.trick17.gradingserver.webapp;
 
 import org.h2.tools.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,6 +12,8 @@ import static org.h2.tools.Server.createTcpServer;
 
 @Configuration
 public class H2ServerConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(H2ServerConfig .class);
 
     private final boolean enabled;
     private final int port;
@@ -22,8 +26,10 @@ public class H2ServerConfig {
     @Bean
     public Server server() throws SQLException {
         if (enabled) {
-            return createTcpServer("-tcp", "-tcpAllowOthers",
+            var server = createTcpServer("-tcp", "-tcpAllowOthers",
                     "-tcpPort", Integer.toString(port)).start();
+            logger.info("Started H2 TCP server on port {}", port);
+            return server;
         } else {
             return null;
         }
