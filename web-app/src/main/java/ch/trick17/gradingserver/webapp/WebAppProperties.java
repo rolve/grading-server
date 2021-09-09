@@ -10,6 +10,8 @@ public class WebAppProperties {
 
     private DbServer dbServer;
 
+    private String defaultGitLabHost;
+
     public String getGradingServiceHost() {
         return gradingServiceHost;
     }
@@ -36,6 +38,14 @@ public class WebAppProperties {
 
     public void setDbServer(DbServer dbServer) {
         this.dbServer = dbServer;
+    }
+
+    public String getDefaultGitLabHost() {
+        return defaultGitLabHost;
+    }
+
+    public void setDefaultGitLabHost(String defaultGitLabHost) {
+        this.defaultGitLabHost = defaultGitLabHost;
     }
 
     public static class DbServer {

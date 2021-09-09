@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingOptions.Compiler;
+import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.webapp.service.ProblemSetService;
@@ -45,13 +46,17 @@ public class ProblemSetController {
     private final HostCredentialsRepository credRepo;
     private final ProblemSetService problemSetService;
 
+    private final String defaultGitLabHost;
+
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
                                 HostCredentialsRepository credRepo,
-                                ProblemSetService problemSetService) {
+                                ProblemSetService problemSetService,
+                                WebAppProperties props) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.credRepo = credRepo;
         this.problemSetService = problemSetService;
+        this.defaultGitLabHost = props.getDefaultGitLabHost();
     }
 
     @GetMapping("/{id}/")
@@ -111,6 +116,7 @@ public class ProblemSetController {
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
+        model.addAttribute("host", defaultGitLabHost);
         return "problem-sets/register-solutions-gitlab";
     }
 
