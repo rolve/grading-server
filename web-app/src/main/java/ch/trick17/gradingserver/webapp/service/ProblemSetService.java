@@ -58,7 +58,6 @@ public class ProblemSetService {
                     var subm = new Submission(sol, newSol.latestCommitHash(), now());
                     sol.getSubmissions().add(subm);
                 }
-                problemSet.getSolutions().add(sol);
             }
             // make sure submissions are loaded before transaction commits,
             // otherwise 'latestSubmission' below fails (LazyInitializationException)
