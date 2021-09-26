@@ -155,7 +155,7 @@ public class ProblemSetController {
         if (LOCALHOST.contains(req.getServerName())) {
             logger.warn("Cannot determine server name (access via localhost), will not add webhooks");
         } else {
-            var serverBaseUrl = format("%s://%s:%s", req.getScheme(), req.getServerName(), req.getServerPort());
+            var serverBaseUrl = format("https://%s%s", req.getServerName(), req.getContextPath());
             supplier.setWebhookBaseUrl(serverBaseUrl);
         }
         supplier.setIgnoringAuthorless(ignoreAuthorless);
