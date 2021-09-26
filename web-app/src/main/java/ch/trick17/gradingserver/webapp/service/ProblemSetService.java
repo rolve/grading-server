@@ -60,6 +60,9 @@ public class ProblemSetService {
                 }
                 problemSet.getSolutions().add(sol);
             }
+            // make sure submissions are loaded before transaction commits,
+            // otherwise 'latestSubmission' below fails (LazyInitializationException)
+            existingSols.forEach(Solution::latestSubmission);
         } finally {
             problemSet.setRegisteringSolutions(false);
             repo.save(problemSet);
