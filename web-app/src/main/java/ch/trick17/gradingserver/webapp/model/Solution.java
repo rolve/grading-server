@@ -11,8 +11,7 @@ import java.util.*;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.*;
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.*;
 
 @Entity
 public class Solution implements Serializable {
@@ -23,7 +22,7 @@ public class Solution implements Serializable {
     @ManyToOne(cascade = PERSIST)
     private ProblemSet problemSet;
     private String repoUrl;
-    @ManyToMany(cascade = PERSIST)
+    @ManyToMany(cascade = {PERSIST, MERGE})
     private final Set<Author> authors = new HashSet<>();
     @Lob
     @Convert(converter = StringListConverter.class)
