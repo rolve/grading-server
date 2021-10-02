@@ -101,8 +101,8 @@
                     <div class="passed" th:style="|width: *{passedTestsRatio * 100}%;|" style="width: 50%;"></div>
                 </div>
                 <div class="mt-2 mb-4 text-center font-weight-bold" style="font-size: 1.5em;"
-                     th:text="|*{passedTests.size} / *{totalTests} tests passed|">
-                    2 / 7 tests passed
+                     th:text="|*{passedTests.size} / *{totalTests} tests passed (*{passedTests.size * 100 / totalTests}%)|">
+                    2 / 7 tests passed (29%)
                 </div>
                 <table class="table w-auto">
                     <thead>
