@@ -18,17 +18,18 @@
 
 <th:block th:fragment="result(submission)">
     <span th:if="${submission == null || !submission.hasResult}">—</span>
-    <th:block th:if="${submission != null && submission.hasResult}">
-        <span th:if="${!submission.result.compiled}" class="badge bg-danger">
+    <th:block th:if="${submission != null && submission.hasResult}" th:object="${submission.result}">
+        <span th:if="*{!compiled}" class="badge bg-danger">
             Compile errors
         </span>
-        <span th:if="${submission.result.compiled && submission.result.totalTests == 0}" class="badge bg-secondary">
+        <span th:if="*{compiled && totalTests == 0}" class="badge bg-secondary">
             No tests
         </span>
-        <span th:if="${submission.result.compiled && submission.result.totalTests > 0}"
-              class="test-bar d-inline-block align-middle" style="width: 8rem; height: 1rem;">
+        <span th:if="*{compiled && totalTests > 0}"
+              class="test-bar d-inline-block align-middle" style="width: 8rem; height: 1rem;"
+              th:title="|*{passedTests.size} / *{totalTests} tests passed (*{passedTests.size * 100 / totalTests}%)|">
             <span class="passed d-inline-block" style="width: 50%;"
-                  th:style="|width: ${submission.result.passedTestsRatio * 100}%;|"></span>
+                  th:style="|width: *{passedTestsRatio * 100}%;|"></span>
         </span>
     </th:block>
 </th:block>
