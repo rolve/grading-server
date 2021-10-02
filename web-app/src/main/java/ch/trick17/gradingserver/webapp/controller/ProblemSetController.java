@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.Credentials;
 import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
@@ -43,13 +42,13 @@ public class ProblemSetController {
 
     private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
-    private final HostCredentialsRepository credRepo;
+    private final HostAccessTokenRepository credRepo;
     private final ProblemSetService problemSetService;
 
     private final String defaultGitLabHost;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
-                                HostCredentialsRepository credRepo,
+                                HostAccessTokenRepository credRepo,
                                 ProblemSetService problemSetService,
                                 WebAppProperties props) {
         this.repo = repo;
@@ -135,9 +134,8 @@ public class ProblemSetController {
         if (token.isBlank()) {
             // if no token is provided, try to use an existing one
             token = existingTokens.stream()
-                    .max(comparingInt(HostCredentials::getId))
-                    .map(HostCredentials::getCredentials)
-                    .map(Credentials::getPassword)
+                    .max(comparingInt(HostAccessToken::getId))
+                    .map(HostAccessToken::getAccessToken)
                     .orElse(null);
             if (token == null) {
                 model.addAttribute("problemSet", problemSet);
@@ -150,10 +148,10 @@ public class ProblemSetController {
         } else {
             // otherwise, if the provided token is new, store it
             var known = existingTokens.stream()
-                    .map(c -> c.getCredentials().getPassword())
+                    .map(HostAccessToken::getAccessToken)
                     .anyMatch(token::equals);
             if (!known) {
-                credRepo.save(new HostCredentials(host, new Credentials("", token)));
+                credRepo.save(new HostAccessToken(host, token));
             }
         }
 

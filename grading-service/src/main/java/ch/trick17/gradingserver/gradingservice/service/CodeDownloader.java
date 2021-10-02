@@ -1,7 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
 import ch.trick17.gradingserver.CodeLocation;
-import ch.trick17.gradingserver.Credentials;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -18,7 +17,7 @@ import static java.util.Comparator.reverseOrder;
 @Service
 public class CodeDownloader {
 
-    public void downloadCode(CodeLocation from, Path to, Credentials credentials) throws IOException {
+    public void downloadCode(CodeLocation from, Path to, String accessToken) throws IOException {
         int attempts = 3;
         while (attempts-- > 0) {
             try {
@@ -27,9 +26,9 @@ public class CodeDownloader {
                 var clone = Git.cloneRepository()
                         .setURI(from.getRepoUrl())
                         .setDirectory(to.toFile());
-                if (credentials != null) {
-                    clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(
-                            credentials.getUsername(), credentials.getPassword()));
+                if (accessToken != null) {
+                    clone.setCredentialsProvider(
+                            new UsernamePasswordCredentialsProvider("", accessToken));
                 }
                 try (var git = clone.call()) {
                     git.checkout().setName(from.getCommitHash()).call();

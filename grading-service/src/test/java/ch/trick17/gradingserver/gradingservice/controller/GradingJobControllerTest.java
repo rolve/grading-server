@@ -50,7 +50,7 @@ class GradingJobControllerTest {
         var response = rest.getForObject(location, GradingJob.class);
         assertEquals(matcher.group(1), response.getId());
         assertEquals(code, response.getSubmission());
-        assertNull(response.getCredentials());
+        assertNull(response.getAccessToken());
         assertEquals(config, response.getConfig());
     }
 
@@ -59,10 +59,9 @@ class GradingJobControllerTest {
     void doNotStoreCredentials() {
         var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
-        var credentials = new Credentials("user", "pw");
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
-        var job = new GradingJob(code, credentials,
+        var job = new GradingJob(code, "pw",
                 new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
@@ -70,7 +69,7 @@ class GradingJobControllerTest {
 
         var response = rest.getForObject(uri, GradingJob.class);
         assertEquals(matcher.group(1), response.getId());
-        assertNull(response.getCredentials());
+        assertNull(response.getAccessToken());
     }
 
     @Test
@@ -175,7 +174,7 @@ class GradingJobControllerTest {
         assertNotNull(response);
         assertEquals(matcher.group(1), response.getId());
         assertEquals(code, response.getSubmission());
-        assertNull(response.getCredentials());
+        assertNull(response.getAccessToken());
         assertEquals(config, response.getConfig());
 
         var result = response.getResult();
@@ -190,7 +189,7 @@ class GradingJobControllerTest {
     @Test
     @DirtiesContext
     void privateRepo() throws InterruptedException {
-        var credentials = new Credentials("grading-server", "VBgo1xky7z87tKdzXacw"); // read-only deploy token
+        var accessToken = "VBgo1xky7z87tKdzXacw"; // read-only deploy token
         var code = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
                 "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
         var options = new GradingOptions(JAVAC, 7, Duration.ofSeconds(6),
@@ -205,7 +204,7 @@ class GradingJobControllerTest {
                         assertEquals(3, Foo.add(1, 2));
                     }
                 }""";
-        var job = new GradingJob(code, credentials,
+        var job = new GradingJob(code, accessToken,
                 new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 

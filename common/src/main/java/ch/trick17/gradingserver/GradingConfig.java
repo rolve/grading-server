@@ -2,7 +2,6 @@ package ch.trick17.gradingserver;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 import java.util.Objects;

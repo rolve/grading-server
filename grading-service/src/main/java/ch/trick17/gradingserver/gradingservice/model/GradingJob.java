@@ -1,7 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.model;
 
 import ch.trick17.gradingserver.CodeLocation;
-import ch.trick17.gradingserver.Credentials;
 import ch.trick17.gradingserver.GradingConfig;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.hibernate.annotations.GenericGenerator;
@@ -22,9 +21,9 @@ public class GradingJob extends ch.trick17.gradingserver.GradingJob {
     protected GradingJob() {}
 
     @JsonCreator
-    public GradingJob(CodeLocation submission, Credentials credentials,
+    public GradingJob(CodeLocation submission, String accessToken,
                       GradingConfig config) {
-        super(submission, credentials, config);
+        super(submission, accessToken, config);
     }
 
     public String getId() {

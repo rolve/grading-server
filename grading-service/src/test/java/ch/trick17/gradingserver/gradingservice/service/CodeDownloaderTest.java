@@ -1,7 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
 import ch.trick17.gradingserver.CodeLocation;
-import ch.trick17.gradingserver.Credentials;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +31,7 @@ class CodeDownloaderTest {
         var downloader = new CodeDownloader();
         var location = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
                 "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
-        downloader.downloadCode(location, dir,
-                new Credentials("grading-server", "VBgo1xky7z87tKdzXacw")); // read-only deploy token
+        downloader.downloadCode(location, dir, "VBgo1xky7z87tKdzXacw"); // read-only deploy token
         assertTrue(Files.exists(dir.resolve("src/foo/Foo.java")));
     }
 

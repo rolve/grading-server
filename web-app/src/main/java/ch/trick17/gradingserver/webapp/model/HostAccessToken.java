@@ -1,7 +1,5 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import ch.trick17.gradingserver.Credentials;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,19 +7,19 @@ import javax.persistence.Id;
 import static java.util.Objects.requireNonNull;
 
 @Entity
-public class HostCredentials {
+public class HostAccessToken {
 
     @Id
     @GeneratedValue
     private int id;
     private String host;
-    private Credentials credentials;
+    private String accessToken;
 
-    protected HostCredentials() {}
+    protected HostAccessToken() {}
 
-    public HostCredentials(String host, Credentials credentials) {
+    public HostAccessToken(String host, String accessToken) {
         this.host = requireNonNull(host);
-        this.credentials = requireNonNull(credentials);
+        this.accessToken = requireNonNull(accessToken);
     }
 
     public int getId() {
@@ -32,7 +30,7 @@ public class HostCredentials {
         return host;
     }
 
-    public Credentials getCredentials() {
-        return credentials;
+    public String getAccessToken() {
+        return accessToken;
     }
 }

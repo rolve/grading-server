@@ -12,17 +12,17 @@ public class GradingJob {
 
     private CodeLocation submission;
     @Transient
-    private Credentials credentials;
+    private String accessToken;
     private GradingConfig config;
     private GradingResult result;
 
     protected GradingJob() {}
 
     @JsonCreator
-    public GradingJob(CodeLocation submission, Credentials credentials,
+    public GradingJob(CodeLocation submission, String accessToken,
                       GradingConfig config) {
         this.submission = requireNonNull(submission);
-        this.credentials = credentials;
+        this.accessToken = accessToken;
         this.config = requireNonNull(config);
     }
 
@@ -30,8 +30,8 @@ public class GradingJob {
         return submission;
     }
 
-    public Credentials getCredentials() {
-        return credentials;
+    public String getAccessToken() {
+        return accessToken;
     }
 
     public GradingConfig getConfig() {

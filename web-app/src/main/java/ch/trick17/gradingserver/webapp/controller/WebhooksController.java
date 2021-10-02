@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.Credentials;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitRepoDiffFetcher;
 import ch.trick17.gradingserver.webapp.service.GradingService;
@@ -24,12 +23,12 @@ public class WebhooksController {
     private final SolutionRepository solRepo;
     private final SubmissionRepository submissionRepo;
     private final GradingService gradingService;
-    private final HostCredentialsRepository credRepo;
+    private final HostAccessTokenRepository credRepo;
 
     public WebhooksController(SolutionRepository solRepo,
                               SubmissionRepository submissionRepo,
                               GradingService gradingService,
-                              HostCredentialsRepository credRepo) {
+                              HostAccessTokenRepository credRepo) {
         this.solRepo = solRepo;
         this.submissionRepo = submissionRepo;
         this.gradingService = gradingService;
@@ -57,8 +56,7 @@ public class WebhooksController {
             }
             var projectRoot = sol.getProblemSet().getGradingConfig().getProjectRoot();
             if (!projectRoot.isEmpty()) {
-                var token = credRepo.findLatestForUrl(sol.getRepoUrl())
-                        .map(Credentials::getPassword).orElse("");
+                var token = credRepo.findLatestForUrl(sol.getRepoUrl()).orElse("");
                 try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), "", token)) {
                     var paths = fetcher.affectedPaths(event.beforeCommit(), event.afterCommit());
                     if (paths.stream().noneMatch(p -> p.startsWith(projectRoot))) {

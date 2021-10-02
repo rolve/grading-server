@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.Credentials;
 import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.model.GitLabPushEvent.Project;
@@ -39,7 +38,7 @@ class WebhooksControllerTest {
     @Mock
     GradingService gradingService;
     @Mock
-    HostCredentialsRepository credRepo;
+    HostAccessTokenRepository credRepo;
 
     @BeforeEach
     void setupMocks() {
@@ -98,7 +97,7 @@ class WebhooksControllerTest {
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("foo");
         when(credRepo.findLatestForUrl(repoUrl))
-                .thenReturn(Optional.of(new Credentials("", TOKEN)));
+                .thenReturn(Optional.of(TOKEN));
 
         var controller = new WebhooksController(solRepo, submissionRepo, gradingService, credRepo);
         var event = new GitLabPushEvent(new Project(repoUrl),
@@ -121,7 +120,7 @@ class WebhooksControllerTest {
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("bar");
         when(credRepo.findLatestForUrl(repoUrl))
-                .thenReturn(Optional.of(new Credentials("", TOKEN)));
+                .thenReturn(Optional.of(TOKEN));
 
         var controller = new WebhooksController(solRepo, submissionRepo, gradingService, credRepo);
         var event = new GitLabPushEvent(new Project(repoUrl),

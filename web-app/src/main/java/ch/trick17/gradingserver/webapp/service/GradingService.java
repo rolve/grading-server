@@ -2,7 +2,7 @@ package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.GradingJob;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
-import ch.trick17.gradingserver.webapp.model.HostCredentialsRepository;
+import ch.trick17.gradingserver.webapp.model.HostAccessTokenRepository;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class GradingService {
 
     private static final Logger logger = LoggerFactory.getLogger(GradingService.class);
 
-    private final HostCredentialsRepository credentialsRepo;
+    private final HostAccessTokenRepository credentialsRepo;
     private final SubmissionService submissionService;
     private final WebClient client;
 
@@ -43,7 +43,7 @@ public class GradingService {
     private final AtomicReference<Status> status = new AtomicReference<>();
     private final AtomicReference<Instant> lastStatusCheck = new AtomicReference<>();
 
-    public GradingService(HostCredentialsRepository credentialsRepo,
+    public GradingService(HostAccessTokenRepository credentialsRepo,
                           @Lazy SubmissionService submissionService,
                           WebAppProperties props, WebClient.Builder clientBuilder) {
         this.credentialsRepo = credentialsRepo;

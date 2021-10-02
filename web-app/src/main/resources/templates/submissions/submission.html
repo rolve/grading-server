@@ -9,9 +9,7 @@
 </head>
 <body>
     <main th:object="${submission}">
-        <h1 th:text="|Submission *{shortCommitHash}|">
-            Submission c0f27a18 (Problem set)
-        </h1>
+        <h1>Submission <span class="font-monospace" th:text="*{shortCommitHash}">c0f27a18</span></h1>
         <table class="table table-borderless table-sm w-auto">
             <tbody>
                 <tr>
