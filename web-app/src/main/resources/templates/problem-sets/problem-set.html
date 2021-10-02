@@ -61,36 +61,12 @@
                         <span th:if="${latest == null}" class="badge bg-secondary">
                             No submission yet
                         </span>
-                        <th:block th:if="${latest != null}" th:switch="${latest.status.name}">
-                            <span th:case="'QUEUED'" class="badge bg-secondary">
-                                Queued
-                            </span>
-                            <span th:case="'GRADING'" class="badge bg-info">
-                                Grading...
-                            </span>
-                            <span th:case="'GRADED'" class="badge bg-primary">
-                                Graded
-                            </span>
-                            <span th:case="'ERROR'" class="badge bg-danger">
-                                Error
-                            </span>
+                        <th:block th:unless="${latest == null}">
+                            <span th:replace="fragments::status(${latest})"></span>
                         </th:block>
                     </td>
                     <td>
-                        <span th:if="${latest == null || !latest.hasResult}">—</span>
-                        <th:block th:if="${latest != null && latest.hasResult}">
-                            <span th:if="${!latest.result.compiled}" class="badge bg-danger">
-                                Compile errors
-                            </span>
-                            <span th:if="${latest.result.compiled && latest.result.totalTests == 0}" class="badge bg-secondary">
-                                No tests
-                            </span>
-                            <span th:if="${latest.result.compiled && latest.result.totalTests > 0}"
-                                  class="test-bar d-inline-block align-middle" style="width: 8rem; height: 1rem;">
-                                <span class="passed d-inline-block" style="width: 50%;"
-                                      th:style="|width: ${latest.result.passedTestsRatio * 100}%;|"></span>
-                            </span>
-                        </th:block>
+                        <span th:replace="fragments::result(${latest})">—</span>
                     </td>
                 </tr>
             </tbody>

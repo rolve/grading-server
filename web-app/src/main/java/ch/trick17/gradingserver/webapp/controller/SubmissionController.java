@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.reverseOrder;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -34,7 +38,11 @@ public class SubmissionController {
                                  @PathVariable int solId, @PathVariable int id,
                                  Model model) {
         var submission = findSubmission(courseId, probId, solId, id);
+        var allSubmissions = submission.getSolution().getSubmissions().stream()
+                .sorted(comparing(Submission::getReceivedDate, reverseOrder()))
+                .collect(Collectors.toList());
         model.addAttribute("submission", submission);
+        model.addAttribute("allSubmissions", allSubmissions);
         return "submissions/submission";
     }
 
