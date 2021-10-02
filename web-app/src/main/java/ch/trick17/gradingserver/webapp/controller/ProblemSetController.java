@@ -117,6 +117,7 @@ public class ProblemSetController {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
         model.addAttribute("host", defaultGitLabHost);
+        model.addAttribute("ignoreAuthorless", true);
         return "problem-sets/register-solutions-gitlab";
     }
 
@@ -125,7 +126,8 @@ public class ProblemSetController {
                                           @RequestParam String host, @RequestParam String groupPath,
                                           @RequestParam String token,
                                           @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
-                                          HttpServletRequest req)
+                                          HttpServletRequest req,
+                                          Model model) // only used if unsuccessful
             throws GitLabApiException, GitAPIException {
         var problemSet = findProblemSet(courseId, id);
 
@@ -137,6 +139,14 @@ public class ProblemSetController {
                     .map(HostCredentials::getCredentials)
                     .map(Credentials::getPassword)
                     .orElse(null);
+            if (token == null) {
+                model.addAttribute("problemSet", problemSet);
+                model.addAttribute("host", host);
+                model.addAttribute("groupPath", groupPath);
+                model.addAttribute("ignoreAuthorless", ignoreAuthorless);
+                model.addAttribute("error", "No token for host " + host + " available. Please provide one.");
+                return "problem-sets/register-solutions-gitlab";
+            }
         } else {
             // otherwise, if the provided token is new, store it
             var known = existingTokens.stream()

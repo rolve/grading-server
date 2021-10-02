@@ -7,6 +7,7 @@
 <body>
     <main>
         <h1>Register Solutions from GitLab</h1>
+        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
         <form th:action="@{register-solutions-gitlab}" method="post">
             <div class="row mb-3">
                 <label for="problemSet" class="col-sm-3 col-form-label">Problem set</label>
@@ -24,7 +25,7 @@
                                required th:value="${host}">
                         <span class="input-group-text">/</span>
                         <input type="text" id="groupPath" name="groupPath" class="form-control"
-                               required placeholder="group/subgroup">
+                               required placeholder="group/subgroup" th:value="${groupPath}">
                     </div>
                 </div>
             </div>
@@ -43,7 +44,8 @@
                 <div class="col-sm-3"></div>
                 <div class="col-sm-9">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="ignoreAuthorless" name="ignoreAuthorless" checked>
+                        <input class="form-check-input" type="checkbox" id="ignoreAuthorless" name="ignoreAuthorless"
+                               th:checked="${ignoreAuthorless}">
                         <label class="form-check-label" for="ignoreAuthorless">Ignore projects without authors</label>
                     </div>
                 </div>
