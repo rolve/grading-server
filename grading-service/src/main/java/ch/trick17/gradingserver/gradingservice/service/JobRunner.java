@@ -74,7 +74,7 @@ public class JobRunner {
                 job.getSubmission(), job.getId());
         var repoDir = CODE_ROOT.resolve(job.getId());
         try {
-            downloader.downloadCode(job.getSubmission(), repoDir, job.getAccessToken());
+            downloader.downloadCode(job.getSubmission(), repoDir, job.getUsername(), job.getPassword());
             var config = job.getConfig();
             var codebaseDir = repoDir.resolve(config.getProjectRoot());
             // TODO: handle case when project root is missing

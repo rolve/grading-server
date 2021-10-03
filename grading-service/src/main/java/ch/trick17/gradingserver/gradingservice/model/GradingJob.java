@@ -21,9 +21,9 @@ public class GradingJob extends ch.trick17.gradingserver.GradingJob {
     protected GradingJob() {}
 
     @JsonCreator
-    public GradingJob(CodeLocation submission, String accessToken,
+    public GradingJob(CodeLocation submission, String username, String password,
                       GradingConfig config) {
-        super(submission, accessToken, config);
+        super(submission, username, password, config);
     }
 
     public String getId() {
