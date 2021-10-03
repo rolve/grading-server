@@ -17,7 +17,7 @@ import static java.util.Comparator.reverseOrder;
 @Service
 public class CodeDownloader {
 
-    public void downloadCode(CodeLocation from, Path to, String accessToken) throws IOException {
+    public void downloadCode(CodeLocation from, Path to, String username, String password) throws IOException {
         int attempts = 3;
         while (attempts-- > 0) {
             try {
@@ -26,9 +26,9 @@ public class CodeDownloader {
                 var clone = Git.cloneRepository()
                         .setURI(from.getRepoUrl())
                         .setDirectory(to.toFile());
-                if (accessToken != null) {
+                if (username != null) {
                     clone.setCredentialsProvider(
-                            new UsernamePasswordCredentialsProvider("", accessToken));
+                            new UsernamePasswordCredentialsProvider(username, password));
                 }
                 try (var git = clone.call()) {
                     git.checkout().setName(from.getCommitHash()).call();

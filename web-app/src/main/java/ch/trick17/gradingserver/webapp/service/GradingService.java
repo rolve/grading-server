@@ -33,7 +33,7 @@ public class GradingService {
 
     private static final Logger logger = LoggerFactory.getLogger(GradingService.class);
 
-    private final HostAccessTokenRepository credentialsRepo;
+    private final HostAccessTokenRepository tokenRepository;
     private final SubmissionService submissionService;
     private final WebClient client;
 
@@ -43,10 +43,10 @@ public class GradingService {
     private final AtomicReference<Status> status = new AtomicReference<>();
     private final AtomicReference<Instant> lastStatusCheck = new AtomicReference<>();
 
-    public GradingService(HostAccessTokenRepository credentialsRepo,
+    public GradingService(HostAccessTokenRepository tokenRepository,
                           @Lazy SubmissionService submissionService,
                           WebAppProperties props, WebClient.Builder clientBuilder) {
-        this.credentialsRepo = credentialsRepo;
+        this.tokenRepository = tokenRepository;
         this.submissionService = submissionService;
 
         var baseUrl = props.getGradingServiceBaseUrl();
@@ -69,9 +69,9 @@ public class GradingService {
         }
 
         var code = submission.getCodeLocation();
-        var credentials = credentialsRepo.findLatestForUrl(code.getRepoUrl()).orElse(null);
+        var token = tokenRepository.findLatestForUrl(code.getRepoUrl()).orElse(null);
         var config = submission.getSolution().getProblemSet().getGradingConfig();
-        var job = new GradingJob(code, credentials, config);
+        var job = new GradingJob(code, "", token, config);
 
         var response = client.post()
                 .uri("/api/v1/grading-jobs?waitUntilDone=true")
