@@ -71,7 +71,7 @@ public class GradingService {
         var code = submission.getCodeLocation();
         var token = tokenRepository.findLatestForUrl(code.getRepoUrl()).orElse(null);
         var config = submission.getSolution().getProblemSet().getGradingConfig();
-        var job = new GradingJob(code, "", token, config);
+        var job = new GradingJob(code, token == null ? null : "", token, config);
 
         var response = client.post()
                 .uri("/api/v1/grading-jobs?waitUntilDone=true")
