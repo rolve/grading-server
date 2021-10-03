@@ -1,7 +1,6 @@
 package ch.trick17.gradingserver.webapp.model;
 
 import ch.trick17.gradingserver.GradingResult;
-import ch.trick17.gradingserver.util.RandomHexStringGenerator;
 import ch.trick17.gradingserver.util.StringListConverter;
 
 import javax.persistence.*;
@@ -27,7 +26,6 @@ public class Solution implements Serializable {
     @Lob
     @Convert(converter = StringListConverter.class)
     private final List<String> ignoredPushers = new ArrayList<>();
-    private String accessToken;
 
     @OneToMany(mappedBy = "solution", cascade = ALL, orphanRemoval = true)
     private final List<Submission> submissions = new ArrayList<>();
@@ -40,7 +38,6 @@ public class Solution implements Serializable {
         this.repoUrl = requireNonNull(repoUrl);
         this.authors.addAll(authors);
         this.ignoredPushers.addAll(ignoredPushers);
-        generateAccessToken();
         problemSet.getSolutions().add(this);
     }
 
@@ -58,15 +55,6 @@ public class Solution implements Serializable {
 
     public Set<Author> getAuthors() {
         return authors;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void generateAccessToken() {
-        this.accessToken = new RandomHexStringGenerator(32)
-                .generate(i -> false);
     }
 
     public List<String> getIgnoredPushers() {
