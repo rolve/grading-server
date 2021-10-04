@@ -93,12 +93,6 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
         try (var api = new GitLabApi(hostUrl, token)) {
             var projects = api.getGroupApi().getProjects(groupPath);
 
-            projects.removeIf(p -> existingRepos.contains(p.getHttpUrlToRepo()));
-            logger.info("{} new GitLab projects found", projects.size());
-            if (projects.isEmpty()) {
-                return emptyList();
-            }
-
             var authors = new ArrayList<Set<String>>();
             for (var project : projects) {
                 var members = api.getProjectApi().getMembers(project);
@@ -106,6 +100,12 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                         .filter(m -> m.getAccessLevel().compareTo(minAccessLevel) >= 0)
                         .map(Member::getUsername)
                         .collect(toCollection(HashSet::new)));
+            }
+
+            projects.removeIf(p -> existingRepos.contains(p.getHttpUrlToRepo()));
+            logger.info("{} new GitLab projects found", projects.size());
+            if (projects.isEmpty()) {
+                return emptyList();
             }
 
             var ignoredPushers = new HashSet<String>();
