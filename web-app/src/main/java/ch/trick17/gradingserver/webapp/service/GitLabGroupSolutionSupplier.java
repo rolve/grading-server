@@ -102,12 +102,6 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                         .collect(toCollection(HashSet::new)));
             }
 
-            projects.removeIf(p -> existingRepos.contains(p.getHttpUrlToRepo()));
-            logger.info("{} new GitLab projects found", projects.size());
-            if (projects.isEmpty()) {
-                return emptyList();
-            }
-
             var ignoredPushers = new HashSet<String>();
             if (ignoringCommonMembers) {
                 var common = authors.stream().skip(1)
@@ -119,6 +113,18 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                     authors.forEach(s -> s.removeAll(common));
                     ignoredPushers.addAll(common);
                 }
+            }
+
+            for (int i = 0; i < projects.size(); i++) {
+                if (existingRepos.contains(projects.get(i).getHttpUrlToRepo())) {
+                    authors.remove(i);
+                    projects.remove(i);
+                    i--;
+                }
+            }
+            logger.info("{} new GitLab projects found", projects.size());
+            if (projects.isEmpty()) {
+                return emptyList();
             }
 
             if (ignoringAuthorless) {
