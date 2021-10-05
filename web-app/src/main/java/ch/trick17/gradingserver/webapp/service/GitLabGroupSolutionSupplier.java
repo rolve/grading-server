@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import java.util.*;
 
 import static java.lang.String.join;
-import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toSet;
@@ -92,28 +91,15 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                 .collect(toSet());
         try (var api = new GitLabApi(hostUrl, token)) {
             var projects = api.getGroupApi().getProjects(groupPath);
+            var authors = getProjectMembers(api, projects);
 
-            var authors = new ArrayList<Set<String>>();
-            for (var project : projects) {
-                var members = api.getProjectApi().getMembers(project);
-                authors.add(members.stream()
-                        .filter(m -> m.getAccessLevel().compareTo(minAccessLevel) >= 0)
-                        .map(Member::getUsername)
-                        .collect(toCollection(HashSet::new)));
-            }
-
-            var ignoredPushers = new HashSet<String>();
+            var ignoredPushers = api.getGroupApi().getMembers(groupPath).stream()
+                    .map(Member::getUsername)
+                    .collect(toCollection(HashSet::new));
             if (ignoringCommonMembers) {
-                var common = authors.stream().skip(1)
-                        .collect(() -> new HashSet<>(authors.get(0)),
-                                Set::retainAll, Set::retainAll);
-                if (!common.isEmpty()) {
-                    logger.info("Ignoring authorship from common project members: {}",
-                            join(", ", common));
-                    authors.forEach(s -> s.removeAll(common));
-                    ignoredPushers.addAll(common);
-                }
+                ignoredPushers.addAll(removeCommonMembers(authors));
             }
+            logger.info("Ignoring pushes from users: {}", join(", ", ignoredPushers));
 
             for (int i = 0; i < projects.size(); i++) {
                 if (existingRepos.contains(projects.get(i).getHttpUrlToRepo())) {
@@ -123,9 +109,6 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
                 }
             }
             logger.info("{} new GitLab projects found", projects.size());
-            if (projects.isEmpty()) {
-                return emptyList();
-            }
 
             if (ignoringAuthorless) {
                 for (int i = 0; i < projects.size(); i++) {
@@ -139,27 +122,8 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             }
 
             if (webhookBaseUrl != null) {
-                var url = webhookBaseUrl + WebhooksController.GITLAB_PUSH_PATH;
-                var enabledHooks = new ProjectHook();
-                enabledHooks.setPushEvents(true);
-                var sslEnabled = url.startsWith("https");
-                logger.info("Adding push webhooks with URL {}", url);
-                var added = 0;
-                for (var project : projects) {
-                    var hooks = api.getProjectApi().getHooks(project);
-                    if (hooks.stream().noneMatch(h -> h.getUrl().equals(url))) {
-                        api.getProjectApi().addHook(project, url, enabledHooks, sslEnabled, null);
-                        added++;
-                    }
-                }
-                logger.info("{} new hooks added", added);
+                addWebhooks(api, projects);
             }
-
-            api.getGroupApi().getMembers(groupPath).stream()
-                    .map(Member::getUsername)
-                    .forEach(ignoredPushers::add);
-            logger.info("Ignoring pushes from users: {}", join(", ", ignoredPushers));
-
             var sols = new ArrayList<NewSolution>();
             for (int i = 0; i < projects.size(); i++) {
                 var repoUrl = projects.get(i).getHttpUrlToRepo();
@@ -179,6 +143,46 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             }
             return sols;
         }
+    }
+
+    private List<Set<String>> getProjectMembers(GitLabApi api, List<Project> projects) throws GitLabApiException {
+        var authors = new ArrayList<Set<String>>();
+        for (var project : projects) {
+            var members = api.getProjectApi().getMembers(project);
+            authors.add(members.stream()
+                    .filter(m -> m.getAccessLevel().compareTo(minAccessLevel) >= 0)
+                    .map(Member::getUsername)
+                    .collect(toCollection(HashSet::new)));
+        }
+        return authors;
+    }
+
+    private Set<String> removeCommonMembers(List<Set<String>> authors) {
+        var common = authors.stream().skip(1)
+                .collect(() -> new HashSet<>(authors.get(0)),
+                        Set::retainAll, Set::retainAll);
+        if (!common.isEmpty()) {
+            logger.info("Ignoring authorship from common project members: {}", join(", ", common));
+            authors.forEach(s -> s.removeAll(common));
+        }
+        return common;
+    }
+
+    private void addWebhooks(GitLabApi api, List<Project> projects) throws GitLabApiException {
+        var url = webhookBaseUrl + WebhooksController.GITLAB_PUSH_PATH;
+        var enabledHooks = new ProjectHook();
+        enabledHooks.setPushEvents(true);
+        var verifySSL = url.startsWith("https");
+        logger.info("Adding push webhooks with URL {}", url);
+        var added = 0;
+        for (var project : projects) {
+            var hooks = api.getProjectApi().getHooks(project);
+            if (hooks.stream().noneMatch(h -> h.getUrl().equals(url))) {
+                api.getProjectApi().addHook(project, url, enabledHooks, verifySSL, null);
+                added++;
+            }
+        }
+        logger.info("{} new hooks added", added);
     }
 
     @Override
