@@ -18,9 +18,11 @@ public class Solution implements Serializable {
     @Id
     @GeneratedValue
     private int id;
-    @ManyToOne(cascade = PERSIST)
+    @ManyToOne(cascade = {PERSIST, MERGE})
     private ProblemSet problemSet;
     private String repoUrl;
+    @ManyToOne(cascade = {PERSIST, MERGE})
+    private AccessToken accessToken;
     @ManyToMany(cascade = {PERSIST, MERGE})
     private final Set<Author> authors = new HashSet<>();
     @Lob
@@ -32,10 +34,11 @@ public class Solution implements Serializable {
 
     protected Solution() {}
 
-    public Solution(ProblemSet problemSet, String repoUrl, Collection<Author> authors,
-                    Collection<String> ignoredPushers) {
+    public Solution(ProblemSet problemSet, String repoUrl, AccessToken accessToken,
+                    Collection<Author> authors, Collection<String> ignoredPushers) {
         this.problemSet = requireNonNull(problemSet);
         this.repoUrl = requireNonNull(repoUrl);
+        this.accessToken = accessToken;
         this.authors.addAll(authors);
         this.ignoredPushers.addAll(ignoredPushers);
         problemSet.getSolutions().add(this);
@@ -51,6 +54,10 @@ public class Solution implements Serializable {
 
     public String getRepoUrl() {
         return repoUrl;
+    }
+
+    public AccessToken getAccessToken() {
+        return accessToken;
     }
 
     public Set<Author> getAuthors() {

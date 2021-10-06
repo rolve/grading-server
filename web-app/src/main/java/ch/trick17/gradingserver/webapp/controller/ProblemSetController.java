@@ -13,6 +13,7 @@ import org.gitlab4j.api.GitLabApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -42,18 +43,18 @@ public class ProblemSetController {
 
     private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
-    private final HostAccessTokenRepository credRepo;
+    private final AccessTokenRepository accessTokenRepo;
     private final ProblemSetService problemSetService;
 
     private final String defaultGitLabHost;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
-                                HostAccessTokenRepository credRepo,
+                                AccessTokenRepository accessTokenRepo,
                                 ProblemSetService problemSetService,
                                 WebAppProperties props) {
         this.repo = repo;
         this.courseRepo = courseRepo;
-        this.credRepo = credRepo;
+        this.accessTokenRepo = accessTokenRepo;
         this.problemSetService = problemSetService;
         this.defaultGitLabHost = props.getDefaultGitLabHost();
     }
@@ -126,18 +127,19 @@ public class ProblemSetController {
                                           @RequestParam String token,
                                           @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
                                           HttpServletRequest req,
+                                          @AuthenticationPrincipal User user,
                                           Model model) // only used if unsuccessful
             throws GitLabApiException, GitAPIException {
         var problemSet = findProblemSet(courseId, id);
 
-        var existingTokens = credRepo.findByHost(host);
+        var existingTokens = accessTokenRepo.findByOwnerAndHost(user, host);
+        AccessToken tokenRecord;
         if (token.isBlank()) {
             // if no token is provided, try to use an existing one
-            token = existingTokens.stream()
-                    .max(comparingInt(HostAccessToken::getId))
-                    .map(HostAccessToken::getAccessToken)
+            tokenRecord = existingTokens.stream()
+                    .max(comparingInt(AccessToken::getId))
                     .orElse(null);
-            if (token == null) {
+            if (tokenRecord == null) {
                 model.addAttribute("problemSet", problemSet);
                 model.addAttribute("host", host);
                 model.addAttribute("groupPath", groupPath);
@@ -147,11 +149,14 @@ public class ProblemSetController {
             }
         } else {
             // otherwise, if the provided token is new, store it
-            var known = existingTokens.stream()
-                    .map(HostAccessToken::getAccessToken)
-                    .anyMatch(token::equals);
-            if (!known) {
-                credRepo.save(new HostAccessToken(host, token));
+            var existing = existingTokens.stream()
+                    .filter(t -> t.getToken().equals(token))
+                    .findFirst();
+            if (existing.isPresent()) {
+                tokenRecord = existing.get();
+            } else {
+                tokenRecord = new AccessToken(user, host, token);
+                accessTokenRepo.save(tokenRecord);
             }
         }
 
@@ -159,7 +164,7 @@ public class ProblemSetController {
         repo.save(problemSet);
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
-                problemSet.getGradingConfig().getProjectRoot(), token);
+                problemSet.getGradingConfig().getProjectRoot(), tokenRecord.getToken());
         if (LOCALHOST.contains(req.getServerName())) {
             logger.warn("Cannot determine server name (access via localhost), will not add webhooks");
         } else {
@@ -167,7 +172,7 @@ public class ProblemSetController {
             supplier.setWebhookBaseUrl(serverBaseUrl);
         }
         supplier.setIgnoringAuthorless(ignoreAuthorless);
-        problemSetService.registerSolutions(problemSet.getId(), supplier); // async
+        problemSetService.registerSolutions(problemSet.getId(), tokenRecord.getId(), supplier); // async
         return "redirect:./";
     }
 

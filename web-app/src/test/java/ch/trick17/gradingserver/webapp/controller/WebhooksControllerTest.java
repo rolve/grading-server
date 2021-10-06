@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -37,8 +36,6 @@ class WebhooksControllerTest {
     SubmissionRepository submissionRepo;
     @Mock
     GradingService gradingService;
-    @Mock
-    HostAccessTokenRepository credRepo;
 
     @BeforeEach
     void setupMocks() {
@@ -56,7 +53,7 @@ class WebhooksControllerTest {
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("");
 
-        var controller = new WebhooksController(solRepo, submissionRepo, gradingService, credRepo);
+        var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new Project(repoUrl),
                 "refs/heads/master", before, after, "mike-trick17");
         controller.gitlabPush(event);
@@ -76,7 +73,7 @@ class WebhooksControllerTest {
 
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
 
-        var controller = new WebhooksController(solRepo, submissionRepo, gradingService, credRepo);
+        var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new Project(repoUrl),
                 "refs/heads/master", before, after, "rolve-gitlab-test-user");
         controller.gitlabPush(event);
@@ -94,12 +91,11 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getRepoUrl()).thenReturn(repoUrl);
+        when(sol.getAccessToken()).thenReturn(new AccessToken(new User("name", "pass"), HOST, TOKEN));
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("foo");
-        when(credRepo.findLatestForUrl(repoUrl))
-                .thenReturn(Optional.of(TOKEN));
 
-        var controller = new WebhooksController(solRepo, submissionRepo, gradingService, credRepo);
+        var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new Project(repoUrl),
                 "refs/heads/master", before, after, "rolve");
         controller.gitlabPush(event);
@@ -117,12 +113,11 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getRepoUrl()).thenReturn(repoUrl);
+        when(sol.getAccessToken()).thenReturn(new AccessToken(new User("name", "pass"), HOST, TOKEN));
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("bar");
-        when(credRepo.findLatestForUrl(repoUrl))
-                .thenReturn(Optional.of(TOKEN));
 
-        var controller = new WebhooksController(solRepo, submissionRepo, gradingService, credRepo);
+        var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new Project(repoUrl),
                 "refs/heads/master", before, after, "rolve");
         controller.gitlabPush(event);

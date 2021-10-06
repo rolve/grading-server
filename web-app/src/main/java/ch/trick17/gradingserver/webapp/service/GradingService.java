@@ -2,7 +2,6 @@ package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.GradingJob;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
-import ch.trick17.gradingserver.webapp.model.HostAccessTokenRepository;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ public class GradingService {
 
     private static final Logger logger = LoggerFactory.getLogger(GradingService.class);
 
-    private final HostAccessTokenRepository tokenRepository;
     private final SubmissionService submissionService;
     private final WebClient client;
 
@@ -43,10 +41,8 @@ public class GradingService {
     private final AtomicReference<Status> status = new AtomicReference<>();
     private final AtomicReference<Instant> lastStatusCheck = new AtomicReference<>();
 
-    public GradingService(HostAccessTokenRepository tokenRepository,
-                          @Lazy SubmissionService submissionService,
+    public GradingService(@Lazy SubmissionService submissionService,
                           WebAppProperties props, WebClient.Builder clientBuilder) {
-        this.tokenRepository = tokenRepository;
         this.submissionService = submissionService;
 
         var baseUrl = props.getGradingServiceBaseUrl();
@@ -69,9 +65,9 @@ public class GradingService {
         }
 
         var code = submission.getCodeLocation();
-        var token = tokenRepository.findLatestForUrl(code.getRepoUrl()).orElse(null);
+        var token = submission.getSolution().getAccessToken();
         var config = submission.getSolution().getProblemSet().getGradingConfig();
-        var job = new GradingJob(code, token == null ? null : "", token, config);
+        var job = new GradingJob(code, token == null ? null : "", token == null ? null : token.getToken(), config);
 
         var response = client.post()
                 .uri("/api/v1/grading-jobs?waitUntilDone=true")

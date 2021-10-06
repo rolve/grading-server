@@ -21,24 +21,27 @@ public class ProblemSetService {
 
     private final ProblemSetRepository repo;
     private final AuthorRepository authorRepo;
+    private final AccessTokenRepository tokenRepo;
     private final GradingService gradingService;
     private final PlatformTransactionManager txManager;
 
-    public ProblemSetService(ProblemSetRepository repo,
-                             AuthorRepository authorRepo, GradingService gradingService,
+    public ProblemSetService(ProblemSetRepository repo, AuthorRepository authorRepo,
+                             AccessTokenRepository tokenRepo, GradingService gradingService,
                              PlatformTransactionManager txManager) {
         this.repo = repo;
         this.authorRepo = authorRepo;
+        this.tokenRepo = tokenRepo;
         this.gradingService = gradingService;
         this.txManager = txManager;
     }
 
     @Async
-    public <E extends Exception> void registerSolutions(int problemSetId,
+    public <E extends Exception> void registerSolutions(int problemSetId, int tokenId,
                                                         SolutionSupplier<E> supplier)
             throws E, GitAPIException {
         var tx = txManager.getTransaction(new DefaultTransactionDefinition());
-        var problemSet = repo.findById(problemSetId).get();
+        var problemSet = repo.findById(problemSetId).orElseThrow();
+        var token = tokenRepo.findById(tokenId).orElseThrow();
         var prevSols = problemSet.getSolutions().size();
         logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
         try {
@@ -53,7 +56,7 @@ public class ProblemSetService {
                         authors.add(new Author(name));
                     }
                 }
-                var sol = new Solution(problemSet, newSol.repoUrl(), authors, newSol.ignoredPushers());
+                var sol = new Solution(problemSet, newSol.repoUrl(), token, authors, newSol.ignoredPushers());
                 if (newSol.latestCommitHash() != null) {
                     var subm = new Submission(sol, newSol.latestCommitHash(), now());
                     sol.getSubmissions().add(subm);

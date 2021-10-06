@@ -1,6 +1,9 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.webapp.model.*;
+import ch.trick17.gradingserver.webapp.model.GitLabPushEvent;
+import ch.trick17.gradingserver.webapp.model.SolutionRepository;
+import ch.trick17.gradingserver.webapp.model.Submission;
+import ch.trick17.gradingserver.webapp.model.SubmissionRepository;
 import ch.trick17.gradingserver.webapp.service.GitRepoDiffFetcher;
 import ch.trick17.gradingserver.webapp.service.GradingService;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -23,16 +26,13 @@ public class WebhooksController {
     private final SolutionRepository solRepo;
     private final SubmissionRepository submissionRepo;
     private final GradingService gradingService;
-    private final HostAccessTokenRepository credRepo;
 
     public WebhooksController(SolutionRepository solRepo,
                               SubmissionRepository submissionRepo,
-                              GradingService gradingService,
-                              HostAccessTokenRepository credRepo) {
+                              GradingService gradingService) {
         this.solRepo = solRepo;
         this.submissionRepo = submissionRepo;
         this.gradingService = gradingService;
-        this.credRepo = credRepo;
     }
 
     @PostMapping(GITLAB_PUSH_PATH)
@@ -56,7 +56,7 @@ public class WebhooksController {
             }
             var projectRoot = sol.getProblemSet().getGradingConfig().getProjectRoot();
             if (!projectRoot.isEmpty()) {
-                var token = credRepo.findLatestForUrl(sol.getRepoUrl()).orElse("");
+                var token = sol.getAccessToken().getToken();
                 try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), "", token)) {
                     var paths = fetcher.affectedPaths(event.beforeCommit(), event.afterCommit());
                     if (paths.stream().noneMatch(p -> p.startsWith(projectRoot))) {
