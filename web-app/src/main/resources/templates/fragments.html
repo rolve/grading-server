@@ -25,12 +25,16 @@
         <span th:if="*{compiled && totalTests == 0}" class="badge bg-secondary">
             No tests
         </span>
-        <span th:if="*{compiled && totalTests > 0}"
-              class="test-bar d-inline-block align-middle" style="width: 8rem; height: 1rem;"
-              th:title="|*{passedTests.size} / *{totalTests} tests passed (*{passedTests.size * 100 / totalTests}%)|">
-            <span class="passed d-inline-block" style="width: 50%;"
-                  th:style="|width: *{passedTestsRatio * 100}%;|"></span>
-        </span>
+        <th:block th:if="*{compiled && totalTests > 0}"
+                  th:with="title=|*{passedTests.size} / *{totalTests} tests passed (*{passedTests.size * 100 / totalTests}%)|">
+            <span th:replace="::resultBar(*{passedTestsRatio},${title})"></span>
+        </th:block>
     </th:block>
 </th:block>
+
+<span th:fragment="resultBar(ratio,title)"
+      class="test-bar d-inline-block align-middle" style="width: 8rem; height: 1rem;" th:title="${title}">
+        <span class="passed d-inline-block" style="width: 50%;"
+              th:style="|width: ${100.0 * ratio}%;|"></span>
+</span>
 </html>

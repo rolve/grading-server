@@ -77,6 +77,14 @@ public class Solution implements Serializable {
                 .max(comparingInt(Submission::getId)).orElse(null);
     }
 
+    public GradingResult latestResult() {
+        return submissions.stream()
+                .filter(Submission::hasResult)
+                .max(comparingInt(Submission::getId))
+                .map(Submission::getResult)
+                .orElse(null);
+    }
+
     public static Comparator<Solution> byResult() {
         // totally unreadable, but the following sorts first by number of passed
         // tests (higher -> "less") and then by received date (earlier -> "less")

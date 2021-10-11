@@ -69,6 +69,7 @@ public class ProblemSetController {
         var solutions = problemSet.getSolutions().stream()
                 .sorted(sort).collect(toList());
         model.addAttribute("solutions", solutions);
+        model.addAttribute("stats", ProblemSetStats.create(problemSet));
         return "problem-sets/problem-set";
     }
 

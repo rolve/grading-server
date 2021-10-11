@@ -71,6 +71,47 @@
                 </tr>
             </tbody>
         </table>
+
+        <th:block th:unless="${stats.groups.isEmpty}">
+            <h2>Statistics</h2>
+            <table class="table w-auto">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Ratio</th>
+                    </tr>
+                </thead>
+                <th:block th:each="group,i : ${stats.groups}">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a role="button" data-bs-toggle="collapse"
+                                   class="accordion-button collapsed text-decoration-none text-reset p-0 bg-transparent shadow-none"
+                                   th:href="|#testGroupStats${i.index}|">
+                                    <span th:text="${group.name} ?: 'Ungrouped tests'" class="me-3">Group</span>
+                                </a>
+                            </td>
+                            <td>
+                                <span th:replace="fragments::resultBar(${group.passedToSubmittedRatio},null)"></span>
+                                <span th:text="|${100 * group.totalPassed / (group.totalPassed + group.totalFailed)}%|">
+                                    45%
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody class="collapse" th:id="|testGroupStats${i.index}|">
+                        <tr th:each="test : ${group.tests}">
+                            <td th:text="${test.name}">Test</td>
+                            <td th:with="title=|${test.passed} / ${test.passed + test.failed} submissions passed|">
+                                <span th:replace="fragments::resultBar(${test.passedToSubmittedRatio},${title})"></span>
+                                <span th:text="|${100 * test.passed / (test.passed + test.failed)}%|">45%</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </th:block>
+            </table>
+        </th:block>
+
         <div class="mt-4">
             <div sec:authorize="isAuthenticated()" class="mb-3">
                 <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
