@@ -74,11 +74,11 @@
 
         <th:block th:unless="${stats.groups.isEmpty}">
             <h2>Statistics</h2>
-            <table class="table w-auto">
+            <table class="table w-auto" style="min-width: 50%;">
                 <thead>
                     <tr>
                         <th>Test</th>
-                        <th>Ratio</th>
+                        <th style="width: 0;">Ratio</th>
                     </tr>
                 </thead>
                 <th:block th:each="group,i : ${stats.groups}">
@@ -91,20 +91,25 @@
                                     <span th:text="${group.name} ?: 'Ungrouped tests'" class="me-3">Group</span>
                                 </a>
                             </td>
-                            <td>
+                            <td style="white-space: nowrap;">
                                 <span th:replace="fragments::resultBar(${group.passedToSubmittedRatio},null)"></span>
-                                <span th:text="|${100 * group.totalPassed / (group.totalPassed + group.totalFailed)}%|">
+                                <span th:text="|${100 * group.totalPassed / (group.totalPassed + group.totalFailed)}%|"
+                                      style="display: inline-block; width: 3em; text-align: right;">
                                     45%
                                 </span>
                             </td>
                         </tr>
                     </tbody>
                     <tbody class="collapse" th:id="|testGroupStats${i.index}|">
-                        <tr th:each="test : ${group.tests}">
+                        <tr th:each="test : ${group.tests}" style="background: #F9F9F9;">
                             <td th:text="${test.name}">Test</td>
-                            <td th:with="title=|${test.passed} / ${test.passed + test.failed} submissions passed|">
+                            <td th:with="title=|${test.passed} / ${test.passed + test.failed} submissions passed|"
+                                style="white-space: nowrap;">
                                 <span th:replace="fragments::resultBar(${test.passedToSubmittedRatio},${title})"></span>
-                                <span th:text="|${100 * test.passed / (test.passed + test.failed)}%|">45%</span>
+                                <span th:text="|${100 * test.passed / (test.passed + test.failed)}%|"
+                                      style="display: inline-block; width: 3em; text-align: right;">
+                                    45%
+                                </span>
                             </td>
                         </tr>
                     </tbody>
