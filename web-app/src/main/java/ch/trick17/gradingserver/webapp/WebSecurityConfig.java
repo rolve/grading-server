@@ -1,12 +1,17 @@
 package ch.trick17.gradingserver.webapp;
 
+import ch.trick17.gradingserver.webapp.model.Role;
 import ch.trick17.gradingserver.webapp.model.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -31,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             "/courses/\\d+/problem-sets/\\d+/",
                             "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/",
                             "/webhooks/.*").permitAll()
-                    .anyRequest().authenticated()
+                    .anyRequest().hasRole("LECTURER")
                     .and()
                 .formLogin()
                     .loginPage("/login")
@@ -46,5 +51,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public UserDetailsService userDetailsService() {
         return u -> userRepo.findByUsername(u)
                 .orElseThrow(() -> new UsernameNotFoundException(u));
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        var hierarchy = new RoleHierarchyImpl();
+        hierarchy.setHierarchy(Role.hierarchyString());
+        return hierarchy;
     }
 }

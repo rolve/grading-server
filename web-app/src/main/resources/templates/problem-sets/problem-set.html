@@ -36,7 +36,7 @@
                             Authors
                         </span>
                         <span th:if="*{anonymous}" class="text-muted fst-italic"
-                              th:title="${#authorization.expr('isAuthenticated()') ? #strings.setJoin(sol.authors, ', ') : ''}">
+                              th:title="${#authorization.expr('hasRole(''LECTURER'')') ? #strings.setJoin(sol.authors, ', ') : ''}">
                             (anonymous)
                         </span>
                     </td>
@@ -118,7 +118,7 @@
         </th:block>
 
         <div class="mt-4">
-            <div sec:authorize="isAuthenticated()" class="mb-3">
+            <div sec:authorize="hasRole('LECTURER')" class="mb-3">
                 <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
                    class="btn btn-primary">Register solutions</a>
                 <form th:action="@{remove-solutions}" method="post" class="d-inline"

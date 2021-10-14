@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder;
 
@@ -34,7 +35,7 @@ public class AdminUserCreator {
             var encoder = createDelegatingPasswordEncoder();
             var random = new SecureRandom();
             var password = new BigInteger(128, random).toString(32);
-            var admin = new User("admin", encoder.encode(password));
+            var admin = new User("admin", encoder.encode(password), ADMIN);
             userRepo.save(admin);
             logger.info("Created user 'admin' with password '{}'", password);
         }

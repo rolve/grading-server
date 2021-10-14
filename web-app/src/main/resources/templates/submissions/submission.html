@@ -26,7 +26,7 @@
                             Author1, Author2
                         </span>
                         <span th:if="*{solution.problemSet.anonymous}" class="text-muted fst-italic"
-                              th:title="*{#authorization.expr('isAuthenticated()') ? #strings.setJoin(solution.authors, ', ') : ''}">
+                              th:title="*{#authorization.expr('hasRole(''LECTURER'')') ? #strings.setJoin(solution.authors, ', ') : ''}">
                             (anonymous)
                         </span>
                     </td>
@@ -165,7 +165,7 @@
         </th:block>
 
         <div class="mt-4">
-            <div sec:authorize="isAuthenticated()" class="mb-3">
+            <div sec:authorize="hasRole('LECTURER')" class="mb-3">
                 <form th:action="@{re-grade}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-primary">Re-grade</button>
                 </form>

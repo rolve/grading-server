@@ -15,7 +15,7 @@
         <p th:if="${courses.empty}">
             No courses created yet.
         </p>
-        <p sec:authorize="isAuthenticated()">
+        <p sec:authorize="hasRole('LECTURER')">
             <a class="btn btn-primary" href="courses/create.html" th:href="@{/courses/create}">Create Course</a>
         </p>
         <h2>About</h2>

@@ -21,7 +21,7 @@
             </thead>
             <tbody>
                 <th:block th:each="problemSet : *{problemSets}">
-                    <tr sec:authorize="!#vars.problemSet.hidden || isAuthenticated()">
+                    <tr sec:authorize="!#vars.problemSet.hidden || hasRole('LECTURER')">
                         <td>
                             <a href="../problem-sets/problem-set.html"
                                th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
@@ -43,7 +43,7 @@
                 </th:block>
             </tbody>
         </table>
-        <p sec:authorize="isAuthenticated()">
+        <p sec:authorize="hasRole('LECTURER')">
             <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">Add problem set</a>
         </p>
     </main>

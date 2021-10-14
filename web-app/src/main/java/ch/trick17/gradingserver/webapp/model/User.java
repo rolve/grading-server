@@ -1,16 +1,14 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.util.Collection;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
-import static java.util.Collections.emptyList;
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
+import static javax.persistence.FetchType.EAGER;
 
 @Entity
 public class User implements UserDetails {
@@ -23,11 +21,15 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
+    @ElementCollection(fetch = EAGER)
+    private Set<Role> roles = new HashSet<>();
+
     protected User() {}
 
-    public User(String username, String password) {
+    public User(String username, String password, Role... roles) {
         this.username = requireNonNull(username);
         this.password = requireNonNull(password);
+        this.roles.addAll(asList(roles));
     }
 
     public int getId() {
@@ -63,7 +65,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return emptyList();
+    public Set<Role> getAuthorities() {
+        return roles;
     }
 }
