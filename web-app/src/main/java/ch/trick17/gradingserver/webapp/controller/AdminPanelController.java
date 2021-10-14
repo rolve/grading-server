@@ -7,13 +7,14 @@ import ch.trick17.gradingserver.webapp.model.UserRepository;
 import ch.trick17.gradingserver.webapp.service.PasswordService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Arrays;
+import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
 import static java.util.Arrays.asList;
@@ -94,13 +95,15 @@ public class AdminPanelController {
     }
 
     @PostMapping("/delete-user")
+    @Transactional
     public String delete(@RequestParam int userId) {
         var user = userRepo.findById(userId).orElseThrow();
         if (user.getAuthorities().contains(ADMIN)
                 && userRepo.countByRolesContaining(ADMIN) < 2) {
             throw new RuntimeException("cannot delete last ADMIN");
         }
-        userRepo.deleteById(userId);
+        tokenRepo.deleteByOwner(user);
+        userRepo.delete(user);
         return "redirect:.";
     }
 }
