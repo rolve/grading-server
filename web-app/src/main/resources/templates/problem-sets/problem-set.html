@@ -10,9 +10,9 @@
         <h1 th:text="|*{name} (*{course.name})|">Problem Set Name (Course Name)</h1>
         <p>
             Deadline:
-            <span class="deadline" th:text="|${#temporals.format(problemSet.deadline)} (${@prettyTime.get.format(problemSet.deadline)})|">Date</span>
+            <span class="deadline" th:text="|${@prettyTime.get.format(problemSet.deadline)} (${#temporals.format(problemSet.deadline, 'MEDIUM')})|">Date</span>
         </p>
-        <h2>Solutions</h2>
+        <h2>Latest submissions</h2>
         <div th:if="*{registeringSolutions}" class="alert alert-info" role="alert">
             Solutions are being registered. Check back later.
         </div>
