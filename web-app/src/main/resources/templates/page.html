@@ -16,7 +16,12 @@
             <nav class="col-auto">
                 <a th:href="@{/}" class="btn btn-link" title="Home"><i class="fa fa-home"></i></a>
             </nav>
-            <div class="col-auto">
+            <div class="col-auto d-flex">
+                <div sec:authorize="hasRole('ADMIN')" class="pe-3">
+                    <a th:href="@{/admin/}" class="btn btn-link link-secondary" title="Admin panel">
+                        <i class="fa fa-cog"></i>
+                    </a>
+                </div>
                 <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-primary">Sign in</a>
                 <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                     <button type="submit" class="btn btn-secondary">Sign out</button>

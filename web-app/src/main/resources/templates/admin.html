@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="page::html(title=~{::title},main=~{::main})">
+<head>
+    <title>Admin Panel</title>
+</head>
+<body>
+    <main>
+        <h1>Admin Panel</h1>
+        <h2>Users</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>ID</th>
+                <th>Roles</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.username}">
+                    peter
+                </td>
+                <td th:text="${user.id}">
+                    42
+                </td>
+                <td th:text="${#strings.setJoin(user.authorities, ', ')}">
+                    ROLE1, ROLE2
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
