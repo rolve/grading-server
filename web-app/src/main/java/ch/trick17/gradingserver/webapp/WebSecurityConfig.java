@@ -29,14 +29,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .ignoringAntMatchers("/webhooks/**")
                     .and()
                 .authorizeRequests()
-                    .regexMatchers("/",
+                    .regexMatchers(
+                            "/",
                             "/css/.*",
                             "/favicon/.*",
                             "/courses/\\d+/",
                             "/courses/\\d+/problem-sets/\\d+/",
                             "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/",
                             "/webhooks/.*").permitAll()
-                    .anyRequest().hasRole("LECTURER")
+                    .regexMatchers(
+                            "/courses/create",
+                            "/courses/\\d+/problem-sets/add",
+                            "/courses/\\d+/problem-sets/\\d+/register-solutions-gitlab",
+                            "/courses/\\d+/problem-sets/\\d+/delete",
+                            "/courses/\\d+/problem-sets/\\d+/remove-solutions",
+                            "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/re-grade").hasRole("LECTURER")
+                    .anyRequest().hasRole("ADMIN")
                     .and()
                 .formLogin()
                     .loginPage("/login")
