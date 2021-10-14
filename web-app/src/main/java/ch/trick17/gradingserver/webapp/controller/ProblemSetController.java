@@ -60,7 +60,7 @@ public class ProblemSetController {
     }
 
     @GetMapping("/{id}/")
-    @PreAuthorize("!this.findProblemSet(#courseId, #id).hidden || isAuthenticated()")
+    @PreAuthorize("!this.findProblemSet(#courseId, #id).hidden || hasRole('LECTURER')")
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
