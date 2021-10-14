@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="page::html(title=~{::title},main=~{::main})">
+<head>
+    <title>User Created</title>
+</head>
+<body>
+    <main>
+        <h1>User Created</h1>
+        <div class="alert alert-info" role="alert">
+            <p>
+                User '<span th:text="${username}"></span>' has been created.
+            </p>
+            <p>
+                Generated password: <span th:text="${password}">jlasLGOqZ512</span> (Save this!)
+            </p>
+        </div>
+        <p>
+            <a th:href="@{.}" class="btn btn-secondary">Back</a>
+        </p>
+    </main>
+</body>
+</html>

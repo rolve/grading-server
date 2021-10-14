@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.webapp.model;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,9 +28,13 @@ public class User implements UserDetails {
     protected User() {}
 
     public User(String username, String password, Role... roles) {
+        this(username, password, asList(roles));
+    }
+
+    public User(String username, String password, Collection<Role> roles) {
         this.username = requireNonNull(username);
         this.password = requireNonNull(password);
-        this.roles.addAll(asList(roles));
+        this.roles.addAll(roles);
     }
 
     public int getId() {
