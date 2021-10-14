@@ -16,6 +16,7 @@
                 <tr>
                     <th>Problem Set</th>
                     <th>Deadline</th>
+                    <th class="d-none d-sm-table-cell">Submissions</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,13 +27,17 @@
                                th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
                                th:text="${problemSet.name}">Problem Set Name</a></td>
                         <td>
-                            <span th:text="${#temporals.format(problemSet.deadline, 'MEDIUM')}">
-                                17.10.2021, 23:59:00
+                            <span th:text="${@prettyTime.get.format(problemSet.deadline)}">
+                                4 days from now
                             </span>
-                            <span th:text="|(${@prettyTime.get.format(problemSet.deadline)})|"
+                            <span th:text="|(${#temporals.format(problemSet.deadline, 'MEDIUM')})|"
                                   class="d-none d-md-inline">
-                                (4 days from now)
+                                (17.10.2021, 23:59:00)
                             </span>
+                        </td>
+                        <td class="d-none d-sm-table-cell"
+                            th:text="|${problemSet.solutionsWithSubmissions} submissions|">
+                            5 submissions
                         </td>
                     </tr>
                 </th:block>

@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.ALL;
@@ -91,6 +92,13 @@ public class ProblemSet {
 
     public List<Solution> getSolutions() {
         return solutions;
+    }
+
+    public int solutionsWithSubmissions() {
+        return (int) solutions.stream()
+                .map(Solution::latestSubmission)
+                .filter(Objects::nonNull)
+                .count();
     }
 
     public boolean isRegisteringSolutions() {
