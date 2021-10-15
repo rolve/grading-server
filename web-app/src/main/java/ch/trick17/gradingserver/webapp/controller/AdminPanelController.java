@@ -14,15 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.transaction.Transactional;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
 
 @Controller
 @RequestMapping("/admin")
@@ -65,7 +63,7 @@ public class AdminPanelController {
     @PostMapping("/create-user")
     public String addUser(@RequestParam String username,
                           @RequestParam String displayName,
-                          @RequestParam(required = false) String roles,
+                          @RequestParam(required = false) Set<Role> roles,
                           Model model) {
         if (userRepo.existsByUsername(username)) {
             model.addAttribute("possibleRoles", asList(Role.values()));
@@ -74,12 +72,9 @@ public class AdminPanelController {
             model.addAttribute("error", "Username already taken");
             return "admin/create-user";
         }
-        Set<Role> parsedRoles = roles == null ? emptySet() : stream(roles.split(","))
-                .map(Role::valueOf)
-                .collect(toSet());
         var password = passwordService.generateSecurePassword();
         userRepo.save(new User(username, passwordService.encode(password),
-                displayName, parsedRoles));
+                displayName, roles == null ? emptySet() : roles));
         model.addAttribute("username", username);
         model.addAttribute("password", password);
         return "admin/user-created";
