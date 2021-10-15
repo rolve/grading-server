@@ -9,7 +9,7 @@
     <main th:object="${course}">
         <h1 th:text="*{fullName}">Course Name</h1>
         <p>
-            Lecturers:
+            <span th:text="${course.lecturers.size == 1 ? 'Lecturer' : 'Lecturers'}">Lecturer</span>:
             <span th:text="${#strings.setJoin(course.lecturers.![displayName], ', ')}">Peter Meier</span>
         </p>
 
@@ -49,7 +49,9 @@
             </tbody>
         </table>
         <p sec:authorize="hasRole('LECTURER')">
-            <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">Add problem set</a>
+            <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">
+                <i class="fa fa-plus"></i> Add problem set
+            </a>
         </p>
     </main>
 </body>

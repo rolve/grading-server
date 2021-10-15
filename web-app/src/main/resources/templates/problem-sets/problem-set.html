@@ -120,14 +120,14 @@
         <div class="mt-4">
             <div sec:authorize="hasRole('LECTURER')" class="mb-3">
                 <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
-                   class="btn btn-primary">Register solutions</a>
+                   class="btn btn-primary"><i class="fa fa-plus"></i> Register solutions</a>
                 <form th:action="@{remove-solutions}" method="post" class="d-inline"
                       onSubmit="return confirm('Sure?');">
-                    <button type="submit" class="btn btn-danger">Remove solutions</button>
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-minus"></i> Remove solutions</button>
                 </form>
                 <form th:action="@{delete}" method="post" class="d-inline"
                       onSubmit="return confirm('Sure?');">
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
                 </form>
             </div>
             <p>
