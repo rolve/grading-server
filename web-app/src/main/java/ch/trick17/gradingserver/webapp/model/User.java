@@ -57,6 +57,10 @@ public class User implements UserDetails {
         return displayName;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

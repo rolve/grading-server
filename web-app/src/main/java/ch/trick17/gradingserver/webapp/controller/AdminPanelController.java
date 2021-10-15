@@ -45,7 +45,7 @@ public class AdminPanelController {
         var undeletable = new HashSet<User>();
         if (userRepo.countByRolesContaining(ADMIN) < 2) {
             users.stream()
-                    .filter(user -> user.getAuthorities().contains(ADMIN))
+                    .filter(user -> user.getRoles().contains(ADMIN))
                     .forEach(undeletable::add);
         }
         model.addAttribute("users", users);
@@ -84,7 +84,7 @@ public class AdminPanelController {
     @Transactional
     public String delete(@RequestParam int userId) {
         var user = userRepo.findById(userId).orElseThrow();
-        if (user.getAuthorities().contains(ADMIN)
+        if (user.getRoles().contains(ADMIN)
                 && userRepo.countByRolesContaining(ADMIN) < 2) {
             throw new RuntimeException("cannot delete last ADMIN");
         }
