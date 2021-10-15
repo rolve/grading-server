@@ -39,6 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             "/webhooks/.*").permitAll()
                     .regexMatchers(
                             "/courses/create",
+                            "/courses/\\d+/delete",
                             "/courses/\\d+/problem-sets/add",
                             "/courses/\\d+/problem-sets/\\d+/register-solutions-gitlab",
                             "/courses/\\d+/problem-sets/\\d+/delete",

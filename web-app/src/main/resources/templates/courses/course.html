@@ -48,11 +48,15 @@
                 </th:block>
             </tbody>
         </table>
-        <p sec:authorize="hasRole('LECTURER')">
+        <div sec:authorize="hasRole('LECTURER')" class="mb-3">
             <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">
                 <i class="fa fa-plus"></i> Add problem set
             </a>
-        </p>
+            <form th:action="@{delete}" method="post" class="d-inline"
+                  onSubmit="return confirm('Sure?');">
+                <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+            </form>
+        </div>
     </main>
 </body>
 </html>
