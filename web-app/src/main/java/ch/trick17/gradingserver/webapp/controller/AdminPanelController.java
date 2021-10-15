@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
@@ -62,7 +64,7 @@ public class AdminPanelController {
 
     @PostMapping("/create-user")
     public String addUser(@RequestParam String username,
-                          @RequestParam String roles,
+                          @RequestParam(required = false) String roles,
                           Model model) {
         if (userRepo.existsByUsername(username)) {
             model.addAttribute("possibleRoles", asList(Role.values()));
@@ -71,22 +73,9 @@ public class AdminPanelController {
             model.addAttribute("error", "Username already taken");
             return "admin/create-user";
         }
-        List<Role> parsedRoles;
-        try {
-            roles += " "; // make sure split returns empty array for empty string
-            parsedRoles = stream(roles.split(" *,? +"))
-                    .map(String::toUpperCase)
-                    .map(Role::valueOf)
-                    .collect(toList());
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("possibleRoles", asList(Role.values()));
-            model.addAttribute("username", username);
-            model.addAttribute("roles", roles);
-            model.addAttribute("error", "Invalid list of roles. Possible roles are " +
-                    stream(Role.values()).map(Role::name).collect(joining(", ")));
-            return "admin/create-user";
-        }
-
+        Set<Role> parsedRoles = roles == null ? emptySet() : stream(roles.split(","))
+                .map(Role::valueOf)
+                .collect(toSet());
         var password = passwordService.generateSecurePassword();
         userRepo.save(new User(username, passwordService.encode(password), parsedRoles));
         model.addAttribute("username", username);

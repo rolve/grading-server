@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
     <title>Admin Panel</title>
@@ -37,7 +36,7 @@
                     <button th:unless="${undeletable.contains(user)}"
                             type="submit" class="btn btn-danger" th:form="|delete-user-${user.id}|"
                             title="Delete this user">
-                        <i class="fa fa-user-minus"></i>
+                        <i class="fa fa-trash"></i>
                     </button>
                 </td>
             </tr>
