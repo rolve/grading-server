@@ -85,4 +85,19 @@ public class User implements UserDetails {
     public Set<Role> getAuthorities() {
         return roles;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof User)) {
+            return false;
+        }
+        return id == ((User) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

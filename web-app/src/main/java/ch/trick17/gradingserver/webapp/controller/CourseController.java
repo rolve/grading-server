@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Role.LECTURER;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -37,7 +38,7 @@ public class CourseController {
     public String createCourse(@AuthenticationPrincipal User user,
                                Model model) {
         var possibleCoLecturers = userRepo.findAll().stream()
-                .filter(u -> u.getId() != user.getId())
+                .filter(not(user::equals))
                 .filter(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))
                 .collect(toList());
         model.addAttribute("possibleCoLecturers", possibleCoLecturers);
