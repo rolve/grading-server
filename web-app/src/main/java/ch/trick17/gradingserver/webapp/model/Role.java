@@ -21,6 +21,14 @@ public enum Role implements GrantedAuthority {
         return "ROLE_" + name();
     }
 
+    public boolean includes(Role other) {
+        if (this == other) {
+            return true;
+        } else {
+            return includedRoles.stream().anyMatch(role -> role.includes(other));
+        }
+    }
+
     public static String hierarchyString() {
         var result = new StringBuilder();
         for (var role : values()) {

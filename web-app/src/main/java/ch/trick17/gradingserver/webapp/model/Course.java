@@ -1,11 +1,10 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.ALL;
@@ -19,6 +18,8 @@ public class Course {
     private String name;
     private Term term;
     private String qualifier;
+    @ManyToMany
+    private Set<User> lecturers = new HashSet<>();
 
     @OneToMany(mappedBy = "course", cascade = ALL, orphanRemoval = true)
     private List<ProblemSet> problemSets = new ArrayList<>();
@@ -57,6 +58,10 @@ public class Course {
 
     public void setQualifier(String qualifier) {
         this.qualifier = qualifier;
+    }
+
+    public Set<User> getLecturers() {
+        return lecturers;
     }
 
     public List<ProblemSet> getProblemSets() {

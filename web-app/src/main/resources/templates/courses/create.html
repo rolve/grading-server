@@ -31,6 +31,21 @@
                     <input type="text" id="qualifier" name="qualifier" class="form-control">
                 </div>
             </div>
+            <div class="row mb-5">
+                <label for="coLecturers" class="col-sm-2 col-form-label">Lecturers</label>
+                <div class="col-sm-10">
+                    <select name="coLecturers" id="coLecturers" class="form-control" multiple size="2">
+                        <option th:each="lect : ${possibleCoLecturers}" th:value="${lect.id}"
+                                th:text="|${lect.displayName} (${lect.username})|">
+                            Peter Meier (peter)
+                        </option>
+                    </select>
+                    <div class="form-text">
+                        Additional users that are permitted to make changes to this course.
+                        You, the creator of the course, are added as a lecturer either way.
+                    </div>
+                </div>
+            </div>
             <div class="row gy-2">
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary w-100">Create</button>

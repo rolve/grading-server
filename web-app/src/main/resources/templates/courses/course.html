@@ -8,6 +8,11 @@
 <body>
     <main th:object="${course}">
         <h1 th:text="*{fullName}">Course Name</h1>
+        <p>
+            Lecturers:
+            <span th:text="${#strings.setJoin(course.lecturers.![displayName], ', ')}">Peter Meier</span>
+        </p>
+
         <div th:if="*{problemSets.empty}" class="alert alert-warning" role="alert">
             No problem sets added yet.
         </div>
