@@ -12,7 +12,8 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>User</th>
+                <th>Username</th>
+                <th>Display Name</th>
                 <th>Roles</th>
                 <th>Access Tokens</th>
                 <th>Options</th>
@@ -25,6 +26,9 @@
                 </td>
                 <td th:text="${user.username}">
                     peter
+                </td>
+                <td th:text="${user.displayName}">
+                    Peter Meier
                 </td>
                 <td th:text="${#strings.setJoin(user.authorities, ', ')}">
                     ROLE1, ROLE2

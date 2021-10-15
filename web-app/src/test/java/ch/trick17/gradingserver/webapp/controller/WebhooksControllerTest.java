@@ -91,7 +91,8 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getRepoUrl()).thenReturn(repoUrl);
-        when(sol.getAccessToken()).thenReturn(new AccessToken(new User("name", "pass"), HOST, TOKEN));
+        when(sol.getAccessToken()).thenReturn(new AccessToken(
+                new User("name", "pass", "User"), HOST, TOKEN));
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("foo");
 
@@ -113,7 +114,8 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getRepoUrl()).thenReturn(repoUrl);
-        when(sol.getAccessToken()).thenReturn(new AccessToken(new User("name", "pass"), HOST, TOKEN));
+        when(sol.getAccessToken()).thenReturn(new AccessToken(
+                new User("name", "pass", "User"), HOST, TOKEN));
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("bar");
 

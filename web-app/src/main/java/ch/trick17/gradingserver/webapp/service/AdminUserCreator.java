@@ -32,7 +32,7 @@ public class AdminUserCreator {
     public void createInitialUser() {
         if (userRepo.findByUsername("admin").isEmpty()) {
             var password = passwordService.generateSecurePassword();
-            var admin = new User("admin", passwordService.encode(password), ADMIN);
+            var admin = new User("admin", passwordService.encode(password), "Admin", ADMIN);
             userRepo.save(admin);
             logger.info("Created user 'admin' with password '{}'", password);
         }

@@ -22,18 +22,22 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
+    private String displayName;
+
     @ElementCollection(fetch = EAGER)
     private Set<Role> roles = new HashSet<>();
 
     protected User() {}
 
-    public User(String username, String password, Role... roles) {
-        this(username, password, asList(roles));
+    public User(String username, String password, String displayName, Role... roles) {
+        this(username, password, displayName, asList(roles));
     }
 
-    public User(String username, String password, Collection<Role> roles) {
+    public User(String username, String password, String displayName,
+                Collection<Role> roles) {
         this.username = requireNonNull(username);
         this.password = requireNonNull(password);
+        this.displayName = requireNonNull(displayName);
         this.roles.addAll(roles);
     }
 
@@ -47,6 +51,10 @@ public class User implements UserDetails {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     @Override

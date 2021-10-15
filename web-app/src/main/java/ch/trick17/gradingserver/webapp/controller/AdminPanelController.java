@@ -64,6 +64,7 @@ public class AdminPanelController {
 
     @PostMapping("/create-user")
     public String addUser(@RequestParam String username,
+                          @RequestParam String displayName,
                           @RequestParam(required = false) String roles,
                           Model model) {
         if (userRepo.existsByUsername(username)) {
@@ -77,7 +78,8 @@ public class AdminPanelController {
                 .map(Role::valueOf)
                 .collect(toSet());
         var password = passwordService.generateSecurePassword();
-        userRepo.save(new User(username, passwordService.encode(password), parsedRoles));
+        userRepo.save(new User(username, passwordService.encode(password),
+                displayName, parsedRoles));
         model.addAttribute("username", username);
         model.addAttribute("password", password);
         return "admin/user-created";
