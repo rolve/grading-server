@@ -48,7 +48,7 @@
                 </th:block>
             </tbody>
         </table>
-        <div sec:authorize="hasRole('LECTURER')" class="mb-3">
+        <div sec:authorize="@access.check(#vars.course)" class="mb-3">
             <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">
                 <i class="fa fa-plus"></i> Add problem set
             </a>
