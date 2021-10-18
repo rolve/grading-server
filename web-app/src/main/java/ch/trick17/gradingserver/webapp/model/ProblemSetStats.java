@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.webapp.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparingDouble;
@@ -29,18 +30,18 @@ public record ProblemSetStats(List<TestGroupStats> groups) {
                 var failed = results.size() - passed;
                 return new TestStats(test, passed, failed, missing);
             }).collect(toList());
-            return new TestGroupStats(entry.getKey(), testStats);
+            return new TestGroupStats(entry.getKey().orElse(null), testStats);
         }).collect(toList());
 
         return new ProblemSetStats(groupStats);
     }
 
-    private static String testGroupFromName(String testName) {
+    private static Optional<String> testGroupFromName(String testName) {
         int lastDot;
         if ((lastDot = testName.lastIndexOf('.')) > 0) {
-            return testName.substring(0, lastDot);
+            return Optional.of(testName.substring(0, lastDot));
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
