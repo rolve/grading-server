@@ -17,8 +17,11 @@
 </th:block>
 
 <th:block th:fragment="result(submission)">
-    <span th:if="${submission == null || !submission.hasResult}">—</span>
-    <th:block th:if="${submission != null && submission.hasResult}" th:object="${submission.result}">
+    <span th:if="${submission == null || !submission.hasResult || !submission.result.successful}">
+        —
+    </span>
+    <th:block th:if="${submission != null && submission.hasResult && submission.result.successful}"
+              th:object="${submission.result}">
         <span th:if="*{!compiled}" class="badge bg-danger">
             Compile errors
         </span>
