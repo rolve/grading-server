@@ -84,6 +84,10 @@
                 <i class="fa fa-fw fs-4 fa-hourglass-half" style="vertical-align: -0.2em;"></i>
                 Some tests took too long to execute. Check for infinite loops.
             </div>
+            <div th:if="*{properties.contains('out of memory')}" class="alert alert-warning">
+                <i class="fa fa-fw fs-4 fa-microchip" style="vertical-align: -0.2em;"></i>
+                Some tests ran out of memory. Check for infinite loops or very large data structures.
+            </div>
             <div th:if="*{properties.contains('illegal operation')}" class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-ban" style="vertical-align: -0.2em;"></i>
                 The code tried to attempt illegal operations, such as accessing system properties or the file system.
