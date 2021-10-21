@@ -65,6 +65,16 @@ public class GradingResult {
         return failedTests;
     }
 
+    public List<String> getAllTests() {
+        if (passedTests == null || failedTests == null) {
+            return null;
+        } else {
+            return concat(passedTests.stream(), failedTests.stream())
+                    .sorted()
+                    .collect(toList());
+        }
+    }
+
     public int totalTests() {
         if (passedTests == null || failedTests == null) {
             return 0;
@@ -74,13 +84,7 @@ public class GradingResult {
     }
 
     public double passedTestsRatio() {
-        return passedTests.size() / (double) (totalTests());
-    }
-
-    public List<String> allTests() {
-        return concat(passedTests.stream(), failedTests.stream())
-                .sorted()
-                .collect(toList());
+        return passedTests.size() / (double) totalTests();
     }
 
     public String getDetails() {

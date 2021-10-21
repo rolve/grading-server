@@ -1,5 +1,7 @@
 package ch.trick17.gradingserver.webapp.model;
 
+import ch.trick17.gradingserver.GradingResult;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,13 +21,15 @@ public record ProblemSetStats(List<TestGroupStats> groups) {
         var missing = problemSet.getSolutions().size() - results.size();
 
         var groupedTests = results.stream()
-                .flatMap(res -> res.allTests().stream())
+                .filter(GradingResult::successful)
+                .flatMap(res -> res.getAllTests().stream())
                 .collect(groupingBy(ProblemSetStats::testGroupFromName, toSet()));
 
         var groupStats = groupedTests.entrySet().stream().map(entry -> {
             var testStats = entry.getValue().stream().map(test -> {
                 var passed = (int) results.stream()
-                        .filter(r -> r.getPassedTests().contains(test))
+                        .map(GradingResult::getPassedTests)
+                        .filter(tests -> tests != null && tests.contains(test))
                         .count();
                 var failed = results.size() - passed;
                 return new TestStats(test, passed, failed, missing);
