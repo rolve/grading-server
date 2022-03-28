@@ -1,4 +1,4 @@
-FROM openjdk:15-jdk-alpine
+FROM openjdk:17-jdk-alpine
 WORKDIR app
 RUN addgroup -S spring && adduser -S spring -G spring
 RUN chown spring:spring .

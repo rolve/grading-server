@@ -1,4 +1,4 @@
-FROM arm64v8/openjdk:15-jdk-slim-buster
+FROM arm64v8/openjdk:17-jdk-slim-buster
 WORKDIR app
 RUN mkdir db backup
 RUN addgroup --system spring && adduser --ingroup spring --system spring

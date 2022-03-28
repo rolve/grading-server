@@ -16,7 +16,7 @@
     </modules>
 
     <properties>
-        <java.version>15</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -63,7 +63,7 @@
                         <dependency>
                             <groupId>org.junit.jupiter</groupId>
                             <artifactId>junit-jupiter-engine</artifactId>
-                            <version>5.7.0</version>
+                            <version>5.8.2</version>
                         </dependency>
                     </dependencies>
                 </plugin>
