@@ -35,7 +35,7 @@
         <dependency>
             <groupId>ch.trick17.jtt</groupId>
             <artifactId>grader</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
