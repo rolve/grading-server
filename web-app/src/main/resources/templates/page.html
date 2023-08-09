@@ -18,13 +18,13 @@
             </nav>
             <div class="col-auto d-flex">
                 <div sec:authorize="hasRole('ADMIN')" class="pe-3">
-                    <a th:href="@{/admin/}" class="btn btn-link link-secondary" title="Admin panel">
+                    <a th:href="@{/admin/}" class="btn btn-link link-secondary" th:title="#{admin.panel.title}">
                         <i class="fa fa-cog"></i>
                     </a>
                 </div>
-                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-primary">Sign in</a>
+                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-primary" th:text="#{account.signin}">Sign in</a>
                 <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
-                    <button type="submit" class="btn btn-secondary">Sign out</button>
+                    <button type="submit" class="btn btn-secondary" th:text="#{account.signout}">Sign out</button>
                 </form>
             </div>
         </div>
@@ -43,10 +43,10 @@
                 <i class="fa fa-code"></i> Michael Faes
             </div>
             <div class="col-auto">
-                Grading service is
+                <span th:text="#{grading.service.status.label}">Grading service is</span>
                 <span class="badge bg-success"
                       th:class="|badge bg-${@gradingService.status.name == 'UP' ? 'primary' : 'danger'}|"
-                      th:text="${@gradingService.status}">UP</span>
+                      th:text="#{${'grading.service.status.' + @gradingService.status}}">UP</span>
             </div>
         </div>
     </footer>

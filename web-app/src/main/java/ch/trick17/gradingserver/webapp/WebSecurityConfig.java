@@ -28,18 +28,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        var query = "(\\?.*)?"; // regex that matches arbitrary (optional) query strings
         http
                 .csrf()
                     .ignoringAntMatchers("/webhooks/**")
                     .and()
                 .authorizeRequests()
                     .regexMatchers(
-                            "/",
                             "/css/.*",
                             "/favicon/.*",
-                            "/courses/\\d+/",
-                            "/courses/\\d+/problem-sets/\\d+/",
-                            "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/",
+                            "/" + query,
+                            "/courses/\\d+/" + query,
+                            "/courses/\\d+/problem-sets/\\d+/" + query,
+                            "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/" + query,
                             "/webhooks/.*")
                         .permitAll()
                     .antMatchers("/courses/create")
