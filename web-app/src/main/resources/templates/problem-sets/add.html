@@ -2,28 +2,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <title>Add Problem Set</title>
+    <title th:text="#{problem-set.add}">Add Problem Set</title>
 </head>
 <body>
     <main>
-        <h1>Add Problem Set</h1>
+        <h1 th:text="#{problem-set.add}">Add Problem Set</h1>
         <form th:action="@{add}" method="post" enctype="multipart/form-data">
-            <h4 class="mb-3">Problem Set</h4>
+            <h4 class="mb-3" th:text="#{problem-set}">Problem set</h4>
             <div class="row mb-3">
-                <label for="course" class="col-sm-2 col-form-label">Course</label>
+                <label for="course" class="col-sm-2 col-form-label" th:text="#{course}">Course</label>
                 <div class="col-sm-10">
                     <input type="text" id="course" name="course" class="form-control" readonly
                            value="Course name" th:value="${course.fullName}">
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="name" class="col-sm-2 col-form-label">Name</label>
+                <label for="name" class="col-sm-2 col-form-label" th:text="#{name}">Name</label>
                 <div class="col-sm-10">
                     <input type="text" id="name" name="name" class="form-control" required>
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="deadlineDate" class="col-sm-2 col-form-label">Deadline</label>
+                <label for="deadlineDate" class="col-sm-2 col-form-label" th:text="#{problem-set.deadline}">Deadline</label>
                 <div class="col">
                     <input type="date" id="deadlineDate" name="deadlineDate" class="form-control" required>
                 </div>
@@ -36,9 +36,9 @@
                 <div class="col-sm-2"></div>
                 <div class="col-sm-10">
                     <input type="checkbox" id="anonymous" name="anonymous" class="form-check-input">
-                    <label for="anonymous" class="form-check-label">Anonymous</label>
-                    <div class="form-text">
-                        Author names are not shown. Students have to identify their solution using the Git commit hash.
+                    <label for="anonymous" class="form-check-label" th:text="#{problem-set.anonymous}">Anonymous</label>
+                    <div class="form-text" th:text="#{problem-set.anonymous-desc}">
+                        Description
                     </div>
                 </div>
             </div>
@@ -46,23 +46,25 @@
                 <div class="col-sm-2"></div>
                 <div class="col-sm-10">
                     <input type="checkbox" id="hidden" name="hidden" class="form-check-input">
-                    <label for="hidden" class="form-check-label">Hidden</label>
-                    <div class="form-text">
-                        The problem set (and everything inside) is visible only to authorized users.
+                    <label for="hidden" class="form-check-label" th:text="#{problem-set.hidden}">Hidden</label>
+                    <div class="form-text" th:text="#{problem-set.hidden-desc}">
+                        Description
                     </div>
                 </div>
             </div>
 
-            <h4 class="mb-3">Grading Configuration</h4>
+            <h4 class="mb-3" th:text="#{problem-set.config}">Grading Configuration</h4>
             <div class="row mb-3">
-                <label for="testClassFile" class="col-sm-2 col-form-label">Test Class</label>
+                <label for="testClassFile" class="col-sm-2 col-form-label"
+                       th:text="#{problem-set.config.test-class}">Test Class</label>
                 <div class="col-sm-10">
                     <input type="file" accept=".java" class="form-control" name="testClassFile"
                            id="testClassFile" required>
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="structure" class="col-sm-2 col-form-label">Structure</label>
+                <label for="structure" class="col-sm-2 col-form-label"
+                       th:text="#{problem-set.config.structure}">Structure</label>
                 <div class="col">
                     <select name="structure" id="structure" class="form-select">
                         <option value="MAVEN" selected>Maven (src/main/java)</option>
@@ -71,34 +73,37 @@
                 </div>
                 <div class="col ps-0">
                     <input type="text" id="projectRoot" name="projectRoot" class="form-control"
-                           placeholder="Root directory inside repository">
+                           th:placeholder="#{problem-set.config.root}">
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="compiler" class="col-sm-2 col-form-label">Compiler</label>
+                <label for="compiler" class="col-sm-2 col-form-label"
+                       th:text="#{problem-set.config.compiler}">Compiler</label>
                 <div class="col-sm-10">
                     <select name="compiler" id="compiler" class="form-select">
-                        <option value="ECLIPSE" selected>Eclipse (ignores unrelated compile errors)</option>
-                        <option value="JAVAC">javac (whole project must compile)</option>
+                        <option value="ECLIPSE" selected th:text="#{problem-set.config.compiler.eclipse}">Eclipse</option>
+                        <option value="JAVAC" th:text="#{problem-set.config.compiler.javac}">javac</option>
                     </select>
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="repetitions" class="col-sm-2 col-form-label">Repetitions</label>
+                <label for="repetitions" class="col-sm-2 col-form-label"
+                       th:text="#{problem-set.config.repetitions}">Repetitions</label>
                 <div class="col-sm-10">
                     <input type="number" accept=".java" class="form-control" id="repetitions"
                            name="repetitions" value="7" required>
                 </div>
             </div>
             <div class="row mb-5">
-                <label for="repTimeoutMs" class="col-sm-2 col-form-label">Timeouts</label>
+                <label for="repTimeoutMs" class="col-sm-2 col-form-label"
+                       th:text="#{problem-set.config.timeouts}">Timeouts</label>
                 <div class="col input-group">
-                    <span class="input-group-text">Per rep.</span>
+                    <span class="input-group-text" th:text="#{problem-set.config.timeouts.per}">Per rep.</span>
                     <input type="number" name="repTimeoutMs" id="repTimeoutMs" class="form-control" value="5000">
                     <span class="input-group-text">ms</span>
                 </div>
                 <div class="col ps-0 input-group">
-                    <span class="input-group-text">All reps.</span>
+                    <span class="input-group-text" th:text="#{problem-set.config.timeouts.all}">All reps.</span>
                     <input type="number" id="testTimeoutMs" name="testTimeoutMs" class="form-control" value="10000">
                     <span class="input-group-text">ms</span>
                 </div>
@@ -106,10 +111,12 @@
 
             <div class="row gy-2">
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                    <button type="submit" class="btn btn-primary w-100"
+                            th:text="#{add}">Add</button>
                 </div>
                 <div class="col-sm-2">
-                    <a href="../courses/course.html" th:href="@{..}" class="btn btn-secondary w-100">Cancel</a>
+                    <a href="../courses/course.html" th:href="@{..}"
+                       class="btn btn-secondary w-100" th:text="#{cancel}">Cancel</a>
                 </div>
             </div>
         </form>

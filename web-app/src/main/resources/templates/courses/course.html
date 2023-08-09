@@ -9,19 +9,20 @@
     <main th:object="${course}">
         <h1 th:text="*{fullName}">Course Name</h1>
         <p>
-            <span th:text="${course.lecturers.size == 1 ? 'Lecturer' : 'Lecturers'}">Lecturer</span>:
+            <span th:text="#{course.lecturers}">Lecturer</span>:
             <span th:text="${#strings.setJoin(course.lecturers.![displayName], ', ')}">Peter Meier</span>
         </p>
 
-        <div th:if="*{problemSets.empty}" class="alert alert-warning" role="alert">
+        <div th:if="*{problemSets.empty}" class="alert alert-warning"
+             role="alert" th:text="#{course.no-problem-sets}">
             No problem sets added yet.
         </div>
         <table class="table" th:unless="*{problemSets.empty}">
             <thead>
                 <tr>
-                    <th>Problem Set</th>
-                    <th>Deadline</th>
-                    <th class="d-none d-sm-table-cell">Submissions</th>
+                    <th th:text="#{problem-set}">Problem Set</th>
+                    <th th:text="#{problem-set.deadline}">Deadline</th>
+                    <th th:text="#{submissions}" class="d-none d-sm-table-cell">Submissions</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,7 +42,7 @@
                             </span>
                         </td>
                         <td class="d-none d-sm-table-cell"
-                            th:text="|${problemSet.solutionsWithSubmissions} submissions|">
+                            th:text="|${problemSet.solutionsWithSubmissions} #{submissions}|">
                             5 submissions
                         </td>
                     </tr>
@@ -50,11 +51,13 @@
         </table>
         <div sec:authorize="@access.check(#vars.course)" class="mb-3">
             <a class="btn btn-primary" href="../problem-sets/add.html" th:href="@{problem-sets/add}">
-                <i class="fa fa-plus"></i> Add problem set
+                <i class="fa fa-plus"></i> <span th:text="#{problem-set.add}">Add problem set</span>
             </a>
             <form th:action="@{delete}" method="post" class="d-inline"
-                  onSubmit="return confirm('Sure?');">
-                <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+                  th:onsubmit="|return confirm('#{course.delete.confirm}');|">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa fa-trash"></i> <span th:text="#{delete}">Delete</span>
+                </button>
             </form>
         </div>
     </main>

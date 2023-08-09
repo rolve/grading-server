@@ -2,21 +2,22 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <title>User Created</title>
+    <title th:text="#{user.created}">User Created</title>
 </head>
 <body>
     <main>
-        <h1>User Created</h1>
+        <h1 th:text="#{user.created}">User Created</h1>
         <div class="alert alert-info" role="alert">
-            <p>
-                User '<span th:text="${username}"></span>' has been created.
+            <p th:text="#{user.created-msg(${username})}">
+                User has been created.
             </p>
-            <p>
-                Generated password: <span th:text="${password}">jlasLGOqZ512</span> (Save this!)
+            <p th:text="#{user.gen-pw(${password})}">
+                Generated password: abc (Save this!)
             </p>
         </div>
         <p>
-            <a th:href="@{.}" class="btn btn-secondary">Back</a>
+            <a th:href="@{.}" class="btn btn-secondary"
+               th:text="#{back}">Back</a>
         </p>
     </main>
 </body>

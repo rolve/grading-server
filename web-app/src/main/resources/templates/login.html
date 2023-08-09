@@ -2,26 +2,26 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <title>Sign in</title>
+    <title th:text="#{user.sign-in}">Sign in</title>
 </head>
 <body>
     <main>
-        <h1>Sign in</h1>
-        <div th:if="${param.error}" class="alert alert-danger">
-            Invalid username and password.
+        <h1 th:text="#{user.sign-in}">Sign in</h1>
+        <div th:if="${param.error}" class="alert alert-danger" th:text="#{user.sign-in-failed}">
+            Wrong username or password.
         </div>
-        <div th:if="${param.logout}" class="alert alert-info">
-            You have been logged out.
+        <div th:if="${param.logout}" class="alert alert-info" th:text="#{user.signed-out}">
+            You have been signed out.
         </div>
         <form th:action="@{/login}" method="post">
             <div class="row mb-3">
-                <label for="username" class="col-sm-2 col-form-label">Username</label>
+                <label for="username" class="col-sm-2 col-form-label" th:text="#{user.username}">Username</label>
                 <div class="col-sm-10">
                     <input type="text" id="username" name="username" class="form-control">
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                <label for="password" class="col-sm-2 col-form-label" th:text="#{user.password}">Password</label>
                 <div class="col-sm-10">
                     <input type="password" id="password" name="password" class="form-control">
                 </div>
@@ -29,10 +29,10 @@
 
             <div class="row gy-2">
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                    <button type="submit" class="btn btn-primary w-100" th:text="#{user.sign-in}">Sign in</button>
                 </div>
                 <div class="col-sm-2">
-                    <button class="btn btn-secondary w-100" onclick="window.history.back()">Cancel</button>
+                    <button class="btn btn-secondary w-100" onclick="window.history.back()" th:text="#{cancel}">Cancel</button>
                 </div>
             </div>
         </form>

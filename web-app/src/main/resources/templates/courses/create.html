@@ -2,20 +2,22 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <title>Create New Course</title>
+    <title th:text="#{course.create}">Create New Course</title>
 </head>
 <body>
     <main th:with="today = ${#temporals.createToday()}">
-        <h1>Create New Course</h1>
+        <h1 th:text="#{course.create}">Create New Course</h1>
         <form th:action="@{create}" method="post">
             <div class="row mb-3">
-                <label for="name" class="col-sm-2 col-form-label">Name</label>
+                <label for="name" class="col-sm-2 col-form-label"
+                       th:text="#{name}">Name</label>
                 <div class="col-sm-10">
-                    <input type="text" id="name" name="name"class="form-control" required>
+                    <input type="text" id="name" name="name" class="form-control" required>
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="termKind" class="col-sm-2 col-form-label">Term</label>
+                <label for="termKind" class="col-sm-2 col-form-label"
+                       th:text="#{course.term}">Term</label>
                 <div class="col">
                     <input type="text" id="termKind" name="termKind" class="form-control" required
                            value="FS" th:value="(${#temporals.month(today)} < 7) ? ('FS') : ('HS')">
@@ -26,13 +28,15 @@
                 </div>
             </div>
             <div class="row mb-5">
-                <label for="qualifier" class="col-sm-2 col-form-label">Qualifier</label>
+                <label for="qualifier" class="col-sm-2 col-form-label"
+                       th:text="#{course.qualifier}">Qualifier</label>
                 <div class="col-sm-10">
                     <input type="text" id="qualifier" name="qualifier" class="form-control">
                 </div>
             </div>
             <div class="row mb-5">
-                <label for="coLecturers" class="col-sm-2 col-form-label">Lecturers</label>
+                <label for="coLecturers" class="col-sm-2 col-form-label"
+                       th:text="#{course.lecturers}">Lecturers</label>
                 <div class="col-sm-10">
                     <select name="coLecturers" id="coLecturers" class="form-control" multiple size="2">
                         <option th:each="lect : ${possibleCoLecturers}" th:value="${lect.id}"
@@ -40,18 +44,19 @@
                             Peter Meier (peter)
                         </option>
                     </select>
-                    <div class="form-text">
-                        Additional users that are permitted to make changes to this course.
-                        You, the creator of the course, are added as a lecturer either way.
+                    <div class="form-text" th:text="#{course.lecturers-desc}">
+                        Description
                     </div>
                 </div>
             </div>
             <div class="row gy-2">
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary w-100">Create</button>
+                    <button type="submit" class="btn btn-primary w-100"
+                            th:text="#{create}">Create</button>
                 </div>
                 <div class="col-sm-2">
-                    <a href="../home.html" th:href="@{/}" class="btn btn-secondary w-100">Cancel</a>
+                    <a href="../home.html" th:href="@{/}" class="btn btn-secondary w-100"
+                       th:text="#{cancel}">Cancel</a>
                 </div>
             </div>
         </form>

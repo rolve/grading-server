@@ -2,21 +2,21 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <title>Admin Panel</title>
+    <title th:text="#{admin-panel}">Admin Panel</title>
 </head>
 <body>
     <main>
-        <h1>Admin Panel</h1>
-        <h2>Users</h2>
+        <h1 th:text="#{admin-panel}">Admin Panel</h1>
+        <h2 th:text="#{users}">Users</h2>
         <table class="table align-middle">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Display Name</th>
-                <th>Roles</th>
-                <th>Access Tokens</th>
-                <th>Options</th>
+                <th th:text="#{user.id}">ID</th>
+                <th th:text="#{user.username}">Username</th>
+                <th th:text="#{user.display-name}">Display Name</th>
+                <th th:text="#{user.roles}">Roles</th>
+                <th th:text="#{user.access-tokens}">Access Tokens</th>
+                <th th:text="#{user.actions}">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -33,13 +33,13 @@
                 <td th:text="${#strings.setJoin(user.authorities, ', ')}">
                     ROLE1, ROLE2
                 </td>
-                <td th:text="|${tokenCounts.get(user)} access tokens|">
+                <td th:text="|${tokenCounts.get(user)} #{user.access-tokens}|">
                     4 access tokens
                 </td>
                 <td>
                     <button th:unless="${undeletable.contains(user)}"
                             type="submit" class="btn btn-danger" th:form="|delete-user-${user.id}|"
-                            title="Delete this user">
+                            th:title="#{user.delete}">
                         <i class="fa fa-trash"></i>
                     </button>
                 </td>
@@ -47,12 +47,14 @@
             </tbody>
         </table>
         <form th:each="user : ${users}" th:id="|delete-user-${user.id}|" th:action="@{delete-user}" method="post"
-              onSubmit="return confirm('Are you sure you want to delete this user?');">
+              th:onsubmit="|return confirm('#{user.delete.confirm}');|">
             <input type="hidden" name="userId" th:value="${user.id}">
         </form>
 
         <p>
-            <a class="btn btn-primary" th:href="@{create-user}"><i class="fa fa-user-plus"></i> Create user</a>
+            <a class="btn btn-primary" th:href="@{create-user}">
+                <i class="fa fa-user-plus"></i> <span th:text="#{user.create}">Create user</span>
+            </a>
         </p>
     </main>
 </body>

@@ -3,36 +3,40 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="page::html(title=~{::title},main=~{::main})">
 <head>
-    <title th:text="|Submission *{submission.shortCommitHash} (*{submission.solution.problemSet.name})|">
+    <title th:text="|#{submission} *{submission.shortCommitHash} (*{submission.solution.problemSet.name})|">
         Submission c0f27a18 (Problem set)
     </title>
 </head>
 <body>
     <main th:object="${submission}">
-        <h1>Submission <span class="font-monospace" th:text="*{shortCommitHash}">c0f27a18</span></h1>
+        <h1>
+            <span th:text="#{submission}">Submission</span>
+            <span class="font-monospace" th:text="*{shortCommitHash}">c0f27a18</span>
+        </h1>
         <table class="table table-borderless table-sm w-auto">
             <tbody>
                 <tr>
-                    <td>Problem set:</td>
+                    <td th:text="|#{problem-set}:|">Problem set:</td>
                     <td>
                         <a href="../problem-sets/problem-set.html" th:href="@{../../../..}"
                            th:text="*{solution.problemSet.name}">Problem set name</a></td>
                 </tr>
                 <tr>
-                    <td>Authors:</td>
+                    <td th:text="|#{solution.authors}:|">Authors:</td>
                     <td>
                         <span th:unless="*{solution.problemSet.anonymous}"
                               th:text="*{#strings.setJoin(solution.authors, ', ')}">
                             Author1, Author2
                         </span>
                         <span th:if="*{solution.problemSet.anonymous}" class="text-muted fst-italic"
-                              th:title="*{#authorization.expr('@access.check(#vars.submission)') ? #strings.setJoin(solution.authors, ', ') : ''}">
+                              th:title="*{#authorization.expr('@access.check(#vars.submission)') ? #strings.setJoin(solution.authors, ', ') : ''}"
+                              th:text="|(#{problem-set.anonymous})|">
                             (anonymous)
                         </span>
                     </td>
                 </tr>
                 <tr>
-                    <td>Received:</td>
+                    <td th:text="|#{submission.received}:|">Received:</td>
                     <td>
                         <span th:text="${@prettyTime.get.format(submission.receivedDate)}"
                               th:title="*{#temporals.format(receivedDate)}">
@@ -41,20 +45,20 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Status:</td>
+                    <td th:text="|#{submission.status}:|">Status:</td>
                     <td>
                         <th:block th:switch="*{status.name}">
-                            <span th:case="'QUEUED'" class="badge bg-secondary">
+                            <span th:case="'QUEUED'" class="badge bg-secondary" th:text="#{submission.status.queued}">
                                 Queued
                             </span>
-                            <span th:case="'GRADING'" class="badge bg-info">
+                            <span th:case="'GRADING'" class="badge bg-info" th:text="#{submission.status.grading}">
                                 Grading...
                             </span>
-                            <span th:case="'GRADED'" class="badge bg-primary">
+                            <span th:case="'GRADED'" class="badge bg-primary" th:text="#{submission.status.graded}">
                                 Graded
                             </span>
                             <span th:case="'ERROR'">
-                                <span class="badge bg-danger">Error</span><br>
+                                <span class="badge bg-danger" th:text="#{submission.status.error}">Error</span><br>
                                 <span class="font-monospace" th:text="*{result.error}">Error message</span>
                             </span>
                         </th:block>
@@ -65,37 +69,36 @@
 
         <th:block th:if="${submission.result != null && submission.result.successful}"
              th:object="${submission.result}" class="mt-3">
-            <h2>Results</h2>
+            <h2 th:text="#{submission.results}">Results</h2>
             <div th:if="*{!compiled}" class="alert alert-danger">
                 <i class="fa fa-fw fs-4 fa-times-circle" style="vertical-align: -0.2em;"></i>
-                The submission contains compile errors. No tests were executed.
+                <span th:text="#{submission.warnings.fatal-compile-errors}">Message</span>
             </div>
             <div th:if="*{compiled && properties.contains('compile errors') && !failedTests.isEmpty}"
                  class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-exclamation-triangle" style="vertical-align: -0.2em;"></i>
-                The submission contains compile errors. Tests may have failed because of this.
+                <span th:text="#{submission.warnings.compile-errors}">Message</span>
             </div>
             <div th:if="*{properties.contains('nondeterministic')}" class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-random" style="vertical-align: -0.2em;"></i>
-                The submission produced multiple different results when executed repeatedly. Only tests that were
-                successful in <em>every</em> repetition are counted as passed. Check for randomness.
+                <span th:utext="#{submission.warnings.nondeterministic}">Message</span>
             </div>
             <div th:if="*{properties.contains('timeout')}" class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-hourglass-half" style="vertical-align: -0.2em;"></i>
-                Some tests took too long to execute. Check for infinite loops.
+                <span th:text="#{submission.warnings.timeout}">Message</span>
             </div>
             <div th:if="*{properties.contains('out of memory')}" class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-microchip" style="vertical-align: -0.2em;"></i>
-                Some tests ran out of memory. Check for infinite loops or very large data structures.
+                <span th:text="#{submission.warnings.out-of-mem}">Message</span>
             </div>
             <div th:if="*{properties.contains('illegal operation')}" class="alert alert-warning">
                 <i class="fa fa-fw fs-4 fa-ban" style="vertical-align: -0.2em;"></i>
-                The code tried to attempt illegal operations, such as accessing system properties or the file system.
+                <span th:text="#{submission.warnings.illegal-ops}">Message</span>
             </div>
 
             <div th:if="*{compiled && totalTests == 0}" class="alert alert-secondary">
                 <i class="fa fa-fw fs-4 fa-question" style="vertical-align: -0.2em;"></i>
-                No tests were executed. You may want to inform the person responsible for this course about this.
+                <span th:text="#{submission.warnings.no-tests}">Message</span>
             </div>
 
             <div th:if="*{compiled && totalTests > 0}">
@@ -103,14 +106,14 @@
                     <div class="passed" th:style="|width: *{passedTestsRatio * 100}%;|" style="width: 50%;"></div>
                 </div>
                 <div class="mt-2 mb-4 text-center font-weight-bold" style="font-size: 1.5em;"
-                     th:text="|*{passedTests.size} / *{totalTests} tests passed (*{passedTests.size * 100 / totalTests}%)|">
+                     th:text="|*{passedTests.size} / *{totalTests} #{submission.tests-passed} (*{passedTests.size * 100 / totalTests}%)|">
                     2 / 7 tests passed (29%)
                 </div>
                 <table class="table w-auto">
                     <thead>
                         <tr>
-                            <th>Test</th>
-                            <th>Result</th>
+                            <th th:text="#{submission.test}">Test</th>
+                            <th th:text="#{submission.result}">Result</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,11 +121,11 @@
                             <td th:text="${test}">testName</td>
                             <td>
                                 <span th:if="${#lists.contains(submission.result.passedTests,test)}"
-                                      class="badge bg-success font-monospace">
+                                      class="badge bg-success" th:text="#{submission.test-passed}">
                                     PASSED
                                 </span>
                                 <span th:unless="${#lists.contains(submission.result.passedTests,test)}"
-                                      class="badge bg-danger font-monospace">
+                                      class="badge bg-danger" th:text="#{submission.test-failed}">
                                     FAILED
                                 </span>
                             </td>
@@ -133,14 +136,14 @@
         </th:block>
 
         <th:block th:if="${allSubmissions.size > 1}">
-            <h2>Other Submissions</h2>
+            <h2 th:text="#{submission.other-submissions}">Other Submissions</h2>
             <table class="table">
                 <thead>
                 <tr>
-                    <th>Commit</th>
-                    <th class="d-none d-md-table-cell">Received</th>
-                    <th>Status</th>
-                    <th>Result</th>
+                    <th th:text="#{submission.commit}">Commit</th>
+                    <th class="d-none d-md-table-cell" th:text="#{submission.received}">Received</th>
+                    <th th:text="#{submission.status}">Status</th>
+                    <th th:text="#{submission.result}">Result</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -171,11 +174,15 @@
         <div class="mt-4">
             <div sec:authorize="@access.check(#vars.submission)" class="mb-3">
                 <form th:action="@{re-grade}" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-redo"></i> Re-grade</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-redo"></i> <span th:text="#{submission.re-grade}">Re-grade</span>
+                    </button>
                 </form>
             </div>
             <p>
-                <a href="../problem-sets/problem-set.html" th:href="@{../../../..}" class="btn btn-secondary">
+                <a href="../problem-sets/problem-set.html" th:href="@{../../../..}"
+                   class="btn btn-secondary"
+                   th:text="#{submission.back}">
                     Back to problem set
                 </a>
             </p>

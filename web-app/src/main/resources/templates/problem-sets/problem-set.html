@@ -9,24 +9,26 @@
     <main th:object="${problemSet}">
         <h1 th:text="|*{name} (*{course.name})|">Problem Set Name (Course Name)</h1>
         <p>
-            Deadline:
+            <span th:text="|#{problem-set.deadline}:|">Deadline:</span>
             <span class="deadline" th:text="|${@prettyTime.get.format(problemSet.deadline)} (${#temporals.format(problemSet.deadline, 'MEDIUM')})|">Date</span>
         </p>
-        <h2>Latest submissions</h2>
-        <div th:if="*{registeringSolutions}" class="alert alert-info" role="alert">
+        <h2 th:text="#{problem-set.latest-submissions}">Latest submissions</h2>
+        <div th:if="*{registeringSolutions}" class="alert alert-info"
+             role="alert" th:text="#{problem-set.registering-solutions}">
             Solutions are being registered. Check back later.
         </div>
-        <div th:if="*{!registeringSolutions and solutions.empty}" class="alert alert-warning" role="alert">
+        <div th:if="*{!registeringSolutions and solutions.empty}" class="alert alert-warning"
+             role="alert" th:text="#{problem-set.no-solutions}">
             No solutions registered yet.
         </div>
         <table class="table" th:unless="*{solutions.empty}">
             <thead>
                 <tr>
-                    <th>Authors</th>
-                    <th>Commit</th>
-                    <th class="d-none d-md-table-cell">Received</th>
-                    <th>Status</th>
-                    <th>Result</th>
+                    <th th:text="#{solution.authors}">Authors</th>
+                    <th th:text="#{submission.commit}">Commit</th>
+                    <th th:text="#{submission.received}" class="d-none d-md-table-cell">Received</th>
+                    <th th:text="#{submission.status}">Status</th>
+                    <th th:text="#{submission.result}">Result</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,7 +38,8 @@
                             Authors
                         </span>
                         <span th:if="*{anonymous}" class="text-muted fst-italic"
-                              th:title="${#authorization.expr('@access.check(#vars.problemSet)') ? #strings.setJoin(sol.authors, ', ') : ''}">
+                              th:title="${#authorization.expr('@access.check(#vars.problemSet)') ? #strings.setJoin(sol.authors, ', ') : ''}"
+                              th:text="|(#{problem-set.anonymous})|">
                             (anonymous)
                         </span>
                     </td>
@@ -58,7 +61,8 @@
                         <span th:if="${latest == null}">—</span>
                     </td>
                     <td>
-                        <span th:if="${latest == null}" class="badge bg-secondary">
+                        <span th:if="${latest == null}" class="badge bg-secondary"
+                              th:text="#{solution.no-submission}">
                             No submission yet
                         </span>
                         <th:block th:unless="${latest == null}">
@@ -73,12 +77,12 @@
         </table>
 
         <th:block th:unless="${stats.groups.isEmpty}">
-            <h2>Statistics</h2>
+            <h2 th:text="#{problem-set.stats}">Statistics</h2>
             <table class="table w-auto" style="min-width: 50%;">
                 <thead>
                     <tr>
-                        <th>Test</th>
-                        <th style="width: 0;">Ratio</th>
+                        <th th:text="#{submission.test}">Test</th>
+                        <th style="width: 0;" th:text="#{problem-set.test-ratio}">Ratio</th>
                     </tr>
                 </thead>
                 <th:block th:each="group,i : ${stats.groups}">
@@ -120,18 +124,27 @@
         <div class="mt-4">
             <div sec:authorize="@access.check(#vars.problemSet)" class="mb-3">
                 <a href="register-solutions-gitlab.html" th:href="@{register-solutions-gitlab}"
-                   class="btn btn-primary"><i class="fa fa-plus"></i> Register solutions</a>
+                   class="btn btn-primary">
+                    <i class="fa fa-plus"></i> <span th:text="#{problem-set.register-solutions}">Register solutions</span>
+                </a>
                 <form th:action="@{remove-solutions}" method="post" class="d-inline"
-                      onSubmit="return confirm('Sure?');">
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-minus"></i> Remove solutions</button>
+                      th:onsubmit="|return confirm('#{problem-set.remove-solutions.confirm}');|">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa fa-minus"></i> <span th:text="#{problem-set.remove-solutions}">Remove solutions</span>
+                    </button>
                 </form>
                 <form th:action="@{delete}" method="post" class="d-inline"
-                      onSubmit="return confirm('Sure?');">
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+                      th:onsubmit="|return confirm('#{problem-set.delete.confirm}');|">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa fa-trash"></i> <span th:text="#{delete}">Delete</span>
+                    </button>
                 </form>
             </div>
             <p>
-                <a href="../courses/course.html" th:href="@{../..}" class="btn btn-secondary">Back to course</a>
+                <a href="../courses/course.html" th:href="@{../..}" class="btn btn-secondary"
+                   th:text="#{problem-set.back}">
+                    Back to course
+                </a>
             </p>
         </div>
     </main>
