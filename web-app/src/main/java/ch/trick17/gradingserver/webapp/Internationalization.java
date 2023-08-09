@@ -1,15 +1,42 @@
 package ch.trick17.gradingserver.webapp;
 
+import org.ocpsoft.prettytime.PrettyTime;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.List;
+import java.util.Locale;
+import java.util.Locale.LanguageRange;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import static java.util.Locale.ENGLISH;
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
+
 @Configuration
 public class Internationalization implements WebMvcConfigurer {
+
+    public static final Locale DEFAULT_LOCALE = ENGLISH;
+
+    private final List<Locale> supportedLocales;
+
+    public Internationalization(@Value("classpath*:messages_*.properties") Resource[] messageFiles) {
+        supportedLocales = Stream.of(messageFiles)
+                .map(f -> f.getFilename().replaceAll("messages_|\\.properties", ""))
+                .map(Locale::forLanguageTag)
+                .toList();
+    }
 
     @Bean
     public LocaleResolver localeResolver() {
@@ -26,5 +53,25 @@ public class Internationalization implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
+    }
+
+    @Bean
+    public Supplier<PrettyTime> prettyTime() {
+        return () -> new PrettyTime(supportedLocale());
+    }
+
+    @Bean
+    public Function<String, DateTimeFormatter> dateTimeFormatter() {
+        return style -> DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.valueOf(style))
+                .withLocale(supportedLocale());
+    }
+
+    private Locale supportedLocale() {
+        // make sure only locales that have a 'messages' file are used for
+        // formatting times etc., to avoid partially localized text
+        var priorities = LanguageRange.parse(getLocale().toLanguageTag());
+        var bestMatch = Locale.lookup(priorities, supportedLocales);
+        return requireNonNullElse(bestMatch, DEFAULT_LOCALE);
     }
 }

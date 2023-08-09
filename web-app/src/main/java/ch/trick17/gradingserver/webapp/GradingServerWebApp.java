@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.webapp;
 
-import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,8 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.function.Supplier;
+
+import static java.util.concurrent.Executors.newCachedThreadPool;
 
 @SpringBootApplication
 @EnableAsync
@@ -26,11 +25,6 @@ public class GradingServerWebApp {
 
     @Bean
     public Executor taskExecutor() {
-        return Executors.newCachedThreadPool();
-    }
-
-    @Bean
-    public Supplier<PrettyTime> prettyTime() {
-        return PrettyTime::new;
+        return newCachedThreadPool();
     }
 }

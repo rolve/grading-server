@@ -33,12 +33,9 @@
                                th:href="@{problem-sets/{id}/(id=${problemSet.id})}"
                                th:text="${problemSet.name}">Problem Set Name</a></td>
                         <td>
-                            <span th:text="${@prettyTime.get.format(problemSet.deadline)}">
-                                4 days from now
-                            </span>
-                            <span th:text="|(${#temporals.format(problemSet.deadline, 'MEDIUM')})|"
-                                  class="d-none d-md-inline">
-                                (17.10.2021, 23:59:00)
+                            <span th:text="${@prettyTime.get.format(problemSet.deadline)}"
+                                  th:title="${@dateTimeFormatter.apply('MEDIUM').format(problemSet.deadline)}">
+                                Date
                             </span>
                         </td>
                         <td class="d-none d-sm-table-cell"

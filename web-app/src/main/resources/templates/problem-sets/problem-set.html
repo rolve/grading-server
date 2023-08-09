@@ -10,7 +10,7 @@
         <h1 th:text="|*{name} (*{course.name})|">Problem Set Name (Course Name)</h1>
         <p>
             <span th:text="|#{problem-set.deadline}:|">Deadline:</span>
-            <span class="deadline" th:text="|${@prettyTime.get.format(problemSet.deadline)} (${#temporals.format(problemSet.deadline, 'MEDIUM')})|">Date</span>
+            <span class="deadline" th:text="|${@prettyTime.get.format(problemSet.deadline)} (${@dateTimeFormatter.apply('MEDIUM').format(problemSet.deadline)})|">Date</span>
         </p>
         <h2 th:text="#{problem-set.latest-submissions}">Latest submissions</h2>
         <div th:if="*{registeringSolutions}" class="alert alert-info"
@@ -55,7 +55,7 @@
                     <td class="d-none d-md-table-cell">
                         <span th:if="${latest != null}"
                               th:text="${@prettyTime.get.format(latest.receivedDate)}"
-                              th:title="${#temporals.format(latest.receivedDate)}">
+                              th:title="${@dateTimeFormatter.apply('MEDIUM').format(latest.receivedDate)}">
                             Date
                         </span>
                         <span th:if="${latest == null}">—</span>

@@ -39,7 +39,7 @@
                     <td th:text="|#{submission.received}:|">Received:</td>
                     <td>
                         <span th:text="${@prettyTime.get.format(submission.receivedDate)}"
-                              th:title="*{#temporals.format(receivedDate)}">
+                              th:title="${@dateTimeFormatter.apply('MEDIUM').format(submission.receivedDate)}">
                             Date
                         </span>
                     </td>
@@ -157,7 +157,7 @@
                     </td>
                     <td class="d-none d-md-table-cell">
                         <span th:text="${@prettyTime.get.format(s.receivedDate)}"
-                              th:title="${#temporals.format(s.receivedDate)}">
+                              th:title="${@dateTimeFormatter.apply('MEDIUM').format(s.receivedDate)}">
                             Date
                         </span>
                     </td>
