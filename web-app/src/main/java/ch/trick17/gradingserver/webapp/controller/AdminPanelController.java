@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.webapp.model.Role;
 import ch.trick17.gradingserver.webapp.model.User;
 import ch.trick17.gradingserver.webapp.model.UserRepository;
 import ch.trick17.gradingserver.webapp.service.PasswordService;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.transaction.Transactional;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
@@ -29,12 +31,14 @@ public class AdminPanelController {
     private final UserRepository userRepo;
     private final AccessTokenRepository tokenRepo;
     private final PasswordService passwordService;
+    private final MessageSource messageSource;
 
     public AdminPanelController(UserRepository userRepo, AccessTokenRepository tokenRepo,
-                                PasswordService passwordService) {
+                                PasswordService passwordService, MessageSource messageSource) {
         this.userRepo = userRepo;
         this.tokenRepo = tokenRepo;
         this.passwordService = passwordService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("/")
@@ -64,12 +68,12 @@ public class AdminPanelController {
     public String addUser(@RequestParam String username,
                           @RequestParam String displayName,
                           @RequestParam(required = false) Set<Role> roles,
-                          Model model) {
+                          Model model, Locale locale) {
         if (userRepo.existsByUsername(username)) {
             model.addAttribute("possibleRoles", asList(Role.values()));
             model.addAttribute("username", username);
             model.addAttribute("roles", roles);
-            model.addAttribute("error", "Username already taken");
+            model.addAttribute("error", messageSource.getMessage("user.name-taken", null, locale));
             return "admin/create-user";
         }
         var password = passwordService.generateSecurePassword();
