@@ -12,6 +12,7 @@ import java.util.HashSet;
 
 import static ch.trick17.gradingserver.GradingConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.GradingOptions.Compiler.JAVAC;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -25,7 +26,7 @@ public class JobIdGeneratorTest {
         var ids = new HashSet<String>();
         for (int i = 0; i < 1000; i++) {
             var job = new GradingJob(new CodeLocation("", ""), null, null,
-                    new GradingConfig("", "", ECLIPSE,
+                    new GradingConfig("", "", ECLIPSE, emptyList(),
                             new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(1), true)));
             repo.save(job);
             assertEquals(32, job.getId().length());

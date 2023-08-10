@@ -6,12 +6,16 @@ import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingOptions.Compiler;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.*;
+import ch.trick17.gradingserver.webapp.service.DependencyResolver;
+import ch.trick17.gradingserver.webapp.service.DependencyResolver.NoJarFileFoundException;
+import ch.trick17.gradingserver.webapp.service.DependencyResolver.InvalidURLException;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.webapp.service.ProblemSetService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -22,13 +26,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URI;
 import java.time.*;
-import java.util.Set;
+import java.util.*;
 
 import static ch.trick17.gradingserver.webapp.model.Solution.byCommitHash;
 import static ch.trick17.gradingserver.webapp.model.Solution.byResult;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.stream;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -45,17 +51,23 @@ public class ProblemSetController {
     private final CourseRepository courseRepo;
     private final AccessTokenRepository accessTokenRepo;
     private final ProblemSetService problemSetService;
+    private final DependencyResolver resolver;
+    private final MessageSource messageSource;
 
     private final String defaultGitLabHost;
 
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
                                 AccessTokenRepository accessTokenRepo,
                                 ProblemSetService problemSetService,
+                                DependencyResolver resolver,
+                                MessageSource messageSource,
                                 WebAppProperties props) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.accessTokenRepo = accessTokenRepo;
         this.problemSetService = problemSetService;
+        this.resolver = resolver;
+        this.messageSource = messageSource;
         this.defaultGitLabHost = props.getDefaultGitLabHost();
     }
 
@@ -91,20 +103,53 @@ public class ProblemSetController {
     }
 
     @PostMapping("/add")
-    public String addProblemSet(@PathVariable int courseId, @RequestParam String name,
-                                @RequestParam String deadlineDate, @RequestParam String deadlineTime,
+    public String addProblemSet(@PathVariable int courseId, String name,
+                                String deadlineDate, String deadlineTime,
                                 @RequestParam(defaultValue = "false") boolean anonymous,
                                 @RequestParam(defaultValue = "false") boolean hidden,
-                                @RequestParam MultipartFile testClassFile, @RequestParam String structure,
-                                @RequestParam String projectRoot, @RequestParam String compiler,
-                                @RequestParam int repetitions, @RequestParam int repTimeoutMs,
-                                @RequestParam int testTimeoutMs) throws IOException {
+                                MultipartFile testClassFile, String structure,
+                                String projectRoot, String dependencies,
+                                String compiler, int repetitions,
+                                int repTimeoutMs, int testTimeoutMs,
+                                Model model, Locale locale) throws IOException {
         var course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         var date = LocalDate.parse(deadlineDate);
         var time = LocalTime.parse(deadlineTime);
         var testClass = new String(testClassFile.getBytes(), UTF_8);
-        var config = new GradingConfig(testClass, projectRoot, ProjectStructure.valueOf(structure),
+
+        List<URI> dependencyUrls;
+        try {
+            dependencyUrls = resolver.resolveDependencyUrls(dependencies);
+        } catch (InvalidURLException | NoJarFileFoundException | IOException e) {
+            model.addAttribute("course", course);
+            model.addAttribute("name", name);
+            model.addAttribute("deadlineDate", deadlineDate);
+            model.addAttribute("deadlineTime", deadlineTime);
+            model.addAttribute("anonymous", anonymous);
+            model.addAttribute("hidden", hidden);
+            model.addAttribute("structure", structure);
+            model.addAttribute("projectRoot", projectRoot);
+            model.addAttribute("dependencies", dependencies);
+            model.addAttribute("compiler", compiler);
+            model.addAttribute("repetitions", repetitions);
+            model.addAttribute("repTimeoutMs", repTimeoutMs);
+            model.addAttribute("testTimeoutMs", testTimeoutMs);
+            if (e instanceof InvalidURLException ex) {
+                model.addAttribute("error", messageSource.getMessage("problem-set.invalid-url",
+                        new Object[]{ex.getUrl()}, locale));
+            } else if (e instanceof NoJarFileFoundException ex) {
+                model.addAttribute("error", messageSource.getMessage("problem-set.no-jar-found",
+                        new Object[]{ex.getCoordinates()}, locale));
+            } else {
+                model.addAttribute("error", messageSource.getMessage("problem-set.io-exception",
+                        new Object[]{e.getMessage()}, locale));
+            }
+            return "problem-sets/add";
+        }
+
+        var config = new GradingConfig(testClass, projectRoot,
+                ProjectStructure.valueOf(structure), dependencyUrls,
                 new GradingOptions(Compiler.valueOf(compiler), repetitions,
                         Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
         var problemSet = new ProblemSet(course, name, config,
@@ -114,7 +159,8 @@ public class ProblemSetController {
     }
 
     @GetMapping("/{id}/register-solutions-gitlab")
-    public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id, Model model) {
+    public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
+                                          Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
         model.addAttribute("host", defaultGitLabHost);
@@ -124,8 +170,7 @@ public class ProblemSetController {
 
     @PostMapping("/{id}/register-solutions-gitlab")
     public String registerSolutionsGitLab(@PathVariable int courseId, @PathVariable int id,
-                                          @RequestParam String host, @RequestParam String groupPath,
-                                          @RequestParam String token,
+                                          String host, String groupPath, String token,
                                           @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
                                           HttpServletRequest req,
                                           @AuthenticationPrincipal User user,

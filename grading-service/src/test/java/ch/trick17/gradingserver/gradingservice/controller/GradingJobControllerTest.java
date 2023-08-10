@@ -40,7 +40,7 @@ class GradingJobControllerTest {
     void create() {
         var code = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
                 "c61e753ad81f76cca7491efb441ce2fb915ef231");
-        var config = new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE,
+        var config = new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE, emptyList(),
                 new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6), Duration.ofMillis(10), true));
         var job = new GradingJob(code, null, null, config);
         var location = rest.postForLocation("/api/v1/grading-jobs", job);
@@ -63,7 +63,7 @@ class GradingJobControllerTest {
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
         var job = new GradingJob(code, "us", "pw",
-                new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE, options));
+                new GradingConfig("class Foo {}", "/", ProjectStructure.ECLIPSE, emptyList(), options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(uri.getPath());
         assertTrue(matcher.matches(), uri.getPath());
@@ -96,7 +96,7 @@ class GradingJobControllerTest {
         var options = new GradingOptions(ECLIPSE, 7, Duration.ofSeconds(6),
                 Duration.ofMillis(10), true);
         var job = new GradingJob(code, null, null, new GradingConfig("class Foo {}", "/",
-                ProjectStructure.ECLIPSE, options));
+                ProjectStructure.ECLIPSE, emptyList(), options));
         var result = new GradingResult(null, List.of("foo", "bar"), List.of("fooTest"),
                 List.of("bazTest"), "no details");
         job.setResult(result);
@@ -123,7 +123,7 @@ class GradingJobControllerTest {
                         assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
                     }
                 }""";
-        var job = new GradingJob(code, null, null, new GradingConfig(test, "", MAVEN, options));
+        var job = new GradingJob(code, null, null, new GradingConfig(test, "", MAVEN, emptyList(), options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;
@@ -163,7 +163,7 @@ class GradingJobControllerTest {
                         assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
                     }
                 }""";
-        var config = new GradingConfig(test, "", MAVEN, options);
+        var config = new GradingConfig(test, "", MAVEN, emptyList(), options);
         var job = new GradingJob(code, null, null, config);
         var entity = rest.postForEntity("/api/v1/grading-jobs?waitUntilDone=true", job, GradingJob.class);
 
@@ -209,7 +209,7 @@ class GradingJobControllerTest {
                     }
                 }""";
         var job = new GradingJob(code, username, deployToken,
-                new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
+                new GradingConfig(test, "", ProjectStructure.ECLIPSE, emptyList(), options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;
@@ -250,7 +250,7 @@ class GradingJobControllerTest {
                     }
                 }""";
         var job = new GradingJob(code, null, null, // <- no credentials
-                new GradingConfig(test, "", ProjectStructure.ECLIPSE, options));
+                new GradingConfig(test, "", ProjectStructure.ECLIPSE, emptyList(), options));
         var uri = rest.postForLocation("/api/v1/grading-jobs", job);
 
         ResponseEntity<GradingResult> response;

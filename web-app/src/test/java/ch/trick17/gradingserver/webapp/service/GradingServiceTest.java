@@ -78,7 +78,7 @@ class GradingServiceTest {
                         assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
                     }
                 }""";
-        var config = new GradingConfig(test, "", MAVEN, options);
+        var config = new GradingConfig(test, "", MAVEN, emptyList(), options);
         var problemSet = new ProblemSet(course, "Test", config, now(), false, false);
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git", null,
                 List.of(new Author("rolve")), emptyList());

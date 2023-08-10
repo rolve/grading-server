@@ -7,36 +7,45 @@
 <body>
     <main>
         <h1 th:text="#{problem-set.add}">Add Problem Set</h1>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}">
+            Error
+        </div>
+
         <form th:action="@{add}" method="post" enctype="multipart/form-data">
             <h4 class="mb-3" th:text="#{problem-set}">Problem set</h4>
             <div class="row mb-3">
                 <label for="course" class="col-sm-2 col-form-label" th:text="#{course}">Course</label>
-                <div class="col-sm-10">
+                <div class="col">
                     <input type="text" id="course" name="course" class="form-control" readonly
                            value="Course name" th:value="${course.fullName}">
                 </div>
             </div>
             <div class="row mb-3">
                 <label for="name" class="col-sm-2 col-form-label" th:text="#{name}">Name</label>
-                <div class="col-sm-10">
-                    <input type="text" id="name" name="name" class="form-control" required>
+                <div class="col">
+                    <input type="text" id="name" name="name" class="form-control"
+                           required th:value="${name}">
                 </div>
             </div>
             <div class="row mb-3">
                 <label for="deadlineDate" class="col-sm-2 col-form-label" th:text="#{problem-set.deadline}">Deadline</label>
                 <div class="col">
-                    <input type="date" id="deadlineDate" name="deadlineDate" class="form-control" required>
+                    <input type="date" id="deadlineDate" name="deadlineDate" class="form-control"
+                           required th:value="${deadlineDate}">
                 </div>
                 <div class="col ps-0">
-                    <input type="time" id="deadlineTime" name="deadlineTime" class="form-control" required
-                           value="23:59">
+                    <input type="time" id="deadlineTime" name="deadlineTime" class="form-control"
+                           required  th:value="${deadlineTime ?: '23:59'}">
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-sm-2"></div>
-                <div class="col-sm-10">
-                    <input type="checkbox" id="anonymous" name="anonymous" class="form-check-input">
-                    <label for="anonymous" class="form-check-label" th:text="#{problem-set.anonymous}">Anonymous</label>
+                <div class="col">
+                    <input type="checkbox" id="anonymous" name="anonymous"
+                           class="form-check-input" th:checked="${anonymous}">
+                    <label for="anonymous" class="form-check-label"
+                           th:text="#{problem-set.anonymous}">Anonymous</label>
                     <div class="form-text" th:text="#{problem-set.anonymous-desc}">
                         Description
                     </div>
@@ -44,9 +53,11 @@
             </div>
             <div class="row mb-3">
                 <div class="col-sm-2"></div>
-                <div class="col-sm-10">
-                    <input type="checkbox" id="hidden" name="hidden" class="form-check-input">
-                    <label for="hidden" class="form-check-label" th:text="#{problem-set.hidden}">Hidden</label>
+                <div class="col">
+                    <input type="checkbox" id="hidden" name="hidden"
+                           class="form-check-input" th:checked="${hidden}">
+                    <label for="hidden" class="form-check-label"
+                           th:text="#{problem-set.hidden}">Hidden</label>
                     <div class="form-text" th:text="#{problem-set.hidden-desc}">
                         Description
                     </div>
@@ -57,7 +68,7 @@
             <div class="row mb-3">
                 <label for="testClassFile" class="col-sm-2 col-form-label"
                        th:text="#{problem-set.config.test-class}">Test Class</label>
-                <div class="col-sm-10">
+                <div class="col">
                     <input type="file" accept=".java" class="form-control" name="testClassFile"
                            id="testClassFile" required>
                 </div>
@@ -67,31 +78,53 @@
                        th:text="#{problem-set.config.structure}">Structure</label>
                 <div class="col">
                     <select name="structure" id="structure" class="form-select">
-                        <option value="MAVEN" selected>Maven (src/main/java)</option>
-                        <option value="ECLIPSE">Eclipse (src)</option>
+                        <option value="MAVEN" th:selected="${structure == 'MAVEN' || structure == null}">
+                            Maven (src/main/java)
+                        </option>
+                        <option value="ECLIPSE" th:selected="${structure == 'ECLIPSE'}">
+                            Eclipse (src)
+                        </option>
                     </select>
                 </div>
                 <div class="col ps-0">
                     <input type="text" id="projectRoot" name="projectRoot" class="form-control"
-                           th:placeholder="#{problem-set.config.root}">
+                           th:placeholder="#{problem-set.config.root}" th:value="${projectRoot}">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="dependencies" class="col-sm-2 col-form-label"
+                       th:text="#{problem-set.config.dependencies}">Dependencies</label>
+                <div class="col">
+                    <textarea id="dependencies" name="dependencies" class="form-control"
+                              th:text="${dependencies}">
+                    </textarea>
+                    <div class="form-text" th:utext="#{problem-set.config.dependencies-desc}">
+                        Description
+                    </div>
                 </div>
             </div>
             <div class="row mb-3">
                 <label for="compiler" class="col-sm-2 col-form-label"
                        th:text="#{problem-set.config.compiler}">Compiler</label>
-                <div class="col-sm-10">
+                <div class="col">
                     <select name="compiler" id="compiler" class="form-select">
-                        <option value="ECLIPSE" selected th:text="#{problem-set.config.compiler.eclipse}">Eclipse</option>
-                        <option value="JAVAC" th:text="#{problem-set.config.compiler.javac}">javac</option>
+                        <option value="ECLIPSE" th:selected="${compiler == 'ECLIPSE' || compiler == null}"
+                                th:text="#{problem-set.config.compiler.eclipse}">
+                            Eclipse
+                        </option>
+                        <option value="JAVAC" th:selected="${compiler == 'JAVAC'}"
+                                th:text="#{problem-set.config.compiler.javac}">
+                            javac
+                        </option>
                     </select>
                 </div>
             </div>
             <div class="row mb-3">
                 <label for="repetitions" class="col-sm-2 col-form-label"
                        th:text="#{problem-set.config.repetitions}">Repetitions</label>
-                <div class="col-sm-10">
+                <div class="col">
                     <input type="number" accept=".java" class="form-control" id="repetitions"
-                           name="repetitions" value="7" required>
+                           name="repetitions" th:value="${repetitions ?: 7}" required>
                 </div>
             </div>
             <div class="row mb-5">
@@ -99,12 +132,14 @@
                        th:text="#{problem-set.config.timeouts}">Timeouts</label>
                 <div class="col input-group">
                     <span class="input-group-text" th:text="#{problem-set.config.timeouts.per}">Per rep.</span>
-                    <input type="number" name="repTimeoutMs" id="repTimeoutMs" class="form-control" value="5000">
+                    <input type="number" name="repTimeoutMs" id="repTimeoutMs" class="form-control"
+                           th:value="${repTimeoutMs ?: 5000}">
                     <span class="input-group-text">ms</span>
                 </div>
                 <div class="col ps-0 input-group">
                     <span class="input-group-text" th:text="#{problem-set.config.timeouts.all}">All reps.</span>
-                    <input type="number" id="testTimeoutMs" name="testTimeoutMs" class="form-control" value="10000">
+                    <input type="number" id="testTimeoutMs" name="testTimeoutMs" class="form-control"
+                           th:value="${testTimeoutMs ?: 10000}">
                     <span class="input-group-text">ms</span>
                 </div>
             </div>

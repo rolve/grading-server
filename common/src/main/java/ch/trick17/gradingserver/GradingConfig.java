@@ -1,11 +1,16 @@
 package ch.trick17.gradingserver;
 
+import ch.trick17.gradingserver.util.UriListConverter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
+import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 
+import static java.util.List.copyOf;
 import static java.util.Objects.requireNonNull;
 
 @Embeddable
@@ -15,17 +20,25 @@ public class GradingConfig {
     private String testClass;
     private String projectRoot;
     private ProjectStructure structure;
+    @Lob
+    @Convert(converter = UriListConverter.class)
+    private List<URI> dependencyUrls;
     private GradingOptions options;
 
     protected GradingConfig() {}
 
     @JsonCreator
     public GradingConfig(String testClass, String projectRoot,
-                         ProjectStructure structure, GradingOptions options) {
+                         ProjectStructure structure, List<URI> dependencyUrls,
+                         GradingOptions options) {
         this.testClass = requireNonNull(testClass);
         this.projectRoot = requireNonNull(projectRoot);
         this.structure = requireNonNull(structure);
+        this.dependencyUrls = copyOf(dependencyUrls);
         this.options = requireNonNull(options);
+        if (dependencyUrls.stream().anyMatch(uri -> !uri.getScheme().matches("https?"))) {
+            throw new IllegalArgumentException("only http(s) URLs allowed");
+        }
     }
 
     public String getTestClass() {
@@ -38,6 +51,10 @@ public class GradingConfig {
 
     public ProjectStructure getStructure() {
         return structure;
+    }
+
+    public List<URI> getDependencyUrls() {
+        return dependencyUrls;
     }
 
     public GradingOptions getOptions() {
@@ -55,13 +72,6 @@ public class GradingConfig {
     @Override
     public int hashCode() {
         return Objects.hash(options, testClass);
-    }
-
-    @Override
-    public String toString() {
-        return "GradingConfig[" +
-                "options=" + options + ", " +
-                "testClass=" + testClass + ']';
     }
 
     public enum ProjectStructure {
