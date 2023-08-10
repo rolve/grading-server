@@ -1,12 +1,11 @@
 package ch.trick17.gradingserver;
 
-import ch.trick17.gradingserver.util.UriListConverter;
+import ch.trick17.gradingserver.util.JarFileListConverter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
-import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,24 +20,22 @@ public class GradingConfig {
     private String projectRoot;
     private ProjectStructure structure;
     @Lob
-    @Convert(converter = UriListConverter.class)
-    private List<URI> dependencyUrls;
+    @Convert(converter = JarFileListConverter.class)
+    private List<JarFile> dependencies;
     private GradingOptions options;
 
     protected GradingConfig() {}
 
     @JsonCreator
     public GradingConfig(String testClass, String projectRoot,
-                         ProjectStructure structure, List<URI> dependencyUrls,
+                         ProjectStructure structure,
+                         List<JarFile> dependencies,
                          GradingOptions options) {
         this.testClass = requireNonNull(testClass);
         this.projectRoot = requireNonNull(projectRoot);
         this.structure = requireNonNull(structure);
-        this.dependencyUrls = copyOf(dependencyUrls);
+        this.dependencies = copyOf(dependencies);
         this.options = requireNonNull(options);
-        if (dependencyUrls.stream().anyMatch(uri -> !uri.getScheme().matches("https?"))) {
-            throw new IllegalArgumentException("only http(s) URLs allowed");
-        }
     }
 
     public String getTestClass() {
@@ -53,8 +50,8 @@ public class GradingConfig {
         return structure;
     }
 
-    public List<URI> getDependencyUrls() {
-        return dependencyUrls;
+    public List<JarFile> getDependencies() {
+        return dependencies;
     }
 
     public GradingOptions getOptions() {

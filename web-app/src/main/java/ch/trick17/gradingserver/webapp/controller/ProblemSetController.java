@@ -4,12 +4,12 @@ import ch.trick17.gradingserver.GradingConfig;
 import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.GradingOptions;
 import ch.trick17.gradingserver.GradingOptions.Compiler;
+import ch.trick17.gradingserver.JarFile;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.*;
-import ch.trick17.gradingserver.webapp.service.DependencyResolver;
-import ch.trick17.gradingserver.webapp.service.DependencyResolver.NoJarFileFoundException;
-import ch.trick17.gradingserver.webapp.service.DependencyResolver.InvalidURLException;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
+import ch.trick17.gradingserver.webapp.service.JarDownloader;
+import ch.trick17.gradingserver.webapp.service.JarDownloader.JarDownloadFailedException;
 import ch.trick17.gradingserver.webapp.service.ProblemSetService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
@@ -26,15 +26,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URI;
 import java.time.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Solution.byCommitHash;
 import static ch.trick17.gradingserver.webapp.model.Solution.byResult;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.stream;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -51,7 +51,7 @@ public class ProblemSetController {
     private final CourseRepository courseRepo;
     private final AccessTokenRepository accessTokenRepo;
     private final ProblemSetService problemSetService;
-    private final DependencyResolver resolver;
+    private final JarDownloader downloader;
     private final MessageSource messageSource;
 
     private final String defaultGitLabHost;
@@ -59,14 +59,14 @@ public class ProblemSetController {
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
                                 AccessTokenRepository accessTokenRepo,
                                 ProblemSetService problemSetService,
-                                DependencyResolver resolver,
+                                JarDownloader downloader,
                                 MessageSource messageSource,
                                 WebAppProperties props) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.accessTokenRepo = accessTokenRepo;
         this.problemSetService = problemSetService;
-        this.resolver = resolver;
+        this.downloader = downloader;
         this.messageSource = messageSource;
         this.defaultGitLabHost = props.getDefaultGitLabHost();
     }
@@ -118,10 +118,14 @@ public class ProblemSetController {
         var time = LocalTime.parse(deadlineTime);
         var testClass = new String(testClassFile.getBytes(), UTF_8);
 
-        List<URI> dependencyUrls;
+        var dependencyJars = new ArrayList<JarFile>();
         try {
-            dependencyUrls = resolver.resolveDependencyUrls(dependencies);
-        } catch (InvalidURLException | NoJarFileFoundException | IOException e) {
+            if (!dependencies.isBlank()) {
+                for (var identifier : dependencies.split("\\s+")) {
+                    dependencyJars.add(downloader.downloadAndCheckJar(identifier));
+                }
+            }
+        } catch (JarDownloadFailedException e) {
             model.addAttribute("course", course);
             model.addAttribute("name", name);
             model.addAttribute("deadlineDate", deadlineDate);
@@ -135,21 +139,19 @@ public class ProblemSetController {
             model.addAttribute("repetitions", repetitions);
             model.addAttribute("repTimeoutMs", repTimeoutMs);
             model.addAttribute("testTimeoutMs", testTimeoutMs);
-            if (e instanceof InvalidURLException ex) {
-                model.addAttribute("error", messageSource.getMessage("problem-set.invalid-url",
-                        new Object[]{ex.getUrl()}, locale));
-            } else if (e instanceof NoJarFileFoundException ex) {
-                model.addAttribute("error", messageSource.getMessage("problem-set.no-jar-found",
-                        new Object[]{ex.getCoordinates()}, locale));
-            } else {
-                model.addAttribute("error", messageSource.getMessage("problem-set.io-exception",
-                        new Object[]{e.getMessage()}, locale));
-            }
+            var msg = switch (e.getReason()) {
+                case INVALID_URL -> "problem-set.invalid-url";
+                case NOT_FOUND -> "problem-set.jar-not-found";
+                case INVALID_JAR -> "problem-set.invalid-jar-file";
+                case DOWNLOAD_FAILED -> "problem-set.download-failed";
+            };
+            model.addAttribute("error", messageSource.getMessage(msg,
+                    new Object[]{e.getUrl()}, locale));
             return "problem-sets/add";
         }
 
         var config = new GradingConfig(testClass, projectRoot,
-                ProjectStructure.valueOf(structure), dependencyUrls,
+                ProjectStructure.valueOf(structure), dependencyJars,
                 new GradingOptions(Compiler.valueOf(compiler), repetitions,
                         Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
         var problemSet = new ProblemSet(course, name, config,
