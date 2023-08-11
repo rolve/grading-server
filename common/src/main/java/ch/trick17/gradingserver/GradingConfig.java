@@ -1,15 +1,13 @@
 package ch.trick17.gradingserver;
 
-import ch.trick17.gradingserver.util.JarFileListConverter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.List.copyOf;
 import static java.util.Objects.requireNonNull;
 
 @Embeddable
@@ -20,8 +18,7 @@ public class GradingConfig {
     private String projectRoot;
     private ProjectStructure structure;
     @Lob
-    @Convert(converter = JarFileListConverter.class)
-    private List<JarFile> dependencies;
+    private ArrayList<JarFile> dependencies;
     private GradingOptions options;
 
     protected GradingConfig() {}
@@ -34,7 +31,7 @@ public class GradingConfig {
         this.testClass = requireNonNull(testClass);
         this.projectRoot = requireNonNull(projectRoot);
         this.structure = requireNonNull(structure);
-        this.dependencies = copyOf(dependencies);
+        this.dependencies = new ArrayList<>(dependencies);
         this.options = requireNonNull(options);
     }
 
