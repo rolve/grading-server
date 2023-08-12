@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.JarFile;
 import ch.trick17.gradingserver.webapp.model.JarFileRepository;
+import ch.trick17.gradingserver.webapp.model.ProblemSetRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -26,12 +27,16 @@ public class JarFileService {
     private static final String MVN_CENTRAL_BASE = "https://repo1.maven.org/maven2/";
 
     private final JarFileRepository jarFileRepo;
+    private final ProblemSetRepository problemSetRepo;
+
     private final HttpClient http = HttpClient.newBuilder()
             .followRedirects(NORMAL)
             .build();
 
-    public JarFileService(JarFileRepository jarFileRepo) {
+    public JarFileService(JarFileRepository jarFileRepo,
+                          ProblemSetRepository problemSetRepo) {
         this.jarFileRepo = jarFileRepo;
+        this.problemSetRepo = problemSetRepo;
     }
 
     /**
@@ -128,6 +133,13 @@ public class JarFileService {
     private JarFile deduplicate(JarFile jar) {
         var existing = jarFileRepo.findByFilenameAndHash(jar.getFilename(), jar.getHash());
         return existing.orElseGet(() -> jarFileRepo.save(jar));
+    }
+
+    public void deleteIfUnused(JarFile jarFile) {
+        var uses = problemSetRepo.countByGradingConfigDependenciesContaining(jarFile);
+        if (uses == 0) {
+            jarFileRepo.delete(jarFile);
+        }
     }
 
     public static class JarDownloadFailedException extends Exception {

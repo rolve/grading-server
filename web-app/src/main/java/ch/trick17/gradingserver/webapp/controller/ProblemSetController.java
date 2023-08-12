@@ -25,9 +25,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -225,9 +227,11 @@ public class ProblemSetController {
     }
 
     @PostMapping("/{id}/delete")
+    @Transactional
     public String delete(@PathVariable int courseId, @PathVariable int id) {
         var problemSet = findProblemSet(courseId, id);
         repo.delete(problemSet);
+        problemSet.getGradingConfig().getDependencies().forEach(jarFileService::deleteIfUnused);
         return "redirect:../..";
     }
 
