@@ -8,8 +8,8 @@ import ch.trick17.gradingserver.JarFile;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.*;
 import ch.trick17.gradingserver.webapp.service.GitLabGroupSolutionSupplier;
-import ch.trick17.gradingserver.webapp.service.JarDownloader;
-import ch.trick17.gradingserver.webapp.service.JarDownloader.JarDownloadFailedException;
+import ch.trick17.gradingserver.webapp.service.JarFileService;
+import ch.trick17.gradingserver.webapp.service.JarFileService.JarDownloadFailedException;
 import ch.trick17.gradingserver.webapp.service.ProblemSetService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
@@ -51,7 +51,7 @@ public class ProblemSetController {
     private final CourseRepository courseRepo;
     private final AccessTokenRepository accessTokenRepo;
     private final ProblemSetService problemSetService;
-    private final JarDownloader downloader;
+    private final JarFileService jarFileService;
     private final MessageSource messageSource;
 
     private final String defaultGitLabHost;
@@ -59,14 +59,14 @@ public class ProblemSetController {
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
                                 AccessTokenRepository accessTokenRepo,
                                 ProblemSetService problemSetService,
-                                JarDownloader downloader,
+                                JarFileService jarFileService,
                                 MessageSource messageSource,
                                 WebAppProperties props) {
         this.repo = repo;
         this.courseRepo = courseRepo;
         this.accessTokenRepo = accessTokenRepo;
         this.problemSetService = problemSetService;
-        this.downloader = downloader;
+        this.jarFileService = jarFileService;
         this.messageSource = messageSource;
         this.defaultGitLabHost = props.getDefaultGitLabHost();
     }
@@ -122,7 +122,7 @@ public class ProblemSetController {
         try {
             if (!dependencies.isBlank()) {
                 for (var identifier : dependencies.split("\\s+")) {
-                    dependencyJars.add(downloader.downloadAndCheckJar(identifier));
+                    dependencyJars.add(jarFileService.downloadAndStoreJarFile(identifier));
                 }
             }
         } catch (JarDownloadFailedException e) {

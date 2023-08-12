@@ -2,14 +2,34 @@ package ch.trick17.gradingserver;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import java.io.Serializable;
+import javax.persistence.*;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import static java.util.Objects.requireNonNull;
 
-public class JarFile implements Serializable {
+@Entity
+public class JarFile {
 
+    private static final MessageDigest DIGEST;
+
+    static {
+        try {
+            DIGEST = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    @Id
+    @GeneratedValue
+    private Integer id;
     private String filename;
+    @Lob
     private byte[] content;
+    @Column(columnDefinition = "BINARY(32)", unique = true)
+    private byte[] hash;
 
     protected JarFile() {}
 
@@ -17,6 +37,7 @@ public class JarFile implements Serializable {
     public JarFile(String filename, byte[] content) {
         this.filename = requireNonNull(filename);
         this.content = requireNonNull(content);
+        this.hash = DIGEST.digest(content);
     }
 
     public String getFilename() {
@@ -25,6 +46,10 @@ public class JarFile implements Serializable {
 
     public byte[] getContent() {
         return content;
+    }
+
+    public byte[] getHash() {
+        return hash;
     }
 
     @Override

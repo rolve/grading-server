@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
+import static javax.persistence.FetchType.LAZY;
 
 @Embeddable
 public class GradingConfig {
@@ -17,8 +19,8 @@ public class GradingConfig {
     private String testClass;
     private String projectRoot;
     private ProjectStructure structure;
-    @Lob
-    private ArrayList<JarFile> dependencies;
+    @ManyToMany(fetch = LAZY)
+    private List<JarFile> dependencies;
     private GradingOptions options;
 
     protected GradingConfig() {}

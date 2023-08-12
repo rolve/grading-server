@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.JarFile;
+import ch.trick17.gradingserver.webapp.model.JarFileRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -14,38 +15,40 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
-import static ch.trick17.gradingserver.webapp.service.JarDownloader.JarDownloadFailedException.Reason.*;
+import static ch.trick17.gradingserver.webapp.service.JarFileService.JarDownloadFailedException.Reason.*;
 import static java.net.http.HttpClient.Redirect.NORMAL;
 import static java.util.Arrays.stream;
 import static org.springframework.http.ContentDisposition.parse;
 
 @Service
-public class JarDownloader {
+public class JarFileService {
 
     private static final String MVN_CENTRAL_BASE = "https://repo1.maven.org/maven2/";
 
+    private final JarFileRepository jarFileRepo;
     private final HttpClient http = HttpClient.newBuilder()
             .followRedirects(NORMAL)
             .build();
+
+    public JarFileService(JarFileRepository jarFileRepo) {
+        this.jarFileRepo = jarFileRepo;
+    }
 
     /**
      * Downloads the JAR file specified by the given "identifier", which may be
      * an HTTP(S) URL or an artifact coordinate triplet for Maven Central
      * (groupId:artifactId:version).
+     * <p>
+     * The JAR file is stored in the DB, it doesn't already exist. If it does
+     * exist (with the same content), a reference to the previously stored JAR
+     * file is returned, avoiding unnecessary duplication of data in the DB.
      */
-    public JarFile downloadAndCheckJar(String identifier)
+    public JarFile downloadAndStoreJarFile(String identifier)
             throws JarDownloadFailedException {
         var url = toUrl(identifier);
         var jar = downloadJar(url);
-        var in = new ZipInputStream(new ByteArrayInputStream(jar.getContent()));
-        try {
-            in.getNextEntry();
-        } catch (ZipException e) {
-            throw new JarDownloadFailedException(INVALID_JAR, url.toString());
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
-        return jar;
+        checkJarFileValid(url, jar);
+        return deduplicate(jar);
     }
 
     private static URI toUrl(String identifier) throws JarDownloadFailedException {
@@ -109,6 +112,22 @@ public class JarDownloader {
 
         // if all else fails, use default name
         return "lib.jar";
+    }
+
+    private static void checkJarFileValid(URI url, JarFile jar) throws JarDownloadFailedException {
+        var in = new ZipInputStream(new ByteArrayInputStream(jar.getContent()));
+        try {
+            in.getNextEntry();
+        } catch (ZipException e) {
+            throw new JarDownloadFailedException(INVALID_JAR, url.toString());
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private JarFile deduplicate(JarFile jar) {
+        var existing = jarFileRepo.findByFilenameAndHash(jar.getFilename(), jar.getHash());
+        return existing.orElseGet(() -> jarFileRepo.save(jar));
     }
 
     public static class JarDownloadFailedException extends Exception {
