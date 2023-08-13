@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.gradingservice.service;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import ch.trick17.gradingserver.model.GradingResult;
+import ch.trick17.gradingserver.model.JarFile;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.SingleCodebase;
 import ch.trick17.jtt.grader.Task;
@@ -12,11 +13,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import static ch.trick17.jtt.grader.ProjectStructure.valueOf;
 import static java.lang.Runtime.getRuntime;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.write;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.util.FileUtils.*;
@@ -30,7 +34,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Service
 public class JobRunner {
 
-    private static final Path CODE_ROOT = Path.of("grading-jobs-code").toAbsolutePath();
+    private static final Path JOBS_ROOT = Path.of("grading-jobs").toAbsolutePath();
 
     private static final Logger logger = getLogger(JobRunner.class);
 
@@ -72,15 +76,19 @@ public class JobRunner {
     private GradingResult tryRun(GradingJob job) throws IOException {
         logger.info("Running grading job for {} (job id: {})",
                 job.getSubmission(), job.getId());
-        var repoDir = CODE_ROOT.resolve(job.getId());
+        var codeDir = JOBS_ROOT.resolve(job.getId() + "-code");
+        var depsDir = JOBS_ROOT.resolve(job.getId() + "-deps");
         try {
-            downloader.downloadCode(job.getSubmission(), repoDir, job.getUsername(), job.getPassword());
             var config = job.getConfig();
-            var codebaseDir = repoDir.resolve(config.getProjectRoot());
+            downloader.downloadCode(job.getSubmission(), codeDir, job.getUsername(), job.getPassword());
+            var dependencies = writeDependencies(config.getDependencies(), depsDir);
+
+            var codebaseDir = codeDir.resolve(config.getProjectRoot());
             // TODO: handle case when project root is missing
             var codebase = new SingleCodebase(job.getId(), codebaseDir,
                     valueOf(config.getStructure().name()));
-            var task = Task.fromString(config.getTestClass());
+            var task = Task.fromString(config.getTestClass())
+                    .dependencies(dependencies);
 
             var res = grader.run(codebase, List.of(task))
                     .get(0).submissionResults().get(0);
@@ -90,10 +98,23 @@ public class JobRunner {
             return new GradingResult(null, props, res.passedTests(), res.failedTests(), null);
         } finally {
             try {
-                delete(repoDir.toFile(), RECURSIVE | RETRY);
+                delete(codeDir.toFile(), RECURSIVE | RETRY);
+                delete(depsDir.toFile(), RECURSIVE | RETRY);
             } catch (IOException e) {
-                logger.warn("Could not delete " + repoDir, e);
+                logger.warn("Could not delete " + codeDir, e);
             }
         }
+    }
+
+    private List<Path> writeDependencies(List<JarFile> dependencies, Path dir)
+            throws IOException {
+        var paths = new ArrayList<Path>();
+        createDirectories(dir);
+        for (var dep : dependencies) {
+            var path = dir.resolve(dep.getFilename());
+            write(path, dep.getContent());
+            paths.add(path);
+        }
+        return paths;
     }
 }
