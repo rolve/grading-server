@@ -1,8 +1,7 @@
-package ch.trick17.gradingserver;
+package ch.trick17.gradingserver.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.time.Duration;
 import java.util.Objects;

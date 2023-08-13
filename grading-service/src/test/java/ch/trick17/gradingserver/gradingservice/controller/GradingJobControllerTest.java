@@ -1,9 +1,12 @@
 package ch.trick17.gradingserver.gradingservice.controller;
 
-import ch.trick17.gradingserver.*;
-import ch.trick17.gradingserver.GradingConfig.ProjectStructure;
+import ch.trick17.gradingserver.model.CodeLocation;
+import ch.trick17.gradingserver.model.GradingConfig;
+import ch.trick17.gradingserver.model.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
+import ch.trick17.gradingserver.model.GradingOptions;
+import ch.trick17.gradingserver.model.GradingResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,9 +19,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-import static ch.trick17.gradingserver.GradingConfig.ProjectStructure.MAVEN;
-import static ch.trick17.gradingserver.GradingOptions.Compiler.ECLIPSE;
-import static ch.trick17.gradingserver.GradingOptions.Compiler.JAVAC;
+import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.MAVEN;
+import static ch.trick17.gradingserver.model.GradingOptions.Compiler.ECLIPSE;
+import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
 import static java.lang.Thread.sleep;
 import static java.util.Collections.emptyList;
 import static java.util.regex.Pattern.compile;

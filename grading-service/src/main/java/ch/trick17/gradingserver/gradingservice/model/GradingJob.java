@@ -1,7 +1,7 @@
 package ch.trick17.gradingserver.gradingservice.model;
 
-import ch.trick17.gradingserver.CodeLocation;
-import ch.trick17.gradingserver.GradingConfig;
+import ch.trick17.gradingserver.model.CodeLocation;
+import ch.trick17.gradingserver.model.GradingConfig;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -10,7 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class GradingJob extends ch.trick17.gradingserver.GradingJob {
+public class GradingJob extends ch.trick17.gradingserver.model.GradingJob {
 
     @Id
     @GeneratedValue(generator = "job-id-generator")

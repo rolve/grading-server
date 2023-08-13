@@ -1,7 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.JarFile;
-import ch.trick17.gradingserver.webapp.model.JarFileRepository;
+import ch.trick17.gradingserver.model.JarFile;
+import ch.trick17.gradingserver.model.JarFileRepository;
 import ch.trick17.gradingserver.webapp.model.ProblemSetRepository;
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,8 +16,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
@@ -36,16 +34,16 @@ public class JarFileService {
 
     private static final Logger logger = getLogger(JarFileService.class);
 
-    private final JarFileRepository jarFileRepo;
+    private final JarFileRepository repo;
     private final ProblemSetRepository problemSetRepo;
 
     private final HttpClient http = HttpClient.newBuilder()
             .followRedirects(NORMAL)
             .build();
 
-    public JarFileService(JarFileRepository jarFileRepo,
+    public JarFileService(JarFileRepository repo,
                           ProblemSetRepository problemSetRepo) {
-        this.jarFileRepo = jarFileRepo;
+        this.repo = repo;
         this.problemSetRepo = problemSetRepo;
     }
 
@@ -63,7 +61,7 @@ public class JarFileService {
         var url = toUrl(identifier);
         var jar = downloadJar(url);
         checkJarFileValid(url, jar);
-        return deduplicate(jar);
+        return repo.deduplicate(jar);
     }
 
     private static URI toUrl(String identifier) throws JarDownloadFailedException {
@@ -140,15 +138,10 @@ public class JarFileService {
         }
     }
 
-    private JarFile deduplicate(JarFile jar) {
-        var existing = jarFileRepo.findByFilenameAndHash(jar.getFilename(), jar.getHash());
-        return existing.orElseGet(() -> jarFileRepo.save(jar));
-    }
-
     public boolean deleteIfUnused(JarFile jarFile) {
         var uses = problemSetRepo.countByGradingConfigDependenciesContaining(jarFile);
         if (uses == 0) {
-            jarFileRepo.delete(jarFile);
+            repo.delete(jarFile);
         }
         return uses == 0;
     }
@@ -157,7 +150,7 @@ public class JarFileService {
     @Transactional
     public void deleteUnused() {
         // TODO: not very efficient...
-        var deleted = jarFileRepo.findAll().stream()
+        var deleted = repo.findAll().stream()
                 .filter(this::deleteIfUnused)
                 .map(JarFile::getFilename)
                 .toList();

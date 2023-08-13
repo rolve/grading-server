@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver;
+package ch.trick17.gradingserver.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.FetchType.LAZY;
 
 @Embeddable
 public class GradingConfig {

@@ -1,6 +1,6 @@
 package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.GradingJob;
+import ch.trick17.gradingserver.model.GradingJob;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import org.slf4j.Logger;

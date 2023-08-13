@@ -1,7 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.GradingConfig;
-import ch.trick17.gradingserver.GradingOptions;
+import ch.trick17.gradingserver.model.GradingConfig;
+import ch.trick17.gradingserver.model.GradingOptions;
 import ch.trick17.gradingserver.gradingservice.GradingServiceApplication;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.*;
@@ -21,8 +21,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ch.trick17.gradingserver.GradingConfig.ProjectStructure.MAVEN;
-import static ch.trick17.gradingserver.GradingOptions.Compiler.JAVAC;
+import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.MAVEN;
+import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
 import static java.time.ZonedDateTime.now;
 import static java.util.Collections.emptyList;

@@ -1,6 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
-import ch.trick17.gradingserver.GradingResult;
+import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import ch.trick17.jtt.grader.Grader;

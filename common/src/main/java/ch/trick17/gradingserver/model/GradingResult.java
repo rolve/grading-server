@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver;
+package ch.trick17.gradingserver.model;
 
 import ch.trick17.gradingserver.util.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonCreator;

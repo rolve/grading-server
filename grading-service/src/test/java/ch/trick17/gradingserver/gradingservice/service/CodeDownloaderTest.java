@@ -1,6 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
-import ch.trick17.gradingserver.CodeLocation;
+import ch.trick17.gradingserver.model.CodeLocation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

@@ -3,11 +3,15 @@ package ch.trick17.gradingserver.gradingservice;
 import ch.trick17.jtt.grader.Grader;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @SpringBootApplication
+@EntityScan("ch.trick17.gradingserver")
+@EnableJpaRepositories("ch.trick17.gradingserver")
 public class GradingServiceApplication {
 
     public static void main(String[] args) {

@@ -1,9 +1,10 @@
 package ch.trick17.gradingserver.gradingservice.controller;
 
-import ch.trick17.gradingserver.GradingResult;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import ch.trick17.gradingserver.gradingservice.service.JobRunner;
+import ch.trick17.gradingserver.model.GradingResult;
+import ch.trick17.gradingserver.model.JarFileRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -19,10 +20,14 @@ import static org.springframework.http.ResponseEntity.created;
 public class GradingJobController {
 
     private final GradingJobRepository repo;
+    private final JarFileRepository jarFileRepo;
     private final JobRunner jobRunner;
 
-    public GradingJobController(GradingJobRepository repo, JobRunner jobRunner) {
+    public GradingJobController(GradingJobRepository repo,
+                                JarFileRepository jarFileRepo,
+                                JobRunner jobRunner) {
         this.repo = repo;
+        this.jarFileRepo = jarFileRepo;
         this.jobRunner = jobRunner;
     }
 
@@ -32,6 +37,8 @@ public class GradingJobController {
         if (job.hasResult()) {
             throw new IllegalArgumentException();
         }
+
+        job.getConfig().getDependencies().replaceAll(jarFileRepo::deduplicate);
         repo.save(job);
         var location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .pathSegment(job.getId()).build().toUri();

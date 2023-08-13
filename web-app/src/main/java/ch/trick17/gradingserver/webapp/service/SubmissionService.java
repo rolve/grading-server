@@ -1,6 +1,6 @@
 package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.GradingResult;
+import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import ch.trick17.gradingserver.webapp.model.SubmissionRepository;
 import org.springframework.scheduling.annotation.Scheduled;

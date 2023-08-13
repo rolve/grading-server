@@ -1,6 +1,6 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
-import ch.trick17.gradingserver.CodeLocation;
+import ch.trick17.gradingserver.model.CodeLocation;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
