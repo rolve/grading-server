@@ -19,8 +19,8 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 @EnableScheduling
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties(WebAppProperties.class)
-@EntityScan("ch.trick17.gradingserver")
-@EnableJpaRepositories("ch.trick17.gradingserver")
+@EntityScan({"ch.trick17.gradingserver.webapp.model", "ch.trick17.gradingserver.model"})
+@EnableJpaRepositories({"ch.trick17.gradingserver.webapp.model", "ch.trick17.gradingserver.model"})
 public class GradingServerWebApp {
 
     public static void main(String[] args) {

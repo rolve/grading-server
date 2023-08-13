@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @SpringBootApplication
-@EntityScan("ch.trick17.gradingserver")
-@EnableJpaRepositories("ch.trick17.gradingserver")
+@EntityScan({"ch.trick17.gradingserver.gradingservice.model", "ch.trick17.gradingserver.model"})
+@EnableJpaRepositories({"ch.trick17.gradingserver.gradingservice.model", "ch.trick17.gradingserver.model"})
 public class GradingServiceApplication {
 
     public static void main(String[] args) {
