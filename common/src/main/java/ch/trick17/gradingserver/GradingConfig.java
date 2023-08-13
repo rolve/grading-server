@@ -19,7 +19,7 @@ public class GradingConfig {
     private String testClass;
     private String projectRoot;
     private ProjectStructure structure;
-    @ManyToMany(fetch = LAZY)
+    @ManyToMany
     private List<JarFile> dependencies;
     private GradingOptions options;
 

@@ -4,7 +4,7 @@ import ch.trick17.gradingserver.GradingJob;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -25,13 +25,17 @@ import static java.time.Instant.now;
 import static java.util.Collections.newSetFromMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
 public class GradingService {
 
-    private static final Logger logger = LoggerFactory.getLogger(GradingService.class);
+    private static final Logger logger = getLogger(GradingService.class);
 
+    @Lazy
+    @Autowired
+    private GradingService proxy;
     private final SubmissionService submissionService;
     private final WebClient client;
 
@@ -57,8 +61,16 @@ public class GradingService {
         return newFixedThreadPool(4); // allow 4 grading jobs at once
     }
 
-    @Async("gradingExecutor")
     public Future<Void> grade(Submission submission) {
+        // initialize lazy dependencies collection
+        submission.getSolution().getProblemSet().getGradingConfig()
+                .getDependencies().size();
+        // then call async method through proxy
+        return proxy.doGrade(submission);
+    }
+
+    @Async("gradingExecutor")
+    Future<Void> doGrade(Submission submission) {
         var added = queued.add(submission.getId());
         if (!added) {
             return completedFuture(null);
@@ -66,8 +78,10 @@ public class GradingService {
 
         var code = submission.getCodeLocation();
         var token = submission.getSolution().getAccessToken();
+        var username = token == null ? null : "";
+        var password = token == null ? null : token.getToken();
         var config = submission.getSolution().getProblemSet().getGradingConfig();
-        var job = new GradingJob(code, token == null ? null : "", token == null ? null : token.getToken(), config);
+        var job = new GradingJob(code, username, password, config);
 
         var response = client.post()
                 .uri("/api/v1/grading-jobs?waitUntilDone=true")

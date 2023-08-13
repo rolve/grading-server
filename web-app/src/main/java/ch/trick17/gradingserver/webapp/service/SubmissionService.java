@@ -37,7 +37,7 @@ public class SubmissionService {
         var ungraded = repo.findByGradingStartedIsFalse();
         // some of these may already be queued and ignored by GradingService
         for (var submission : ungraded) {
-            gradingService.grade(submission);
+            gradingService.grade(submission); // async
         }
     }
 }
