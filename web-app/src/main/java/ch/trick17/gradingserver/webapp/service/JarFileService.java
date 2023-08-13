@@ -3,8 +3,11 @@ package ch.trick17.gradingserver.webapp.service;
 import ch.trick17.gradingserver.JarFile;
 import ch.trick17.gradingserver.webapp.model.JarFileRepository;
 import ch.trick17.gradingserver.webapp.model.ProblemSetRepository;
+import org.slf4j.Logger;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -13,18 +16,25 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import static ch.trick17.gradingserver.webapp.service.JarFileService.JarDownloadFailedException.Reason.*;
+import static java.lang.String.join;
 import static java.net.http.HttpClient.Redirect.NORMAL;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.ContentDisposition.parse;
 
 @Service
 public class JarFileService {
 
     private static final String MVN_CENTRAL_BASE = "https://repo1.maven.org/maven2/";
+
+    private static final Logger logger = getLogger(JarFileService.class);
 
     private final JarFileRepository jarFileRepo;
     private final ProblemSetRepository problemSetRepo;
@@ -135,10 +145,25 @@ public class JarFileService {
         return existing.orElseGet(() -> jarFileRepo.save(jar));
     }
 
-    public void deleteIfUnused(JarFile jarFile) {
+    public boolean deleteIfUnused(JarFile jarFile) {
         var uses = problemSetRepo.countByGradingConfigDependenciesContaining(jarFile);
         if (uses == 0) {
             jarFileRepo.delete(jarFile);
+        }
+        return uses == 0;
+    }
+
+    @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000)
+    @Transactional
+    public void deleteUnused() {
+        // TODO: not very efficient...
+        var deleted = jarFileRepo.findAll().stream()
+                .filter(this::deleteIfUnused)
+                .map(JarFile::getFilename)
+                .toList();
+        if (!deleted.isEmpty()) {
+            logger.info("Deleted {} unused JAR files: {}", deleted.size(),
+                    join(", ", deleted));
         }
     }
 
