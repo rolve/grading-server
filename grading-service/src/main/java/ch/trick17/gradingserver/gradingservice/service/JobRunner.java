@@ -1,14 +1,13 @@
 package ch.trick17.gradingserver.gradingservice.service;
 
-import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
+import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.SingleCodebase;
 import ch.trick17.jtt.grader.Task;
 import ch.trick17.jtt.grader.result.Property;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,7 +19,8 @@ import static ch.trick17.jtt.grader.ProjectStructure.valueOf;
 import static java.lang.Runtime.getRuntime;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.io.FileUtils.deleteDirectory;
+import static org.eclipse.jgit.util.FileUtils.*;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Runs {@link GradingJob}s, i.e., downloads a submission from
@@ -32,7 +32,7 @@ public class JobRunner {
 
     private static final Path CODE_ROOT = Path.of("grading-jobs-code").toAbsolutePath();
 
-    private static final Logger logger = LoggerFactory.getLogger(JobRunner.class);
+    private static final Logger logger = getLogger(JobRunner.class);
 
     private final CodeDownloader downloader;
     private final Grader grader;
@@ -90,8 +90,10 @@ public class JobRunner {
             return new GradingResult(null, props, res.passedTests(), res.failedTests(), null);
         } finally {
             try {
-                deleteDirectory(repoDir.toFile());
-            } catch (IOException ignored) {}
+                delete(repoDir.toFile(), RECURSIVE | RETRY);
+            } catch (IOException e) {
+                logger.warn("Could not delete " + repoDir, e);
+            }
         }
     }
 }
