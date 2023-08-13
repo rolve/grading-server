@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
 import ch.trick17.gradingserver.model.GradingJob;
+import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.Submission;
 import org.slf4j.Logger;
@@ -87,15 +88,14 @@ public class GradingService {
                 .uri("/api/v1/grading-jobs?waitUntilDone=true")
                 .accept(APPLICATION_JSON)
                 .bodyValue(job)
-                .retrieve().bodyToMono(GradingJob.class);
+                .retrieve().bodyToMono(GradingResult.class);
 
         logger.info("Start grading submission {} (id {})",
                 submission.shortCommitHash(), submission.getId());
         submissionService.setGradingStarted(submission, true);
         try {
-            var result = response.block().getResult();
             // set result in separate, @Transactional method:
-            submissionService.setResult(submission, result);
+            submissionService.setResult(submission, response.block());
         } catch (RuntimeException e) {
             logger.warn("Exception while waiting for grading result of submission " +
                     submission.shortCommitHash() + " (id " + submission.getId() + ")", e);

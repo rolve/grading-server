@@ -86,7 +86,7 @@ class GradingJobControllerTest {
 
     @Test
     void getNonexistent() {
-        var response = rest.getForEntity("/api/v1/grading-jobs/0", GradingJob.class);
+        var response = rest.getForEntity("/api/v1/grading-jobs/0", GradingResult.class);
         assertEquals(NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
     }
@@ -168,22 +168,14 @@ class GradingJobControllerTest {
                 }""";
         var config = new GradingConfig(test, "", MAVEN, emptyList(), options);
         var job = new GradingJob(code, null, null, config);
-        var entity = rest.postForEntity("/api/v1/grading-jobs?waitUntilDone=true", job, GradingJob.class);
+        var entity = rest.postForEntity("/api/v1/grading-jobs?waitUntilDone=true", job, GradingResult.class);
 
         var location = entity.getHeaders().getLocation();
         assertNotNull(location);
         var matcher = compile("/api/v1/grading-jobs/([a-f0-9]{32})").matcher(location.getPath());
         assertTrue(matcher.matches(), location.getPath());
 
-        var response = entity.getBody();
-        assertNotNull(response);
-        assertEquals(matcher.group(1), response.getId());
-        assertEquals(code, response.getSubmission());
-        assertNull(response.getUsername());
-        assertNull(response.getPassword());
-        assertEquals(config, response.getConfig());
-
-        var result = response.getResult();
+        var result = entity.getBody();
         assertNotNull(result);
         assertTrue(result.successful());
         assertNull(result.getError());

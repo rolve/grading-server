@@ -32,7 +32,7 @@ public class GradingJobController {
     }
 
     @PostMapping
-    public DeferredResult<ResponseEntity<GradingJob>> create(@RequestBody GradingJob job,
+    public DeferredResult<ResponseEntity<GradingResult>> create(@RequestBody GradingJob job,
                 @RequestParam(required = false, defaultValue = "false") boolean waitUntilDone) {
         if (job.hasResult()) {
             throw new IllegalArgumentException();
@@ -43,8 +43,8 @@ public class GradingJobController {
         var location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .pathSegment(job.getId()).build().toUri();
 
-        var deferred = new DeferredResult<ResponseEntity<GradingJob>>(MAX_VALUE);
-        Runnable setResult = () -> deferred.setResult(created(location).body(job));
+        var deferred = new DeferredResult<ResponseEntity<GradingResult>>(MAX_VALUE);
+        Runnable setResult = () -> deferred.setResult(created(location).body(job.getResult()));
         if (waitUntilDone) {
             jobRunner.submit(job, setResult);
         } else {
