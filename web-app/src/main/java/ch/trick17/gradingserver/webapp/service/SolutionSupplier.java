@@ -12,8 +12,12 @@ public interface SolutionSupplier<E extends Exception> {
 
     List<NewSolution> get(Collection<Solution> existing) throws E, GitAPIException;
 
-    record NewSolution(String repoUrl, Set<String> authorNames, Set<String> ignoredPushers,
-                       String latestCommitHash) {
+    record NewSolution(
+            String repoUrl,
+            String branch,
+            Set<String> authorNames,
+            Set<String> ignoredPushers,
+            String latestCommitHash) {
 
         @Override
         public boolean equals(Object other) {

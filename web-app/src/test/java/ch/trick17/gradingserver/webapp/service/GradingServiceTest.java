@@ -80,8 +80,8 @@ class GradingServiceTest {
                 }""";
         var config = new GradingConfig(test, "", MAVEN, emptyList(), options);
         var problemSet = new ProblemSet(course, "Test", config, now(), false, false);
-        var solution = new Solution(problemSet, "https://github.com/rolve/gui.git", null,
-                List.of(new Author("rolve")), emptyList());
+        var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
+                "master", null, List.of(new Author("rolve")), emptyList());
         var submission = new Submission(solution, "7f9225c2e7b20cb1ff51b0220687c75305341392",
                 ZonedDateTime.now());
         submissionRepo.save(submission);

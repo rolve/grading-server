@@ -127,18 +127,20 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             var sols = new ArrayList<NewSolution>();
             for (int i = 0; i < projects.size(); i++) {
                 var repoUrl = projects.get(i).getHttpUrlToRepo();
-                try (var fetcher = new GitRepoDiffFetcher(repoUrl, "", token)) {
+                var branch = projects.get(i).getDefaultBranch();
+                try (var fetcher = new GitRepoDiffFetcher(repoUrl, branch, "", token)) {
                     var pushEvents = api.getEventsApi().getProjectEvents(projects.get(i), PUSHED,
                             null, null, null, DESC);
                     var latestCommit = pushEvents.stream()
                             .filter(e -> !ignoredPushers.contains(e.getAuthorUsername()))
                             .map(Event::getPushData)
-                            .filter(p -> p.getRef().equals("master"))
+                            .filter(p -> p.getRef().equals(branch))
                             .filter(p -> fetcher.affectedPaths(p.getCommitFrom(), p.getCommitTo())
                                     .stream().anyMatch(path -> path.startsWith(projectRoot)))
                             .map(PushData::getCommitTo)
                             .findFirst().orElse(null);
-                    sols.add(new NewSolution(repoUrl, authors.get(i), ignoredPushers, latestCommit));
+                    sols.add(new NewSolution(repoUrl, branch, authors.get(i),
+                            ignoredPushers, latestCommit));
                 }
             }
             return sols;

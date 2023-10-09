@@ -38,18 +38,19 @@ public class WebhooksController {
     @PostMapping(GITLAB_PUSH_PATH)
     public ResponseEntity<Void> gitlabPush(@RequestBody GitLabPushEvent event) throws GitAPIException {
         logger.info("Received push event for {} ({})", event.project().repoUrl(), event.ref());
-        if (!event.ref().equals("refs/heads/master")) {
-            logger.info("Ignored push of ref '{}'", event.ref());
-            return ResponseEntity.noContent().build();
-        }
 
         var matchingSolutions = solRepo.findByRepoUrl(event.project().repoUrl());
         if (matchingSolutions.isEmpty()) {
             logger.warn("No matching solutions for push event found");
         }
+        var ignoredRefs = 0;
         var ignoredUser = 0;
         var ignoredPath = 0;
         for (var sol : matchingSolutions) {
+            if (!event.ref().equals("refs/heads/" + sol.getBranch())) {
+                ignoredRefs++;
+                continue;
+            }
             if (sol.getIgnoredPushers().contains(event.username())) {
                 ignoredUser++;
                 continue;
@@ -57,7 +58,7 @@ public class WebhooksController {
             var projectRoot = sol.getProblemSet().getGradingConfig().getProjectRoot();
             if (!projectRoot.isEmpty()) {
                 var token = sol.getAccessToken().getToken();
-                try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), "", token)) {
+                try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), sol.getBranch(), "", token)) {
                     var paths = fetcher.affectedPaths(event.beforeCommit(), event.afterCommit());
                     if (paths.stream().noneMatch(p -> p.startsWith(projectRoot))) {
                         ignoredPath++;
@@ -68,6 +69,9 @@ public class WebhooksController {
             var submission = new Submission(sol, event.afterCommit(), now());
             submission = submissionRepo.save(submission);
             gradingService.grade(submission); // async
+        }
+        if (ignoredRefs > 0) {
+            logger.info("Ignored push to ref {} for {} solutions", event.ref(), ignoredRefs);
         }
         if (ignoredUser > 0) {
             logger.info("Ignored push from user {} for {} solutions", event.username(), ignoredUser);

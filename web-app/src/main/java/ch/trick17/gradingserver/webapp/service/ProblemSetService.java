@@ -56,7 +56,7 @@ public class ProblemSetService {
                         authors.add(new Author(name));
                     }
                 }
-                var sol = new Solution(problemSet, newSol.repoUrl(), token, authors, newSol.ignoredPushers());
+                var sol = new Solution(problemSet, newSol.repoUrl(), newSol.branch(), token, authors, newSol.ignoredPushers());
                 if (newSol.latestCommitHash() != null) {
                     var subm = new Submission(sol, newSol.latestCommitHash(), now());
                     sol.getSubmissions().add(subm);

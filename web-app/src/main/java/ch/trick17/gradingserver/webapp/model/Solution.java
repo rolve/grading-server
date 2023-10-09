@@ -21,6 +21,7 @@ public class Solution implements Serializable {
     @ManyToOne(cascade = {PERSIST, MERGE})
     private ProblemSet problemSet;
     private String repoUrl;
+    private String branch;
     @ManyToOne(cascade = {PERSIST, MERGE})
     private AccessToken accessToken;
     @ManyToMany(cascade = {PERSIST, MERGE})
@@ -34,10 +35,12 @@ public class Solution implements Serializable {
 
     protected Solution() {}
 
-    public Solution(ProblemSet problemSet, String repoUrl, AccessToken accessToken,
-                    Collection<Author> authors, Collection<String> ignoredPushers) {
+    public Solution(ProblemSet problemSet, String repoUrl, String branch,
+                    AccessToken accessToken, Collection<Author> authors,
+                    Collection<String> ignoredPushers) {
         this.problemSet = requireNonNull(problemSet);
         this.repoUrl = requireNonNull(repoUrl);
+        this.branch = requireNonNull(branch);
         this.accessToken = accessToken;
         this.authors.addAll(authors);
         this.ignoredPushers.addAll(ignoredPushers);
@@ -54,6 +57,10 @@ public class Solution implements Serializable {
 
     public String getRepoUrl() {
         return repoUrl;
+    }
+
+    public String getBranch() {
+        return branch;
     }
 
     public AccessToken getAccessToken() {

@@ -19,7 +19,7 @@ class GitRepoDiffFetcherTest {
 
     static {
         try {
-            fetcher = new GitRepoDiffFetcher(REPO, "", TOKEN);
+            fetcher = new GitRepoDiffFetcher(REPO, "master", "", TOKEN);
         } catch (GitAPIException e) {
             throw new AssertionError(e);
         }

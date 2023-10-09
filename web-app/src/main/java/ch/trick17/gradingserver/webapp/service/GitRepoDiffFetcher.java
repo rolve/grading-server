@@ -31,7 +31,7 @@ public class GitRepoDiffFetcher implements Closeable {
     private final InMemoryRepository repo;
     private final Git git;
 
-    public GitRepoDiffFetcher(String repoUrl, String user, String passwort)
+    public GitRepoDiffFetcher(String repoUrl, String branch, String user, String passwort)
             throws GitAPIException {
         repo = new InMemoryRepository(new DfsRepositoryDescription());
         git = new Git(repo);
@@ -40,11 +40,11 @@ public class GitRepoDiffFetcher implements Closeable {
             git.fetch()
                     .setRemote(repoUrl)
                     .setCredentialsProvider(credentials)
-                    .setRefSpecs("+refs/heads/master:refs/heads/master")
+                    .setRefSpecs("+refs/heads/" + branch + ":refs/heads/" + branch)
                     .call();
         } catch (TransportException e) {
             // ignore errors caused by empty repos
-            if (!e.getMessage().contains("does not have refs/heads/master available for fetch")) {
+            if (!e.getMessage().contains("does not have refs/heads/" + branch + " available for fetch")) {
                 throw e;
             }
         }

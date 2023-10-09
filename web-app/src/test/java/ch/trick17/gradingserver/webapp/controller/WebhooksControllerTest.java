@@ -50,6 +50,7 @@ class WebhooksControllerTest {
 
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
+        when(sol.getBranch()).thenReturn("master");
         when(problemSet.getGradingConfig()).thenReturn(config);
         when(config.getProjectRoot()).thenReturn("");
 
@@ -72,6 +73,7 @@ class WebhooksControllerTest {
         var after = "5bf40ce3e32f8737f60ffc3002b0acf0b4e38702";
 
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
+        when(sol.getBranch()).thenReturn("master");
 
         var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new Project(repoUrl),
@@ -91,6 +93,7 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getRepoUrl()).thenReturn(repoUrl);
+        when(sol.getBranch()).thenReturn("master");
         when(sol.getAccessToken()).thenReturn(new AccessToken(
                 new User("name", "pass", "User"), HOST, TOKEN));
         when(problemSet.getGradingConfig()).thenReturn(config);
@@ -114,6 +117,7 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getRepoUrl()).thenReturn(repoUrl);
+        when(sol.getBranch()).thenReturn("master");
         when(sol.getAccessToken()).thenReturn(new AccessToken(
                 new User("name", "pass", "User"), HOST, TOKEN));
         when(problemSet.getGradingConfig()).thenReturn(config);
