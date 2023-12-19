@@ -4,10 +4,10 @@ import ch.trick17.gradingserver.gradingservice.model.GradingJob;
 import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
 import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.model.JarFile;
-import ch.trick17.jtt.grader.Grader;
-import ch.trick17.jtt.grader.SingleCodebase;
-import ch.trick17.jtt.grader.Task;
+import ch.trick17.jtt.grader.Compiler;
+import ch.trick17.jtt.grader.*;
 import ch.trick17.jtt.grader.result.Property;
+import ch.trick17.jtt.sandbox.Whitelist;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import static ch.trick17.jtt.grader.ProjectStructure.valueOf;
 import static java.lang.Runtime.getRuntime;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
@@ -86,8 +85,16 @@ public class JobRunner {
             var codebaseDir = codeDir.resolve(config.getProjectRoot());
             // TODO: handle case when project root is missing
             var codebase = new SingleCodebase(job.getId(), codebaseDir,
-                    valueOf(config.getStructure().name()));
+                    ProjectStructure.valueOf(config.getStructure().name()));
+
+            var options = config.getOptions();
             var task = Task.fromString(config.getTestClass())
+                    .compiler(Compiler.valueOf(options.getCompiler().name()))
+                    .repetitions(options.getRepetitions())
+                    .timeouts(options.getRepTimeout(), options.getTestTimeout())
+                    .permittedCalls(options.getPermRestrictions()
+                            ? Whitelist.DEFAULT_WHITELIST_DEF
+                            : null)
                     .dependencies(dependencies);
 
             var res = grader.run(codebase, List.of(task))

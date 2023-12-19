@@ -76,7 +76,6 @@ public class GradingOptions {
                 "permRestrictions=" + permRestrictions + ']';
     }
 
-
     public enum Compiler {
         JAVAC, ECLIPSE
     }
