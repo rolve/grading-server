@@ -25,6 +25,11 @@ public class Term {
     }
 
     @Override
+    public String toString() {
+        return kind + " " + year;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Term)) return false;

@@ -32,7 +32,7 @@ public class H2ServerConfig {
                 logger.info("Started H2 TCP server on port {}", port);
                 return server;
             } catch (SQLException e) {
-                logger.error("Could not start H2 TCP server", e);
+                logger.error("Could not start H2 TCP server: {}", e.getMessage());
             }
         }
         return null;

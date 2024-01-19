@@ -1,21 +1,20 @@
 {# @pebvariable name="courses" type="java.util.List<ch.trick17.gradingserver.webapp.model.Course>" #}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Grading Server</title>
-    <link rel="stylesheet" href="{{ href("/css/main.css") }}">
-    <link rel="shortcut icon" href="{{ href("favicon/favicon.ico") }}">
-</head>
-<body class="m-3">
-<main>
-    <h1>Grading Server</h1>
-    <h2>{{ message("courses") }}</h2>
-    {% for course in courses %}
-        <p>
-            <a href="{{ href("/course/" + course.id ) }}">{{ course.fullName }}</a>
-        </p>
-    {% endfor %}
-</main>
-</body>
-</html>
+
+{% extends "layout" %}
+
+{% block content %}
+    <h2 class="py-3 text-2xl font-extrabold italic">{{ message("courses") }}</h2>
+    <ul>
+        {% for course in courses %}
+        <li>
+            <a href="{{ href("/course/" + course.id ) }}"
+               class="group flex my-3 px-3 py-2 bg-white shadow-xl shadow-slate-300 rounded">
+                <span class="flex-grow text-xl font-bold group-hover:text-blue-500">
+                    {{ course.name }}
+                </span>
+                <span class="text-slate-400">{{ course.term }}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
