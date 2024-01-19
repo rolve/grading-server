@@ -24,14 +24,17 @@ public class H2ServerConfig {
     }
 
     @Bean
-    public Server server() throws SQLException {
+    public Server server() {
         if (enabled) {
-            var server = createTcpServer("-tcp", "-tcpAllowOthers",
-                    "-tcpPort", Integer.toString(port)).start();
-            logger.info("Started H2 TCP server on port {}", port);
-            return server;
-        } else {
-            return null;
+            try {
+                var server = createTcpServer("-tcp", "-tcpAllowOthers",
+                        "-tcpPort", Integer.toString(port)).start();
+                logger.info("Started H2 TCP server on port {}", port);
+                return server;
+            } catch (SQLException e) {
+                logger.error("Could not start H2 TCP server", e);
+            }
         }
+        return null;
     }
 }
