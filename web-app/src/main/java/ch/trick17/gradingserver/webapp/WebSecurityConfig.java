@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.webapp;
 
-import ch.trick17.gradingserver.webapp.model.CourseRepository;
 import ch.trick17.gradingserver.webapp.model.Role;
 import ch.trick17.gradingserver.webapp.model.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +18,9 @@ import static ch.trick17.gradingserver.webapp.model.Role.LECTURER;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepo;
-    private final CourseRepository courseRepo;
 
-    public WebSecurityConfig(UserRepository userRepo, CourseRepository courseRepo) {
+    public WebSecurityConfig(UserRepository userRepo) {
         this.userRepo = userRepo;
-        this.courseRepo = courseRepo;
     }
 
     @Override
