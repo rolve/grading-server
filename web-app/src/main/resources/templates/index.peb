@@ -1,3 +1,4 @@
+{# @pebvariable name="courses" type="java.util.List<ch.trick17.gradingserver.webapp.model.Course>" #}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,6 +8,14 @@
     <link rel="shortcut icon" href="{{ href("favicon/favicon.ico") }}">
 </head>
 <body class="m-3">
-It works!
+<main>
+    <h1>Grading Server</h1>
+    <h2>{{ message("courses") }}</h2>
+    {% for course in courses %}
+        <p>
+            <a href="{{ href("/course/" + course.id ) }}">{{ course.fullName }}</a>
+        </p>
+    {% endfor %}
+</main>
 </body>
 </html>
