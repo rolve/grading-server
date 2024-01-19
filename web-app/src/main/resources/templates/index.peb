@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Grading Server</title>
+    <link rel="stylesheet" href="{{ href("/css/main.css") }}">
+    <link rel="shortcut icon" href="{{ href("favicon/favicon.ico") }}">
+</head>
+<body class="m-3">
+It works!
+</body>
+</html>
