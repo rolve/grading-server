@@ -16,8 +16,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.util.Locale.ENGLISH;
@@ -55,15 +53,13 @@ public class Internationalization implements WebMvcConfigurer {
         registry.addInterceptor(localeChangeInterceptor());
     }
 
-    @Bean
-    public Supplier<PrettyTime> prettyTime() {
-        return () -> new PrettyTime(supportedLocale());
+    public PrettyTime prettyTime() {
+        return new PrettyTime(supportedLocale());
     }
 
-    @Bean
-    public Function<String, DateTimeFormatter> dateTimeFormatter() {
-        return style -> DateTimeFormatter
-                .ofLocalizedDateTime(FormatStyle.valueOf(style))
+    public DateTimeFormatter dateTimeFormatter(FormatStyle style) {
+        return DateTimeFormatter
+                .ofLocalizedDateTime(style)
                 .withLocale(supportedLocale());
     }
 

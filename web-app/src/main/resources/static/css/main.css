@@ -11,7 +11,7 @@
     }
 
     h2 {
-        @apply text-2xl;
+        @apply text-2xl py-3;
     }
 
     input, select, textarea {
@@ -22,5 +22,20 @@
     button[type="submit"], button[type="button"], button[type="reset"] {
         @apply px-3 py-2 bg-white rounded-lg shadow-lg shadow-slate-200
             hover:shadow-slate-300 hover:text-blue-500 transition;
+    }
+}
+
+@layer components {
+    .card {
+        @apply block my-3 px-3 py-2 bg-white rounded-lg shadow-lg
+        shadow-slate-200 transition;
+    }
+
+    a.card {
+        @apply hover:shadow-slate-300;
+    }
+
+    .alert {
+        @apply card py-3 bg-slate-400 text-white;
     }
 }

@@ -25,7 +25,7 @@ public class User implements UserDetails {
     private String displayName;
 
     @ElementCollection(fetch = EAGER)
-    private Set<Role> roles = new HashSet<>();
+    private final Set<Role> roles = new HashSet<>();
 
     protected User() {}
 

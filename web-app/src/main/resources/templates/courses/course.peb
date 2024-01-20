@@ -1,0 +1,51 @@
+{# @pebvariable name="course" type="ch.trick17.gradingserver.webapp.model.Course" #}
+
+{% extends "layout" %}
+
+{% block title %}{{ course.fullName }}{% endblock %}
+
+{% block content %}
+<h2 class="flex items-center">
+    {{ course.name }}
+    <span class="ps-3 text-slate-400 text-lg font-normal not-italic">
+        {{ course.term }}
+    </span>
+</h2>
+<p class="mb-4">
+    {{ message("course.lecturers") }}:
+    {% for lecturer in course.lecturers %}
+        {{ lecturer.displayName -}}
+        {%- if not loop.last %}, {% endif %}
+    {% endfor %}
+</p>
+{% if course.problemSets is not empty %}
+<ul>
+    {% for problemSet in course.problemSets %}
+    {% if not problemSet.hidden or beans.access.check(problemSet) %}
+    <li>
+        <a href="{{ href("problem-sets/" + problemSet.id + "/" ) }}"
+           class="card group sm:flex items-center">
+            <div class="sm:w-2/3 text-lg whitespace-nowrap overflow-hidden
+                        overflow-ellipsis group-hover:text-blue-500 transition">
+                {{ problemSet.name }}
+            </div>
+            <div class="flex-grow flex justify-between text-slate-400 text-sm">
+                <span title="{{ problemSet.deadline | date("MEDIUM") }}">
+                    {{ problemSet.deadline | pretty }}
+                </span>
+                <span>
+                    {{ problemSet.solutionsWithSubmissions }}
+                    {{ message("submissions") }}
+                </span>
+            </div>
+        </a>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% else %}
+<div class="alert flex items-center">
+    <i class="fas fa-2x fa-info-circle pe-2"></i> {{ message("course.no-problem-sets") }}
+</div>
+{% endif %}
+{% endblock %}
