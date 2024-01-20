@@ -124,7 +124,7 @@
                             <goal>npx</goal>
                         </goals>
                         <configuration>
-                            <arguments>tailwindcss -o ./target/classes/static/css/main.css --minify</arguments>
+                            <arguments>tailwindcss -i ./src/main/resources/static/css/main.css -o ./target/classes/static/css/main.css --minify</arguments>
                         </configuration>
                     </execution>
                 </executions>

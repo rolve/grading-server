@@ -3,6 +3,6 @@
     "tailwindcss": "^3.4.1"
   },
   "scripts": {
-    "tailwind-watch": "tailwindcss -o ./target/classes/static/css/main.css --watch"
+    "tailwind-watch": "tailwindcss -i ./src/main/resources/static/css/main.css -o ./target/classes/static/css/main.css --watch"
   }
 }
