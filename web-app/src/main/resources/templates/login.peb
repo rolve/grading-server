@@ -1,0 +1,31 @@
+{# @pebvariable name="courses" type="java.util.List<ch.trick17.gradingserver.webapp.model.Course>" #}
+
+{% extends "layout" %}
+
+{% block title %}{{ message("user.sign-in") }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg m-auto">
+    <h2 class="py-3">{{ message("user.sign-in") }}</h2>
+
+    <form method="post">
+        <label for="username" class="block mb-2">
+                {{ message("user.username") }}
+        </label>
+        <input type="text" id="username" name="username" autofocus
+               class="block w-full mb-3">
+
+        <label for="password" class="block mb-2">
+                {{ message("user.password") }}
+        </label>
+        <input type="password" id="password" name="password"
+               class="block w-full mb-6">
+
+        <button type="submit" class="">{{ message("user.sign-in") }}</button>
+
+        <input type="hidden"
+               name="{{ request.getAttribute("_csrf").parameterName }}"
+               value="{{ request.getAttribute("_csrf").token }}">
+    </form>
+</div>
+{% endblock %}
