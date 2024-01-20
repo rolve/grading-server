@@ -6,6 +6,13 @@
 <div class="max-w-lg m-auto">
     <h2>{{ message("user.sign-in") }}</h2>
 
+    {% if request.getParameter("error") != null %}
+    <div class="alert flex items-center">
+        <i class="fas fa-2x fa-triangle-exclamation pe-2"></i>
+        {{ message("user.sign-in-failed") }}
+    </div>
+    {% endif %}
+
     <form method="post">
         <label for="username" class="block mb-2">
                 {{ message("user.username") }}
@@ -19,7 +26,7 @@
         <input type="password" id="password" name="password"
                class="block w-full mb-6">
 
-        <button type="submit" class="">{{ message("user.sign-in") }}</button>
+        <button type="submit" class="button">{{ message("user.sign-in") }}</button>
 
         <input type="hidden"
                name="{{ request.getAttribute("_csrf").parameterName }}"

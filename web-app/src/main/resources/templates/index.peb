@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>{{ message("courses") }}</h2>
-<ul>
+<ul class="mt-4">
     {% for course in courses %}
     <li>
         <a href="{{ href("/courses/" + course.id + "/" ) }}"

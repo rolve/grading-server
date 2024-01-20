@@ -7,21 +7,16 @@
         @apply font-black italic;
     }
     h1 {
-        @apply text-3xl;
+        @apply text-3xl -mt-0.5;
     }
 
     h2 {
-        @apply text-2xl py-3;
+        @apply text-2xl mt-1 mb-3;
     }
 
     input, select, textarea {
         @apply px-2 py-1 rounded-lg shadow-inner border-slate-200 border-2
             focus:outline-none focus:border-blue-500 transition;
-    }
-
-    button[type="submit"], button[type="button"], button[type="reset"] {
-        @apply px-3 py-2 bg-white rounded-lg shadow-lg shadow-slate-200
-            hover:shadow-slate-300 hover:text-blue-500 transition;
     }
 }
 
@@ -37,5 +32,10 @@
 
     .alert {
         @apply card py-3 bg-slate-400 text-white;
+    }
+
+    .button {
+        @apply px-3 py-2 bg-white rounded-lg shadow-lg shadow-slate-200
+        hover:shadow-slate-300 hover:text-blue-500 transition;
     }
 }

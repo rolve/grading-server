@@ -45,7 +45,8 @@
 </ul>
 {% else %}
 <div class="alert flex items-center">
-    <i class="fas fa-2x fa-info-circle pe-2"></i> {{ message("course.no-problem-sets") }}
+    <i class="fas fa-2x fa-info-circle pe-2"></i>
+    {{ message("course.no-problem-sets") }}
 </div>
 {% endif %}
 {% endblock %}

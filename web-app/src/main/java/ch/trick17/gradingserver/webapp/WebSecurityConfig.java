@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
 import static ch.trick17.gradingserver.webapp.model.Role.LECTURER;
+import static java.util.Objects.requireNonNullElse;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -35,6 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             "/css/.*",
                             "/favicon/.*",
                             "/" + query,
+                            "/login" + query,
                             "/courses/\\d+/" + query,
                             "/courses/\\d+/problem-sets/\\d+/" + query,
                             "/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/" + query,
@@ -54,9 +56,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                 .formLogin()
                     .loginPage("/login")
+                    .successHandler((request, response, auth) -> {
+                        var from = request.getParameter("from");
+                        response.sendRedirect(requireNonNullElse(from, "/"));
+                    })
+                    .failureHandler((request, response, auth) -> {
+                        var from = request.getParameter("from");
+                        var suffix = from == null ? "" : "&from=" + from;
+                        response.sendRedirect("/login?error" + suffix);
+                    })
                     .permitAll()
                     .and()
                 .logout()
+                    .logoutSuccessHandler((request, response, auth) -> {
+                        response.sendRedirect(request.getHeader("referer"));
+                    })
                     .permitAll();
     }
 
