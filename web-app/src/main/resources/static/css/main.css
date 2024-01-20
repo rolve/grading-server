@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    h1, h2 {
+        @apply font-black italic;
+    }
+    h1 {
+        @apply text-3xl;
+    }
+
+    h2 {
+        @apply text-2xl;
+    }
+
+    input, select, textarea {
+        @apply px-2 py-1 rounded-lg shadow-inner border-slate-200 border-2
+            focus:outline-none focus:border-blue-500 transition;
+    }
+
+    button[type="submit"], button[type="button"], button[type="reset"] {
+        @apply px-3 py-2 bg-white rounded-lg shadow-lg shadow-slate-200
+            hover:shadow-slate-300 hover:text-blue-500 transition;
+    }
+}
