@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+    @screen md {
+        html {
+            font-size: 105%;
+        }
+    }
+
     h1, h2 {
         @apply font-black italic;
     }
@@ -11,7 +17,7 @@
     }
 
     h2 {
-        @apply text-2xl mt-1 mb-3;
+        @apply text-2xl mt-2 mb-3;
     }
 
     input, select, textarea {
