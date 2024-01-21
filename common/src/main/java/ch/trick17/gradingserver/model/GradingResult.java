@@ -87,6 +87,10 @@ public class GradingResult {
         return passedTests.size() / (double) totalTests();
     }
 
+    public int passedTestsPercent() {
+        return (int) Math.floor(passedTestsRatio() * 100);
+    }
+
     public String getDetails() {
         return details;
     }

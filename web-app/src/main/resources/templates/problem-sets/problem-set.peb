@@ -27,28 +27,40 @@
             : "problem-set.no-solutions") }}
 </div>
 {% else %}
-<ul class="-mx-4 bg-white shadow-lg shadow-slate-200 md:rounded-lg">
+<ul class="-mx-4 bg-white shadow-lg shadow-slate-200 md:rounded-lg
+           overflow-hidden">
     {% for sol in solutions %}
     {% set latest = sol.latestSubmission %}
-    <li class="even:bg-slate-50 last:rounded-b-lg">
+    <li class="even:bg-slate-50">
         {% if latest != null %}
         <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
-           class="block group px-4 py-2">
-            <div class="flex gap-2 justify-between">
-                <span class="min-w-0 overflow-hidden overflow-ellipsis
+           class="group px-4 py-2 flex flex-col gap-1
+                  sm:flex-row sm:gap-4">
+            <div class="flex-grow flex gap-2 justify-between">
+                <span class="flex-grow min-w-0 overflow-hidden overflow-ellipsis
                              link group-hover:link-hover">
                     {{ sol.authors | join(", ") }}
                 </span>
-                <span class="font-mono">
+                <span class="font-mono sm:w-32">
                     {{ latest.shortCommitHash }}
                 </span>
             </div>
-            <div>
-
+            <div class="flex items-center gap-2 text-sm text-slate-400">
+                {% set percent = latest.result.passedTestsPercent %}
+                <div class="flex-grow rounded-full bg-slate-200 h-2
+                            overflow-hidden sm:w-40">
+                    <div class="h-full bg-slate-500"
+                         style="width: {{ percent }}%"></div>
+                </div>
+                <div class="whitespace-nowrap">
+                    {{ (percent | numberformat("000"))
+                        .replaceAll("^00", "  ")
+                        .replaceAll("^0", " ") }} %
+                </div>
             </div>
         </a>
         {% else %}
-        <div class="px-4 py-2 flex gap-2 justify-between">
+        <div class="px-4 pt-4 pb-5 sm:py-2 flex gap-2 justify-between">
             {{ sol.authors | join(", ") }}
             <span>—</span>
         </div>
