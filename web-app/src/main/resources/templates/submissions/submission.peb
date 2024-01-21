@@ -1,0 +1,105 @@
+{# @pebvariable name="submission" type="ch.trick17.gradingserver.webapp.model.Submission" #}
+
+{% extends "layout" %}
+{% import "macros" %}
+
+{% block title %}{{ message("submission") }} {{ submission.shortCommitHash }}{% endblock %}
+
+{% block content %}
+{% set sol = submission.solution %}
+<a href="../../../.." class="block mb-3 link group">
+    <i class="fa fa-arrow-left"></i>
+    <span class="group-hover:link-hover">{{ sol.problemSet.name }}</span>
+</a>
+<h2 class="flex items-center gap-3 not-italic">
+    <span class="font-mono">
+        {{ submission.shortCommitHash }}
+    </span>
+    <span class="text-slate-400 text-lg font-normal"
+          title="{{ submission.receivedDate | date }}">
+        {{ submission.receivedDate | pretty }}
+    </span>
+</h2>
+<p>
+    <i class="fa fa-fw fa-user{{ sol.authors.size > 1 ? "s" : "" }}"></i>
+    {{ sol.authors | join(", ") }}
+</p>
+{% if submission.result == null %}
+<p class="mt-1">
+    {{ status(submission) }}
+</p>
+{% endif %}
+
+{% if submission.result != null %}
+
+{% if not submission.result.successful %}
+{% embed "fragments/alert" with { "icon": "skull" } %}
+{% block content %}
+    <span class="font-mono text-sm" style="overflow-wrap: anywhere">
+        {{ submission.result.error }}
+    </span>
+{% endblock %}
+{% endembed %}
+{% endif %}
+
+{% if submission.result.successful and not submission.result.compiled %}
+{% embed "fragments/alert" with { "icon": "times-circle" } %}
+{% block content %}
+    {{ message("submission.warnings.fatal-compile-errors") }}
+{% endblock %}
+{% endembed %}
+{% endif %}
+
+{% for entry in {"compile errors":    "triangle-exclamation",
+                 "nondeterministic":  "random",
+                 "timeout":           "hourglass-half",
+                 "out of memory":     "microchip",
+                 "illegal operation": "ban"} %}
+{% if submission.result.properties contains entry.key %}
+{% embed "fragments/alert" with { "icon": entry.value } %}
+{% block content %}
+    {{ message("submission.warnings." + entry.key.replace(" ", "-")) }}
+{% endblock %}
+{% endembed %}
+{% endif %}
+{% endfor %}
+
+{% if submission.result.successful %}
+<div class="-mx-4 mt-4 bg-white px-4 py-3 shadow-lg shadow-slate-200
+            sm:mx-0 sm:rounded-lg">
+    {% set percent = submission.result.passedTestsPercent %}
+    <div class="bg-slate-200 h-6 rounded-lg overflow-hidden my-2">
+        <div class="h-full {{ percent == 100 ? "bg-emerald-600" : "bg-slate-500" }}"
+             style="width: {{ percent }}%"></div>
+    </div>
+    <div class="flex justify-between text-lg mb-4">
+        <span>
+            {% if percent == 100 %}
+                <i class="fa fa-trophy text-emerald-600"></i>
+            {% endif %}
+            {{ percent }} %
+        </span>
+        <span class="text-slate-400">
+            {{ submission.result.passedTests.size }} / {{ submission.result.totalTests }}
+            {{ message("submission.tests-passed") }}
+        </span>
+    </div>
+
+    <ul>
+        {% for test in submission.result.allTests %}
+        <li class="py-2 flex items-center gap-2">
+            {% if submission.result.passedTests contains test %}
+            <i class="fas fa-circle-check text-emerald-600"></i>
+            {% else %}
+            <i class="fas fa-circle-xmark text-slate-500"></i>
+            {% endif %}
+            <span class="overflow-hidden overflow-ellipsis">
+                {{ test }}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

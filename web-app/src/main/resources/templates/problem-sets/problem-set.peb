@@ -2,6 +2,7 @@
 {# @pebvariable name="solutions" type="java.util.List<ch.trick17.gradingserver.webapp.model.Solution>" #}
 
 {% extends "layout" %}
+{% import "macros" %}
 
 {% block title %}{{ problemSet.name }}{% endblock %}
 
@@ -19,18 +20,21 @@
         {{ problemSet.deadline | pretty }}
     </span>
 </p>
+
 {% if problemSet.solutions is empty %}
-<div class="alert flex items-center">
-    <i class="fas fa-2x fa-info-circle pe-2"></i>
+{% embed "fragments/alert" with { "icon": "info-circle" } %}
+{% block content %}
     {{ message(problemSet.registeringSolutions
-            ? "problem-set.registering-solutions"
-            : "problem-set.no-solutions") }}
-</div>
+        ? "problem-set.registering-solutions"
+        : "problem-set.no-solutions") }}
+{% endblock %}
+{% endembed %}
 {% else %}
-<ul class="-mx-4 bg-white shadow-lg shadow-slate-200 md:rounded-lg
-           overflow-hidden">
+<ul class="-mx-4 bg-white shadow-lg shadow-slate-200 overflow-hidden
+           sm:mx-0 sm:rounded-lg">
     {% for sol in solutions %}
     {% set latest = sol.latestSubmission %}
+    {# @pebvariable name="latest" type="ch.trick17.gradingserver.webapp.model.Submission" #}
     <li class="even:bg-slate-50">
         {% if latest != null %}
         <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
@@ -50,23 +54,19 @@
                 </span>
             </div>
             <div class="sm:w-1/3 text-sm">
-                {% if not latest.gradingStarted %}
-                <i class="fa fa-fw fa-hourglass-half"></i>
-                {{ message("submission.status.queued") }}
-                {% elseif latest.result == null %}
-                <i class="fa fa-fw fa-gear fa-spin"></i>
-                {{ message("submission.status.grading") }}
-                {% elseif not latest.result.successful %}
-                <i class="fa fa-fw fa-triangle-exclamation"></i>
-                {{ message("submission.status.error") }}
+                {% if latest.result == null or not latest.result.successful %}
+                {{ status(latest) }}
                 {% else %}
                 <div class="flex items-center gap-2">
                     {% set percent = latest.result.passedTestsPercent %}
                     <div class="flex-grow rounded-full bg-slate-200 h-2
                                 overflow-hidden">
-                        <div class="h-full bg-slate-500"
+                        <div class="h-full {{ percent == 100 ? "bg-emerald-600" : "bg-slate-500" }}"
                              style="width: {{ percent }}%"></div>
                     </div>
+                    {% if percent == 100 %}
+                        <i class="fa fa-trophy text-emerald-600 -ms-1"></i>
+                    {% endif %}
                     <div class="whitespace-nowrap">
                         {{ (percent | numberformat("000"))
                             .replaceAll("^00", "  ")

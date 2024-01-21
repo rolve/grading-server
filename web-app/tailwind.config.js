@@ -4,7 +4,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Mulish', 'sans-serif']
+        sans: ['Mulish', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
       },
     },
   },

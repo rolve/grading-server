@@ -7,10 +7,11 @@
     <h2>{{ message("user.sign-in") }}</h2>
 
     {% if request.getParameter("error") != null %}
-    <div class="alert flex items-center">
-        <i class="fas fa-2x fa-triangle-exclamation pe-2"></i>
+    {% embed "fragments/alert" with { "icon": "triangle-exclamation" } %}
+    {% block content %}
         {{ message("user.sign-in-failed") }}
-    </div>
+    {% endblock %}
+    {% endembed %}
     {% endif %}
 
     <form method="post">

@@ -1,0 +1,8 @@
+{# @pebvariable name="icon" type="String" #}
+
+<div class="card py-3 bg-slate-400 text-white flex">
+    <i class="fas fa-{{ icon }} text-2xl pe-2"></i>
+    <div class="self-center">
+        {% block content %}{% endblock %}
+    </div>
+</div>

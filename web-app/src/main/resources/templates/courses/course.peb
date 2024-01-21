@@ -5,9 +5,9 @@
 {% block title %}{{ course.fullName }}{% endblock %}
 
 {% block content %}
-<h2 class="flex items-center">
+<h2 class="flex items-center gap-3">
     {{ course.name }}
-    <span class="ps-3 text-slate-400 text-lg font-normal not-italic">
+    <span class="text-slate-400 text-lg font-normal not-italic">
         {{ course.term }}
     </span>
 </h2>

@@ -36,13 +36,9 @@
         @apply hover:shadow-slate-300;
     }
 
-    .alert {
-        @apply card py-3 bg-slate-400 text-white;
-    }
-
     .button {
-        @apply px-3 py-2 bg-white rounded-lg shadow-lg shadow-slate-200
-            hover:shadow-slate-300 hover:text-blue-500 transition;
+        @apply px-3 pt-1.5 pb-2 bg-blue-500 text-white rounded-lg shadow-lg shadow-slate-200
+            hover:shadow-slate-300 hover:bg-blue-600 transition;
     }
 
     .link {
