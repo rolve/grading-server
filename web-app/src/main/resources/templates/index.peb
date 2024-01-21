@@ -9,7 +9,7 @@
     <li>
         <a href="{{ href("/courses/" + course.id + "/" ) }}"
            class="card group flex items-center">
-            <span class="flex-grow text-xl group-hover:text-blue-500 transition">
+            <span class="flex-grow text-xl link">
                 {{ course.name }}
             </span>
             <span class="text-slate-400">{{ course.term }}</span>

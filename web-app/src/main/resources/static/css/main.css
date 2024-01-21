@@ -23,7 +23,7 @@
 @layer components {
     .card {
         @apply block my-3 px-3 py-2 bg-white rounded-lg shadow-lg
-        shadow-slate-200 transition;
+            shadow-slate-200 transition;
     }
 
     a.card {
@@ -36,6 +36,14 @@
 
     .button {
         @apply px-3 py-2 bg-white rounded-lg shadow-lg shadow-slate-200
-        hover:shadow-slate-300 hover:text-blue-500 transition;
+            hover:shadow-slate-300 hover:text-blue-500 transition;
+    }
+
+    .link {
+        @apply text-blue-500;
+    }
+
+    .link-hover {
+        @apply underline underline-offset-2 decoration-1;
     }
 }

@@ -1,0 +1,60 @@
+{# @pebvariable name="problemSet" type="ch.trick17.gradingserver.webapp.model.ProblemSet" #}
+{# @pebvariable name="solutions" type="java.util.List<ch.trick17.gradingserver.webapp.model.Solution>" #}
+
+{% extends "layout" %}
+
+{% block title %}{{ problemSet.name }}{% endblock %}
+
+{% block content %}
+<a href="../.." class="mb-3 link group">
+    <i class="fa fa-arrow-left"></i>
+    <span class="group-hover:link-hover">{{ problemSet.course.name }}</span>
+</a>
+<h2>
+    {{ problemSet.name }}
+</h2>
+<p class="mb-4">
+    {{ message("problem-set.deadline") }}:
+    <span title="{{ problemSet.deadline | date }}">
+        {{ problemSet.deadline | pretty }}
+    </span>
+</p>
+{% if problemSet.solutions is empty %}
+<div class="alert flex items-center">
+    <i class="fas fa-2x fa-info-circle pe-2"></i>
+    {{ message(problemSet.registeringSolutions
+            ? "problem-set.registering-solutions"
+            : "problem-set.no-solutions") }}
+</div>
+{% else %}
+<ul class="-mx-4 bg-white shadow-lg shadow-slate-200 md:rounded-lg">
+    {% for sol in solutions %}
+    {% set latest = sol.latestSubmission %}
+    <li class="even:bg-slate-50 last:rounded-b-lg">
+        {% if latest != null %}
+        <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
+           class="block group px-4 py-2">
+            <div class="flex gap-2 justify-between">
+                <span class="min-w-0 overflow-hidden overflow-ellipsis
+                             link group-hover:link-hover">
+                    {{ sol.authors | join(", ") }}
+                </span>
+                <span class="font-mono">
+                    {{ latest.shortCommitHash }}
+                </span>
+            </div>
+            <div>
+
+            </div>
+        </a>
+        {% else %}
+        <div class="px-4 py-2 flex gap-2 justify-between">
+            {{ sol.authors | join(", ") }}
+            <span>—</span>
+        </div>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

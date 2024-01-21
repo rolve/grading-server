@@ -26,14 +26,14 @@
         <a href="{{ href("problem-sets/" + problemSet.id + "/" ) }}"
            class="card group sm:flex items-center">
             <div class="sm:w-2/3 text-lg whitespace-nowrap overflow-hidden
-                        overflow-ellipsis group-hover:text-blue-500 transition">
+                        overflow-ellipsis link">
                 {{ problemSet.name }}
             </div>
-            <div class="flex-grow flex justify-between text-slate-400 text-sm">
-                <span title="{{ problemSet.deadline | date("MEDIUM") }}">
+            <div class="flex-grow flex justify-between text-sm">
+                <span title="{{ problemSet.deadline | date }}">
                     {{ problemSet.deadline | pretty }}
                 </span>
-                <span>
+                <span class="text-slate-400">
                     {{ problemSet.solutionsWithSubmissions }}
                     {{ message("submissions") }}
                 </span>
