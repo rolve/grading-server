@@ -1,4 +1,5 @@
 {# @pebvariable name="submission" type="ch.trick17.gradingserver.webapp.model.Submission" #}
+{# @pebvariable name="allSubmissions" type="java.util.List<ch.trick17.gradingserver.webapp.model.Submission>" #}
 
 {% extends "layout" %}
 {% import "macros" %}
@@ -101,5 +102,24 @@
     </ul>
 </div>
 {% endif %}
+{% endif %}
+
+{% if allSubmissions is not empty %}
+<h3 class="mt-6">{{ message("submission.other-submissions") }}</h3>
+<div class="grid gap-x-2 sm:gap-x-5"
+     style="grid-template-columns: max-content max-content minmax(auto, 16rem);">
+    {% for s in allSubmissions %}
+    <a {{ (s == submission ? "" : 'href="../' + s.id + '/"') | raw }}
+       class="col-span-3 grid grid-cols-subgrid py-2 group">
+        <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
+            {{- s.shortCommitHash -}}
+        </span>
+        <span class="self-center text-sm sm:text-base" title="{{ s.receivedDate | date }}">
+            {{ s.receivedDate | pretty }}
+        </span>
+        {{ resultBar(s.result.passedTestsPercent, false) }}
+    </a>
+    {% endfor %}
+</div>
 {% endif %}
 {% endblock %}

@@ -11,3 +11,23 @@
         {{ message("submission.status.error") }}
     {% endif %}
 {% endmacro %}
+
+{% macro resultBar(percent, forceLabel) %}
+    {# @pebvariable name="percent" type="int" #}
+    {# @pebvariable name="forceLabel" type="boolean" #}
+    <div class="flex items-center gap-2">
+        <div class="flex-grow rounded-full bg-slate-200 h-2 overflow-hidden">
+            <div class="h-full {{ percent == 100 ? "bg-emerald-600" : "bg-slate-500" }}"
+                 style="width: {{ percent }}%"></div>
+        </div>
+        {% if percent == 100 %}
+        <i class="fa fa-trophy text-emerald-600 -ms-1"></i>
+        {% endif %}
+        <div class="whitespace-nowrap
+                    {% if not forceLabel %}hidden sm:block{% endif %}">
+            {{ (percent | numberformat("000"))
+                    .replaceAll("^00", "  ")
+                    .replaceAll("^0", " ") }} %
+        </div>
+    </div>
+{% endmacro %}

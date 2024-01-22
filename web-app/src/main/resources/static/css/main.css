@@ -9,15 +9,20 @@
         }
     }
 
-    h1, h2 {
+    h1, h2, h3 {
         @apply font-black italic;
     }
+
     h1 {
         @apply text-3xl -mt-0.5;
     }
 
     h2 {
         @apply text-2xl mt-2 mb-3;
+    }
+
+    h3 {
+        @apply text-xl mt-2 mb-3;
     }
 
     input, select, textarea {
