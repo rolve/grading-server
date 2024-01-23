@@ -120,7 +120,8 @@
             <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
                 {{- s.shortCommitHash -}}
             </span>
-            <span class="self-center text-sm sm:text-base" title="{{ s.receivedDate | date }}">
+            <span class="self-center text-sm sm:text-base"
+                  title="{{ s.receivedDate | date }}">
                 {{ s.receivedDate | pretty }}
             </span>
             {% if s.result == null or not s.result.successful %}

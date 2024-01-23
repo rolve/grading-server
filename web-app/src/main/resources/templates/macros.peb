@@ -16,6 +16,7 @@
 
 {% macro resultBar(percent, goal, forceLabel) %}
     {# @pebvariable name="percent" type="int" #}
+    {# @pebvariable name="goal" type="int" #}
     {# @pebvariable name="forceLabel" type="boolean" #}
     <div class="flex items-center gap-2 ps-px">
         <div class="flex-grow rounded-full bg-slate-200 h-2 overflow-hidden">

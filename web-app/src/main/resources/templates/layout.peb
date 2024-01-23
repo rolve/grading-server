@@ -2,8 +2,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Grading Server{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ request.getAttribute("_csrf").token }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200;0,400;0,700;0,850;0,1000;1,200;1,400;1,700;1,850;1,1000&display=swap">
@@ -11,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ href("/css/main.css") }}">
     <link rel="shortcut icon" href="{{ href("favicon/favicon.ico") }}">
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/dist/turbo.es2017-esm.js" type="module"></script>
 </head>
 <body class="bg-slate-300 text-white">
 <div class="bg-slate-100 text-slate-600 shadow-2xl shadow-slate-400">
@@ -32,9 +34,6 @@
                         <i class="fas fa-fw fa-xl fa-arrow-right-from-bracket"></i>
                         <span class="hidden sm:inline">{{ message("user.sign-out") }}</span>
                     </button>
-                    <input type="hidden"
-                           name="{{ request.getAttribute("_csrf").parameterName }}"
-                           value="{{ request.getAttribute("_csrf").token }}">
                 </form>
             {% endif %}
         </div>
@@ -50,7 +49,7 @@
     <span>
         {{ message("grading-service.status.label") }}
         <span class="bg-slate-400 text-white ms-1 px-2 pt-1 pb-1.5
-                     rounded-lg shadow shadow-slate-400">
+                     rounded-full shadow shadow-slate-400">
             {{ message("grading-service.status." + beans.gradingService.status) }}
         </span>
     </span>
