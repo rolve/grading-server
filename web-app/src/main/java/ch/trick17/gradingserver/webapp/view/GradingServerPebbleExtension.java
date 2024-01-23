@@ -1,7 +1,6 @@
 package ch.trick17.gradingserver.webapp.view;
 
 import ch.trick17.gradingserver.webapp.Internationalization;
-import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.extension.AbstractExtension;
 import com.mitchellbosecke.pebble.extension.Filter;
 import com.mitchellbosecke.pebble.template.EvaluationContext;

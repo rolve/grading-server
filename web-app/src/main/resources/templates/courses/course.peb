@@ -29,7 +29,7 @@
                         overflow-ellipsis link">
                 {{ problemSet.name }}
             </div>
-            <div class="flex-grow flex justify-between text-sm">
+            <div class="flex-grow flex justify-between text-sm py-1">
                 <span title="{{ problemSet.deadline | date }}">
                     {{ problemSet.deadline | pretty }}
                 </span>
@@ -44,9 +44,10 @@
     {% endfor %}
 </ul>
 {% else %}
-<div class="alert flex items-center">
-    <i class="fas fa-2x fa-info-circle pe-2"></i>
-    {{ message("course.no-problem-sets") }}
-</div>
+{% embed "fragments/alert" with { "icon": "info-circle" } %}
+{% block content %}
+{{ message("course.no-problem-sets") }}
+{% endblock %}
+{% endembed %}
 {% endif %}
 {% endblock %}
