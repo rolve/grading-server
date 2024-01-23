@@ -111,7 +111,7 @@
 
 {% if allSubmissions is not empty %}
 <h3 class="mt-6">{{ message("submission.other-submissions") }}</h3>
-<ul class="grid gap-x-2 sm:gap-x-5"
+<ul class="grid gap-x-3 sm:gap-x-5"
      style="grid-template-columns: max-content max-content minmax(auto, 16rem);">
     {% for s in allSubmissions %}
     <li class="col-span-3 grid grid-cols-subgrid">
@@ -123,7 +123,11 @@
             <span class="self-center text-sm sm:text-base" title="{{ s.receivedDate | date }}">
                 {{ s.receivedDate | pretty }}
             </span>
+            {% if s.result == null or not s.result.successful %}
+            {{ status(s) }}
+            {% else %}
             {{ resultBar(s.result.passedTestsPercent, problemSet.percentageGoal, false) }}
+            {% endif %}
         </a>
     </li>
     {% endfor %}

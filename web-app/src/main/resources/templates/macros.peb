@@ -1,5 +1,6 @@
 {% macro status(submission) %}
     {# @pebvariable name="submission" type="ch.trick17.gradingserver.webapp.model.Submission" #}
+    <span>
     {% if not submission.gradingStarted %}
         <i class="fa fa-fw fa-hourglass-half"></i>
         {{ message("submission.status.queued") }}
@@ -10,12 +11,13 @@
         <i class="fa fa-fw fa-skull"></i>
         {{ message("submission.status.error") }}
     {% endif %}
+    </span>
 {% endmacro %}
 
 {% macro resultBar(percent, goal, forceLabel) %}
     {# @pebvariable name="percent" type="int" #}
     {# @pebvariable name="forceLabel" type="boolean" #}
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 ps-px">
         <div class="flex-grow rounded-full bg-slate-200 h-2 overflow-hidden">
             <div class="h-full {{ percent >= goal ? "bg-emerald-600" : "bg-slate-500" }}"
                  style="width: {{ percent }}%"></div>
