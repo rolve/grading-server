@@ -87,18 +87,21 @@
     </div>
 
     <ul>
-        {% for test in submission.result.allTests %}
-        <li class="py-2 flex items-center gap-2">
-            {% if submission.result.passedTests contains test %}
-            <i class="fas fa-circle-check text-emerald-600"></i>
-            {% else %}
-            <i class="fas fa-circle-xmark text-slate-500"></i>
-            {% endif %}
-            <span class="overflow-hidden overflow-ellipsis">
-                {{ test }}
+    {% for test in submission.result.allTests %}
+        {% set passed = submission.result.passedTests contains test %}
+        <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
+            <span class="overflow-hidden overflow-ellipsis {{ passed ? "" : "text-slate-400" }}">
+                {{ test }}<span class="sr-only">:</span>
             </span>
+            {% if passed %}
+            <i class="fas fa-circle-check text-emerald-600"></i>
+            <span class="sr-only">{{ message("submission.test-passed") }}</span>
+            {% else %}
+            <i class="fas fa-circle-xmark text-slate-400"></i>
+            <span class="sr-only">{{ message("submission.test-failed") }}</span>
+            {% endif %}
         </li>
-        {% endfor %}
+    {% endfor %}
     </ul>
 </div>
 {% endif %}
