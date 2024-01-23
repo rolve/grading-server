@@ -106,20 +106,22 @@
 
 {% if allSubmissions is not empty %}
 <h3 class="mt-6">{{ message("submission.other-submissions") }}</h3>
-<div class="grid gap-x-2 sm:gap-x-5"
+<ul class="grid gap-x-2 sm:gap-x-5"
      style="grid-template-columns: max-content max-content minmax(auto, 16rem);">
     {% for s in allSubmissions %}
-    <a {{ (s == submission ? "" : 'href="../' + s.id + '/"') | raw }}
-       class="col-span-3 grid grid-cols-subgrid py-2 group">
-        <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
-            {{- s.shortCommitHash -}}
-        </span>
-        <span class="self-center text-sm sm:text-base" title="{{ s.receivedDate | date }}">
-            {{ s.receivedDate | pretty }}
-        </span>
-        {{ resultBar(s.result.passedTestsPercent, false) }}
-    </a>
+    <li class="col-span-3 grid grid-cols-subgrid">
+        <a {{ (s == submission ? "" : 'href="../' + s.id + '/"') | raw }}
+           class="col-span-3 grid grid-cols-subgrid py-2 group">
+            <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
+                {{- s.shortCommitHash -}}
+            </span>
+            <span class="self-center text-sm sm:text-base" title="{{ s.receivedDate | date }}">
+                {{ s.receivedDate | pretty }}
+            </span>
+            {{ resultBar(s.result.passedTestsPercent, false) }}
+        </a>
+    </li>
     {% endfor %}
-</div>
+</ul>
 {% endif %}
 {% endblock %}
