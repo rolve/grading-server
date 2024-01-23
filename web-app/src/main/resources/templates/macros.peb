@@ -12,12 +12,12 @@
     {% endif %}
 {% endmacro %}
 
-{% macro resultBar(percent, forceLabel) %}
+{% macro resultBar(percent, goal, forceLabel) %}
     {# @pebvariable name="percent" type="int" #}
     {# @pebvariable name="forceLabel" type="boolean" #}
     <div class="flex items-center gap-2">
         <div class="flex-grow rounded-full bg-slate-200 h-2 overflow-hidden">
-            <div class="h-full {{ percent == 100 ? "bg-emerald-600" : "bg-slate-500" }}"
+            <div class="h-full {{ percent >= goal ? "bg-emerald-600" : "bg-slate-500" }}"
                  style="width: {{ percent }}%"></div>
         </div>
         {% if percent == 100 %}

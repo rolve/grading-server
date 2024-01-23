@@ -24,6 +24,7 @@ public class ProblemSet {
     private ZonedDateTime deadline;
     private boolean anonymous;
     private boolean hidden;
+    private int percentageGoal;
 
     @OneToMany(mappedBy = "problemSet", cascade = ALL, orphanRemoval = true)
     private List<Solution> solutions = new ArrayList<>();
@@ -88,6 +89,14 @@ public class ProblemSet {
 
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+    }
+
+    public int getPercentageGoal() {
+        return percentageGoal;
+    }
+
+    public void setPercentageGoal(int percentageGoal) {
+        this.percentageGoal = percentageGoal;
     }
 
     public List<Solution> getSolutions() {

@@ -8,6 +8,8 @@
 
 {% block content %}
 {% set sol = submission.solution %}
+{% set problemSet = sol.problemSet %}
+
 <a href="../../../.." class="block mb-3 link group">
     <i class="fa fa-arrow-left"></i>
     <span class="group-hover:link-hover">{{ sol.problemSet.name }}</span>
@@ -70,7 +72,7 @@
             sm:mx-0 sm:rounded-lg">
     {% set percent = submission.result.passedTestsPercent %}
     <div class="bg-slate-200 h-6 rounded-lg overflow-hidden my-2">
-        <div class="h-full {{ percent == 100 ? "bg-emerald-600" : "bg-slate-500" }}"
+        <div class="h-full {{ percent >= problemSet.percentageGoal ? "bg-emerald-600" : "bg-slate-500" }}"
              style="width: {{ percent }}%"></div>
     </div>
     <div class="flex justify-between text-lg mb-4">
@@ -121,7 +123,7 @@
             <span class="self-center text-sm sm:text-base" title="{{ s.receivedDate | date }}">
                 {{ s.receivedDate | pretty }}
             </span>
-            {{ resultBar(s.result.passedTestsPercent, false) }}
+            {{ resultBar(s.result.passedTestsPercent, problemSet.percentageGoal, false) }}
         </a>
     </li>
     {% endfor %}

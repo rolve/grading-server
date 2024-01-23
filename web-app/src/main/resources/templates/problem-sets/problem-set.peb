@@ -57,7 +57,7 @@
                 {% if latest.result == null or not latest.result.successful %}
                 {{ status(latest) }}
                 {% else %}
-                {{ resultBar(latest.result.passedTestsPercent, true) }}
+                {{ resultBar(latest.result.passedTestsPercent, problemSet.percentageGoal, true) }}
                 {% endif %}
             </div>
         </a>
