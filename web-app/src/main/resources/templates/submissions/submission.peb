@@ -36,7 +36,7 @@
 {% if submission.result != null %}
 
 {% if not submission.result.successful %}
-{% embed "fragments/alert" with { "icon": "skull" } %}
+{% embed "fragments/alert" with { "icon": "bolt-lightning" } %}
 {% block content %}
     <span class="font-mono text-sm" style="overflow-wrap: anywhere">
         {{ submission.result.error }}

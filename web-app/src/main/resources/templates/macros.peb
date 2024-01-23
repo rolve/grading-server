@@ -8,7 +8,7 @@
         <i class="fa fa-fw fa-gear fa-spin"></i>
         {{ message("submission.status.grading") }}
     {% elseif not submission.result.successful %}
-        <i class="fa fa-fw fa-skull"></i>
+        <i class="fa fa-fw fa-bolt-lightning"></i>
         {{ message("submission.status.error") }}
     {% endif %}
     </span>
