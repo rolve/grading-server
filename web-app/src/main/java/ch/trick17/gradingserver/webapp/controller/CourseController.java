@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static ch.trick17.gradingserver.webapp.model.Role.LECTURER;
+import static java.time.LocalDate.now;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -37,6 +38,8 @@ public class CourseController {
     @GetMapping("/create")
     public String createCourse(@AuthenticationPrincipal User user,
                                Model model) {
+        model.addAttribute("termKind", now().getMonthValue() < 7 ? "FS" : "HS");
+        model.addAttribute("termYear", now().getYear());
         var possibleCoLecturers = userRepo.findAll().stream()
                 .filter(not(user::equals))
                 .filter(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))

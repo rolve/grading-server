@@ -3,7 +3,17 @@
 {% extends "layout" %}
 
 {% block content %}
-<h2>{{ message("courses") }}</h2>
+<h2 class="flex justify-between items-center">
+    {{ message("courses") }}
+    {% if beans.access.hasRole("lecturer") %}
+    <a href="{{ href("/courses/create") }}"
+       class="button w-8 h-8 flex items-center justify-center">
+        <i class="fa fa-fw fa-plus"></i>
+        <span class="sr-only">{{ message("Anlass erstellen") }}</span>
+    </a>
+    {% endif %}
+</h2>
+
 <ul class="mt-4">
     {% for course in courses %}
     <li>
@@ -12,7 +22,9 @@
             <span class="flex-grow text-xl link">
                 {{ course.name }}
             </span>
-            <span class="text-slate-400">{{ course.term }}</span>
+            <span class="text-slate-400">
+                {{ course.term }} {{ course.qualifier }}
+            </span>
         </a>
     </li>
     {% endfor %}

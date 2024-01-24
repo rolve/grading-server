@@ -22,12 +22,16 @@
     }
 
     h3 {
-        @apply text-xl mt-2 mb-3;
+        @apply text-xl mt-1.5 mb-2;
     }
 
     input, select, textarea {
         @apply px-2 py-1 rounded-lg shadow-inner border-slate-200 border-2
             focus:outline-none focus:border-blue-500 transition;
+    }
+
+    select {
+        @apply p-1;
     }
 }
 
@@ -42,8 +46,13 @@
     }
 
     .button {
-        @apply px-3 pt-1.5 pb-2 bg-blue-500 text-white rounded-lg shadow-lg shadow-slate-200
-            hover:shadow-slate-300 hover:bg-blue-600 transition;
+        @apply inline-block px-4 py-1.5 text-white text-base font-normal not-italic
+            bg-blue-500 rounded-full shadow-lg shadow-slate-300
+            hover:shadow-slate-400 hover:bg-blue-600 transition;
+    }
+
+    .button-secondary {
+        @apply button bg-slate-400 hover:bg-slate-500;
     }
 
     .link {

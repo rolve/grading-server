@@ -27,7 +27,10 @@
         <input type="password" id="password" name="password"
                class="block w-full mb-6">
 
-        <button type="submit" class="button">{{ message("user.sign-in") }}</button>
+        <div class="flex gap-3">
+            <button type="submit" class="button">{{ message("user.sign-in") }}</button>
+            <a href="{{ request.getParameter("from") }}" class="button-secondary">Abbrechen</a>
+        </div>
     </form>
 </div>
 {% endblock %}

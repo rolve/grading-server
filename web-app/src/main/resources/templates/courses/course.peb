@@ -8,7 +8,7 @@
 <h2 class="flex items-center gap-3">
     {{ course.name }}
     <span class="text-slate-400 text-lg font-normal not-italic">
-        {{ course.term }}
+        {{ course.term }} {{ course.qualifier }}
     </span>
 </h2>
 <p class="mb-4">

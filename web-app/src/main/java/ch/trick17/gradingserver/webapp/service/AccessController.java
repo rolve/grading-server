@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
 import static ch.trick17.gradingserver.webapp.model.Role.ADMIN;
+import static java.util.Locale.ROOT;
 
 @Service("access")
 public class AccessController {
@@ -19,10 +20,9 @@ public class AccessController {
 
     @Transactional
     public boolean check(Course course) {
-        var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof User user) {
+        if (currentPrincipal() instanceof User user) {
             return user.getRoles().contains(ADMIN) ||
-                    course.getLecturers().contains(user);
+                   course.getLecturers().contains(user);
         } else {
             return false;
         }
@@ -41,5 +41,19 @@ public class AccessController {
     @Transactional
     public boolean check(Submission submission) {
         return check(submission.getSolution().getProblemSet());
+    }
+
+    @Transactional
+    public boolean hasRole(String roleString) {
+        var role = Role.valueOf(roleString.toUpperCase(ROOT));
+        if (currentPrincipal() instanceof User user) {
+            return user.getRoles().stream().anyMatch(r -> r.includes(role));
+        } else {
+            return false;
+        }
+    }
+
+    private static Object currentPrincipal() {
+        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
