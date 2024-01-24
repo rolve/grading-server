@@ -9,7 +9,7 @@
     <a href="{{ href("/courses/create") }}"
        class="button w-8 h-8 flex items-center justify-center">
         <i class="fa fa-fw fa-plus"></i>
-        <span class="sr-only">{{ message("Anlass erstellen") }}</span>
+        <span class="sr-only">{{ message("course.create") }}</span>
     </a>
     {% endif %}
 </h2>

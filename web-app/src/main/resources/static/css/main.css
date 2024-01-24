@@ -46,13 +46,18 @@
     }
 
     .button {
-        @apply inline-block px-4 py-1.5 text-white text-base font-normal not-italic
+        @apply inline-block px-4 py-1.5 text-white text-base font-normal
+            not-italic text-center
             bg-blue-500 rounded-full shadow-lg shadow-slate-300
             hover:shadow-slate-400 hover:bg-blue-600 transition;
     }
 
     .button-secondary {
         @apply button bg-slate-400 hover:bg-slate-500;
+    }
+
+    .button-danger {
+        @apply button bg-rose-600 hover:bg-rose-700;
     }
 
     .link {

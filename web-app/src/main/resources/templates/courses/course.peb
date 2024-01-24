@@ -7,10 +7,24 @@
 {% block content %}
 <h2 class="flex items-center gap-3">
     {{ course.name }}
-    <span class="text-slate-400 text-lg font-normal not-italic">
+    <span class="flex-grow text-slate-400 text-lg font-normal not-italic">
         {{ course.term }} {{ course.qualifier }}
     </span>
+    {% if beans.access.check(course) %}
+    <a href="edit" class="button w-8 h-8 flex items-center justify-center">
+        <i class="fa fa-fw fa-pen"></i>
+        <span class="sr-only">{{ message("edit") }}</span>
+    </a>
+    <button form="delete-course"
+            class="button-danger w-8 h-8 flex items-center justify-center">
+        <i class="fa fa-fw fa-trash"></i>
+        <span class="sr-only">{{ message("delete") }}</span>
+    </button>
+    {% endif %}
 </h2>
+<form id="delete-course" method="post" action="delete">
+</form>
+
 <p class="mb-4">
     {{ message("course.lecturers") }}:
     {% for lecturer in course.lecturers %}
