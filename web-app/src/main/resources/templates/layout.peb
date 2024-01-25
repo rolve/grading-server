@@ -56,6 +56,9 @@
     </span>
 </footer>
 <!-- required to initialize modals inserted by Turbo loads: -->
-<script type="application/javascript">initFlowbite();</script>
+<script type="application/javascript">
+    FlowbiteInstances._instances.Modal = {};
+    initFlowbite();
+</script>
 </body>
 </html>
