@@ -63,10 +63,11 @@ public class Internationalization implements WebMvcConfigurer {
                 .withLocale(supportedLocale());
     }
 
-    private Locale supportedLocale() {
+    public Locale supportedLocale() {
         // make sure only locales that have a 'messages' file are used for
         // formatting times etc., to avoid partially localized text
         var priorities = LanguageRange.parse(getLocale().toLanguageTag());
+        System.out.println("'" + priorities + "'");
         var bestMatch = Locale.lookup(priorities, supportedLocales);
         return requireNonNullElse(bestMatch, DEFAULT_LOCALE);
     }
