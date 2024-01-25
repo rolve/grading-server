@@ -23,7 +23,7 @@ import static ch.trick17.gradingserver.webapp.service.JarFileService.JarDownload
 import static java.lang.String.join;
 import static java.net.http.HttpClient.Redirect.NORMAL;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
+import static java.util.Objects.requireNonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.ContentDisposition.parse;
 
@@ -130,8 +130,8 @@ public class JarFileService {
     private static void checkJarFileValid(URI url, JarFile jar) throws JarDownloadFailedException {
         var in = new ZipInputStream(new ByteArrayInputStream(jar.getContent()));
         try {
-            in.getNextEntry();
-        } catch (ZipException e) {
+            requireNonNull(in.getNextEntry());
+        } catch (ZipException | NullPointerException e) {
             throw new JarDownloadFailedException(INVALID_JAR, url.toString());
         } catch (IOException e) {
             throw new AssertionError(e);
