@@ -44,8 +44,10 @@
 <p class="mb-4">
     {{ message("course.lecturers") }}:
     {% for lecturer in course.lecturers %}
-        {{ lecturer.displayName -}}
-        {%- if not loop.last %}, {% endif %}
+        <span class="whitespace-nowrap">
+            {{ lecturer.displayName -}}
+            {%- if not loop.last %}, {% endif %}
+        </span>
     {% endfor %}
 </p>
 {% if course.problemSets is not empty %}

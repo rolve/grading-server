@@ -1,19 +1,20 @@
 {# @pebvariable name="possibleCoLecturers" type="java.util.List<ch.trick17.gradingserver.webapp.model.User>" #}
+{# @pebvariable name="coLecturers" type="java.util.List<ch.trick17.gradingserver.webapp.model.User>" #}
 
 {% extends "layout" %}
 
-{% block title %}{{ message("course.create") }}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 
 <div class="max-w-lg m-auto">
-    <h2>{{ message("course.create") }}</h2>
+    <h2>{{ title }}</h2>
     <form method="post">
         <label for="name" class="block mb-2">
             {{ message("name") }}
         </label>
         <input type="text" id="name" name="name" autofocus
-               class="block w-full mb-3" required>
+               class="block w-full mb-3" value="{{ name }}" required>
 
         <label for="termKind" class="block mb-2">
             {{ message("course.term") }}
@@ -29,7 +30,7 @@
             {{ message("course.qualifier") }}
         </label>
         <input type="text" id="qualifier" name="qualifier"
-               class="block w-full mb-3">
+               class="block w-full mb-3" value="{{ qualifier }}">
 
         <label for="coLecturers" class="block mb-2">
             {{ message("course.lecturers") }}
@@ -37,7 +38,7 @@
         <select name="coLecturers" id="coLecturers" multiple size="3"
                 class="block w-full mb-1">
             {% for lect in possibleCoLecturers %}
-            <option value="{{ lect.id }}">
+            <option value="{{ lect.id }}" {{ coLecturers contains lect ? "selected" : "" }}>
                 {{ lect.displayName }} ({{ lect.username }})
             </option>
             {% endfor %}
@@ -47,8 +48,10 @@
         </div>
 
         <div class="button-group-2">
-            <button class="button">Erstellen</button>
-            <a href="{{ href("/") }}" class="button-secondary">Abbrechen</a>
+            <button class="button">{{ confirmButtonText }}</button>
+            <a href="{{ href("/") }}" class="button-secondary">
+                {{ message("cancel") }}
+            </a>
         </div>
     </form>
 </div>

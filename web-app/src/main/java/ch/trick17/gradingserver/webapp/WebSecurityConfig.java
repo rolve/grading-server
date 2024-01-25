@@ -45,6 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/courses/create")
                         .hasRole(LECTURER.name())
                     .antMatchers(
+                            "/courses/{courseId}/edit",
                             "/courses/{courseId}/delete",
                             "/courses/{courseId}/problem-sets/add",
                             "/courses/{courseId}/problem-sets/*/register-solutions-gitlab",

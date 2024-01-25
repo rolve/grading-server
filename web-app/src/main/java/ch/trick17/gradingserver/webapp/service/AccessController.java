@@ -30,7 +30,7 @@ public class AccessController {
 
     @Transactional
     public boolean check(int courseId) {
-        return check(courseRepo.findById(courseId).orElseThrow());
+        return courseRepo.findById(courseId).map(this::check).orElse(false);
     }
 
     @Transactional

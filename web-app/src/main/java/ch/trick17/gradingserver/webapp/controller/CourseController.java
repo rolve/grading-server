@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.webapp.controller;
 
+import ch.trick17.gradingserver.webapp.Internationalization;
 import ch.trick17.gradingserver.webapp.model.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -13,7 +14,6 @@ import java.util.Set;
 import static ch.trick17.gradingserver.webapp.model.Role.LECTURER;
 import static java.time.LocalDate.now;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -22,10 +22,13 @@ public class CourseController {
 
     private final CourseRepository repo;
     private final UserRepository userRepo;
+    private final Internationalization i18n;
 
-    public CourseController(CourseRepository repo, UserRepository userRepo) {
+    public CourseController(CourseRepository repo, UserRepository userRepo,
+                            Internationalization i18n) {
         this.repo = repo;
         this.userRepo = userRepo;
+        this.i18n = i18n;
     }
 
     @GetMapping("/{id}/")
@@ -38,14 +41,16 @@ public class CourseController {
     @GetMapping("/create")
     public String createCourse(@AuthenticationPrincipal User user,
                                Model model) {
+        model.addAttribute("title", i18n.message("course.create"));
+        model.addAttribute("confirmButtonText", i18n.message("create"));
         model.addAttribute("termKind", now().getMonthValue() < 7 ? "FS" : "HS");
         model.addAttribute("termYear", now().getYear());
         var possibleCoLecturers = userRepo.findAll().stream()
                 .filter(not(user::equals))
                 .filter(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))
-                .collect(toList());
+                .toList();
         model.addAttribute("possibleCoLecturers", possibleCoLecturers);
-        return "courses/create";
+        return "courses/edit";
     }
 
     @PostMapping("/create")
@@ -57,14 +62,61 @@ public class CourseController {
         if (coLecturers != null) {
             lecturers.addAll(userRepo.findAllById(coLecturers));
         }
-        if (!lecturers.stream().allMatch(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))) {
+        if (!lecturers.stream().allMatch(u -> u.getRoles().stream()
+                .anyMatch(r -> r.includes(LECTURER)))) {
             throw new RuntimeException("cannot add non-LECTURER user as lecturer");
         }
 
-        var course = new Course(name, new Term(termYear, termKind), qualifier.isBlank() ? null : qualifier);
+        var course = new Course(name, new Term(termYear, termKind),
+                qualifier.isBlank() ? null : qualifier);
         course.getLecturers().addAll(lecturers);
         course = repo.save(course);
         return "redirect:" + course.getId() + "/";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editCourse(@PathVariable int id, @AuthenticationPrincipal User user,
+                             Model model) {
+        model.addAttribute("title", i18n.message("course.edit"));
+        model.addAttribute("confirmButtonText", i18n.message("save"));
+        var course = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        model.addAttribute("name", course.getName());
+        model.addAttribute("termKind", course.getTerm().getKind());
+        model.addAttribute("termYear", course.getTerm().getYear());
+        model.addAttribute("qualifier", course.getQualifier());
+        var possibleCoLecturers = userRepo.findAll().stream()
+                .filter(not(user::equals))
+                .filter(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))
+                .toList();
+        model.addAttribute("possibleCoLecturers", possibleCoLecturers);
+        model.addAttribute("coLecturers", course.getLecturers().stream()
+                .filter(not(user::equals))
+                .toList());
+        return "courses/edit";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String editCourse(@PathVariable int id, @RequestParam String name,
+                             @RequestParam String termKind, @RequestParam int termYear,
+                             @RequestParam String qualifier,
+                             @RequestParam(required = false) Set<Integer> coLecturers,
+                             @AuthenticationPrincipal User user) {
+        var course = repo.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        course.setName(name);
+        course.setTerm(new Term(termYear, termKind));
+        course.setQualifier(qualifier.isBlank() ? null : qualifier);
+        var lecturers = new HashSet<>(Set.of(user));
+        if (coLecturers != null) {
+            lecturers.addAll(userRepo.findAllById(coLecturers));
+        }
+        if (!lecturers.stream().allMatch(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))) {
+            throw new RuntimeException("cannot add non-LECTURER user as lecturer");
+        }
+        course.getLecturers().clear();
+        course.getLecturers().addAll(lecturers);
+        course = repo.save(course);
+        return "redirect:/courses/" + course.getId() + "/";
     }
 
     @PostMapping("/{id}/delete")

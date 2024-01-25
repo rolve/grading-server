@@ -4,6 +4,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -27,9 +28,12 @@ public class Internationalization implements WebMvcConfigurer {
 
     public static final Locale DEFAULT_LOCALE = ENGLISH;
 
+    private final ResourceBundleMessageSource messageSource;
     private final List<Locale> supportedLocales;
 
-    public Internationalization(@Value("classpath*:messages_*.properties") Resource[] messageFiles) {
+    public Internationalization(ResourceBundleMessageSource messageSource,
+                                @Value("classpath*:messages_*.properties") Resource[] messageFiles) {
+        this.messageSource = messageSource;
         supportedLocales = Stream.of(messageFiles)
                 .map(f -> f.getFilename().replaceAll("messages_|\\.properties", ""))
                 .map(Locale::forLanguageTag)
@@ -63,11 +67,14 @@ public class Internationalization implements WebMvcConfigurer {
                 .withLocale(supportedLocale());
     }
 
+    public String message(String key, Object... args) {
+        return messageSource.getMessage(key, args, supportedLocale());
+    }
+
     public Locale supportedLocale() {
         // make sure only locales that have a 'messages' file are used for
         // formatting times etc., to avoid partially localized text
         var priorities = LanguageRange.parse(getLocale().toLanguageTag());
-        System.out.println("'" + priorities + "'");
         var bestMatch = Locale.lookup(priorities, supportedLocales);
         return requireNonNullElse(bestMatch, DEFAULT_LOCALE);
     }
