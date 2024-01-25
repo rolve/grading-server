@@ -40,6 +40,10 @@ public class JarFile {
         this.hash = DIGEST.digest(content);
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String getFilename() {
         return filename;
     }

@@ -3,12 +3,18 @@
 
 {% extends "layout" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ message(create ? "course.create" : "course.edit") }}{% endblock %}
 
 {% block content %}
 
 <div class="max-w-lg m-auto">
-    <h2>{{ title }}</h2>
+    <a href="{{ create ? ".." : "." }}" class="block mb-3 link group">
+        <i class="fa fa-arrow-left"></i>
+        <span class="group-hover:link-hover">
+            {{ create ? message("home") : name }}
+        </span>
+    </a>
+    <h2>{{ message(create ? "course.create" : "course.edit") }}</h2>
     <form method="post">
         <label for="name" class="block mb-2">
             {{ message("name") }}
@@ -43,13 +49,15 @@
             </option>
             {% endfor %}
         </select>
-        <div class="text-sm text-slate-400 mb-6">
+        <div class="form-text mb-6">
             {{ message("course.lecturers-desc") }}
         </div>
 
         <div class="button-group-2">
-            <button class="button">{{ confirmButtonText }}</button>
-            <a href="{{ href("/") }}" class="button-secondary">
+            <button class="button">
+                {{ message(create ? "create" : "save") }}
+            </button>
+            <a href="{{ create ? ".." : "." }}" class="button button-secondary">
                 {{ message("cancel") }}
             </a>
         </div>

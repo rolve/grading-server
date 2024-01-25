@@ -6,8 +6,7 @@
 <h2 class="flex justify-between items-center">
     {{ message("courses") }}
     {% if beans.access.hasRole("lecturer") %}
-    <a href="{{ href("/courses/create") }}"
-       class="button w-8 h-8 flex items-center justify-center">
+    <a href="{{ href("/courses/create") }}" class="title-button">
         <i class="fa fa-fw fa-plus"></i>
         <span class="sr-only">{{ message("course.create") }}</span>
     </a>

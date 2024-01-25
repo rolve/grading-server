@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.webapp.Internationalization;
 import ch.trick17.gradingserver.webapp.model.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -22,13 +21,10 @@ public class CourseController {
 
     private final CourseRepository repo;
     private final UserRepository userRepo;
-    private final Internationalization i18n;
 
-    public CourseController(CourseRepository repo, UserRepository userRepo,
-                            Internationalization i18n) {
+    public CourseController(CourseRepository repo, UserRepository userRepo) {
         this.repo = repo;
         this.userRepo = userRepo;
-        this.i18n = i18n;
     }
 
     @GetMapping("/{id}/")
@@ -41,8 +37,7 @@ public class CourseController {
     @GetMapping("/create")
     public String createCourse(@AuthenticationPrincipal User user,
                                Model model) {
-        model.addAttribute("title", i18n.message("course.create"));
-        model.addAttribute("confirmButtonText", i18n.message("create"));
+        model.addAttribute("create", true);
         model.addAttribute("termKind", now().getMonthValue() < 7 ? "FS" : "HS");
         model.addAttribute("termYear", now().getYear());
         var possibleCoLecturers = userRepo.findAll().stream()
@@ -77,10 +72,9 @@ public class CourseController {
     @GetMapping("/{id}/edit")
     public String editCourse(@PathVariable int id, @AuthenticationPrincipal User user,
                              Model model) {
-        model.addAttribute("title", i18n.message("course.edit"));
-        model.addAttribute("confirmButtonText", i18n.message("save"));
         var course = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        model.addAttribute("create", false);
         model.addAttribute("name", course.getName());
         model.addAttribute("termKind", course.getTerm().getKind());
         model.addAttribute("termYear", course.getTerm().getYear());
@@ -115,8 +109,8 @@ public class CourseController {
         }
         course.getLecturers().clear();
         course.getLecturers().addAll(lecturers);
-        course = repo.save(course);
-        return "redirect:/courses/" + course.getId() + "/";
+        repo.save(course);
+        return "redirect:.";
     }
 
     @PostMapping("/{id}/delete")

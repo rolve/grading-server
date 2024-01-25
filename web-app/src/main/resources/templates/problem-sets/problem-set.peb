@@ -11,9 +11,41 @@
     <i class="fa fa-arrow-left"></i>
     <span class="group-hover:link-hover">{{ problemSet.course.name }}</span>
 </a>
-<h2>
+<h2 class="flex flex-wrap items-center gap-3">
     {{ problemSet.name }}
+    {% if beans.access.check(problemSet) %}
+    <span class="flex-grow flex gap-2 justify-end">
+        <a href="edit" class="title-button button-secondary">
+            <i class="fa fa-fw fa-pen"></i>
+            <span class="sr-only">{{ message("edit") }}</span>
+        </a>
+        <button type="button" class="title-button button-danger"
+                data-modal-target="delete-modal" data-modal-toggle="delete-modal">
+            <i class="fa fa-fw fa-trash"></i>
+            <span class="sr-only">{{ message("delete") }}</span>
+        </button>
+    </span>
+    {% endif %}
 </h2>
+<div class="fixed hidden top-0 left-0 right-0 bottom-0 z-50"
+     id="delete-modal" aria-hidden="true">
+    <div class="self-start w-full max-w-screen-sm m-6 mt-16 p-4 bg-white rounded-lg shadow-xl">
+        <form id="delete-course" method="post" action="delete"
+              class="flex flex-col items-center">
+            <p class="mb-6">
+                {{ message("problem-set.delete.confirm") }}
+            </p>
+            <div class="button-group-2">
+                <button class="button button-danger">{{ message("delete") }}</button>
+                <button type="button" class="button button-secondary"
+                        data-modal-toggle="delete-modal">
+                    {{ message("cancel") }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <p class="mb-4">
     {{ message("problem-set.deadline") }}:
     <span title="{{ problemSet.deadline | date }}">

@@ -26,11 +26,11 @@
     }
 
     input, select, textarea {
-        @apply px-2 py-1 rounded-lg shadow-inner border-slate-200 border-2
-            focus:outline-none focus:border-blue-500 transition;
+        @apply px-2 py-1 bg-white rounded-lg shadow-inner border-slate-200
+            border-2 focus:outline-none focus:border-blue-500 transition;
     }
 
-    select {
+    input[type="file"], select[multiple] {
         @apply p-1;
     }
 }
@@ -45,6 +45,14 @@
         @apply hover:shadow-slate-300;
     }
 
+    .link {
+        @apply text-blue-500;
+    }
+
+    .link-hover {
+        @apply underline underline-offset-2 decoration-1;
+    }
+
     .button {
         @apply inline-block px-4 py-1.5 text-white text-base font-normal
             not-italic text-center
@@ -52,23 +60,23 @@
             hover:shadow-slate-400 hover:bg-blue-600 transition;
     }
 
+    .title-button {
+        @apply button w-8 h-8 flex items-center justify-center;
+    }
+
     .button-secondary {
-        @apply button bg-slate-400 hover:bg-slate-500;
+        @apply bg-slate-400 hover:bg-slate-500;
     }
 
     .button-danger {
-        @apply button bg-rose-600 hover:bg-rose-700;
+        @apply bg-rose-600 hover:bg-rose-700;
     }
 
     .button-group-2 {
         @apply grid w-fit gap-3 grid-cols-2;
     }
 
-    .link {
-        @apply text-blue-500;
-    }
-
-    .link-hover {
-        @apply underline underline-offset-2 decoration-1;
+    .form-text {
+        @apply text-sm text-slate-400;
     }
 }

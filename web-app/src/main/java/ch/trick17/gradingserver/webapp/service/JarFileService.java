@@ -16,6 +16,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
@@ -45,6 +46,14 @@ public class JarFileService {
                           ProblemSetRepository problemSetRepo) {
         this.repo = repo;
         this.problemSetRepo = problemSetRepo;
+    }
+
+    public List<JarFile> findAll() {
+        return repo.findAll();
+    }
+
+    public List<JarFile> findAllById(Iterable<Integer> dependencyIds) {
+        return repo.findAllById(dependencyIds);
     }
 
     /**

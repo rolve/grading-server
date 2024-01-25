@@ -49,6 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             "/courses/{courseId}/delete",
                             "/courses/{courseId}/problem-sets/add",
                             "/courses/{courseId}/problem-sets/*/register-solutions-gitlab",
+                            "/courses/{courseId}/problem-sets/*/edit",
                             "/courses/{courseId}/problem-sets/*/delete",
                             "/courses/{courseId}/problem-sets/*/remove-solutions",
                             "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/re-grade")
