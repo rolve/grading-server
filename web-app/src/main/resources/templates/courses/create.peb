@@ -46,7 +46,7 @@
             {{ message("course.lecturers-desc") }}
         </div>
 
-        <div class="inline-grid grid-cols-2 gap-3">
+        <div class="button-group-2">
             <button class="button">Erstellen</button>
             <a href="{{ href("/") }}" class="button-secondary">Abbrechen</a>
         </div>
