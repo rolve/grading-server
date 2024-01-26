@@ -14,21 +14,21 @@
 <h2 class="flex flex-wrap items-center gap-3">
     {{ problemSet.name }}
     {% if beans.access.check(problemSet) %}
-    <span class="flex-grow flex gap-2 justify-end">
-        <a href="register-solutions-gitlab" class="title-button">
-            <i class="fab fa-fw fa-gitlab"></i>
-            <span class="sr-only">{{ message("problem-set.register-solutions-gitlab") }}</span>
-        </a>
-        <a href="edit" class="title-button button-secondary">
-            <i class="fas fa-fw fa-pen"></i>
-            <span class="sr-only">{{ message("edit") }}</span>
-        </a>
-        <button type="button" class="title-button button-danger"
-                data-modal-target="delete-modal" data-modal-toggle="delete-modal">
-            <i class="fas fa-fw fa-trash"></i>
-            <span class="sr-only">{{ message("delete") }}</span>
-        </button>
-    </span>
+        <span class="flex-grow flex gap-2 justify-end">
+            <a href="register-solutions-gitlab" class="title-button">
+                <i class="fab fa-fw fa-gitlab"></i>
+                <span class="sr-only">{{ message("problem-set.register-solutions-gitlab") }}</span>
+            </a>
+            <a href="edit" class="title-button button-secondary">
+                <i class="fas fa-fw fa-pen"></i>
+                <span class="sr-only">{{ message("edit") }}</span>
+            </a>
+            <button type="button" class="title-button button-danger"
+                    data-modal-target="delete-modal" data-modal-toggle="delete-modal">
+                <i class="fas fa-fw fa-trash"></i>
+                <span class="sr-only">{{ message("delete") }}</span>
+            </button>
+        </span>
     {% endif %}
 </h2>
 <div class="fixed hidden top-0 left-0 right-0 bottom-0 z-50"
@@ -58,58 +58,58 @@
 </p>
 
 {% if problemSet.solutions is empty %}
-{% embed "fragments/alert" with { "icon": "info-circle" } %}
-{% block content %}
-    {{ message(problemSet.registeringSolutions
-        ? "problem-set.registering-solutions"
-        : "problem-set.no-solutions") }}
-{% endblock %}
-{% endembed %}
+    {% embed "fragments/alert" with { "icon": "info-circle" } %}
+    {% block content %}
+        {{ message(problemSet.registeringSolutions
+            ? "problem-set.registering-solutions"
+            : "problem-set.no-solutions") }}
+    {% endblock %}
+    {% endembed %}
 {% else %}
-<ul class="-mx-4 bg-white shadow-lg shadow-slate-200 overflow-hidden
-           sm:mx-0 sm:rounded-lg">
-    {% for sol in solutions %}
-    {% set latest = sol.latestSubmission %}
-    {# @pebvariable name="latest" type="ch.trick17.gradingserver.webapp.model.Submission" #}
-    <li class="even:bg-slate-50">
-        {% if latest != null %}
-        <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
-           class="group px-4 py-3 flex flex-col gap-1
-                  sm:flex-row sm:gap-4">
-            <div class="flex-grow flex gap-2 justify-between">
-                <span class="flex-grow min-w-0 overflow-hidden overflow-ellipsis
-                             link group-hover:link-hover">
-                    {% if problemSet.anonymous %}
-                        {{ message("problem-set.anonymous") }}
-                    {% else %}
-                        {{ sol.authors | join(", ") }}
-                    {% endif %}
-                </span>
-                <span class="font-mono text-slate-400 sm:w-1/3">
-                    {{ latest.shortCommitHash }}
-                </span>
-            </div>
-            <div class="sm:w-1/3 text-sm">
-                {{ status(latest, true) }}
-            </div>
-        </a>
-        {% else %}
-        <div class="px-4 pt-5 pb-6 sm:py-3 flex gap-2 items-center justify-between">
-            <span class="overflow-hidden overflow-ellipsis">
-                {% if problemSet.anonymous %}
-                    {{ message("problem-set.anonymous") }}
+    <ul class="-mx-4 bg-white shadow-lg shadow-slate-200 overflow-hidden
+               sm:mx-0 sm:rounded-lg">
+        {% for sol in solutions %}
+            {% set latest = sol.latestSubmission %}
+            {# @pebvariable name="latest" type="ch.trick17.gradingserver.webapp.model.Submission" #}
+            <li class="even:bg-slate-50">
+                {% if latest != null %}
+                    <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
+                       class="group px-4 py-3 flex flex-col gap-1
+                              sm:flex-row sm:gap-4">
+                        <div class="flex-grow flex gap-2 justify-between">
+                            <span class="flex-grow min-w-0 overflow-hidden overflow-ellipsis
+                                         link group-hover:link-hover">
+                                {% if problemSet.anonymous %}
+                                    {{ message("problem-set.anonymous") }}
+                                {% else %}
+                                    {{ sol.authors | join(", ") }}
+                                {% endif %}
+                            </span>
+                            <span class="font-mono text-slate-400 sm:w-1/3 shrink-0">
+                                {{ latest.shortCommitHash }}
+                            </span>
+                        </div>
+                        <div class="text-sm sm:w-1/3 shrink-0">
+                            {{ status(latest, true) }}
+                        </div>
+                    </a>
                 {% else %}
-                    {{ sol.authors | join(", ") }}
+                    <div class="px-4 pt-5 pb-6 sm:py-3 flex gap-2 items-center justify-between">
+                        <span class="overflow-hidden overflow-ellipsis">
+                            {% if problemSet.anonymous %}
+                                {{ message("problem-set.anonymous") }}
+                            {% else %}
+                                {{ sol.authors | join(", ") }}
+                            {% endif %}
+                        </span>
+                        <span class="text-slate-400 text-sm whitespace-nowrap sm:w-1/3">
+                            <i class="fas fa-fw fa-times"></i>
+                            {{ message("solution.no-submission") }}
+                        </span>
+                    </div>
                 {% endif %}
-            </span>
-            <span class="text-slate-400 text-sm whitespace-nowrap sm:w-1/3">
-                <i class="fas fa-fw fa-times"></i>
-                {{ message("solution.no-submission") }}
-            </span>
-        </div>
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
+            </li>
+        {% endfor %}
+    </ul>
 {% endif %}
 {% endblock %}
