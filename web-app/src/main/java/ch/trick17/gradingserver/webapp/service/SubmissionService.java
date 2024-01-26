@@ -31,7 +31,7 @@ public class SubmissionService {
         repo.save(submission);
     }
 
-    @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
+    @Scheduled(fixedRate = 60 * 60 * 1000)
     @Transactional
     public void requeueUngradedSubmissions() {
         var ungraded = repo.findByGradingStartedIsFalse();
