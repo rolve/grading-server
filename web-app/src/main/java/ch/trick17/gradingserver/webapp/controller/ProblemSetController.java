@@ -237,7 +237,7 @@ public class ProblemSetController {
                                           @RequestParam(defaultValue = "false") boolean ignoreAuthorless,
                                           HttpServletRequest req,
                                           @AuthenticationPrincipal User user,
-                                          Model model) // only used if unsuccessful
+                                          Model model, HttpServletResponse response)
             throws GitLabApiException, GitAPIException {
         var problemSet = findProblemSet(courseId, id);
 
@@ -254,6 +254,7 @@ public class ProblemSetController {
                 model.addAttribute("groupPath", groupPath);
                 model.addAttribute("ignoreAuthorless", ignoreAuthorless);
                 model.addAttribute("error", "No token for host " + host + " available. Please provide one.");
+                response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
                 return "problem-sets/register-solutions-gitlab";
             }
         } else {

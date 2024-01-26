@@ -1,0 +1,66 @@
+{# @pebvariable name="problemSet" type="ch.trick17.gradingserver.webapp.model.ProblemSet" #}
+
+{% extends "layout" %}
+
+{% block title %}{{ message("problem-set.register-gitlab") }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg m-auto">
+    <a href="." class="block mb-3 link group">
+        <i class="fas fa-arrow-left"></i>
+        <span class="group-hover:link-hover">{{ problemSet.name }}</span>
+    </a>
+    <h2>{{ message("problem-set.register-gitlab") }}</h2>
+
+    {% if error %}
+    {% embed "fragments/alert" with { "icon": "triangle-exclamation" } %}
+    {% block content %}
+        {{ error }}
+    {% endblock %}
+    {% endembed %}
+    {% endif %}
+
+    <form method="post">
+        <label for="groupPath" class="block mb-2">
+            {{ message("problem-set.register-gitlab.group") }}
+        </label>
+        <div class="mb-3 flex gap-1 items-baseline px-2 py-1 bg-white
+                    rounded-lg shadow-inner border-slate-200 border-2
+                    focus-within:border-blue-500 transition">
+            <span class="hidden sm:inline text-slate-400">https://</span>
+            <input type="text" name="host" id="host" value="{{ host }}" required
+                   class="p-0 border-none shadow-none w-10 grow">
+            <span class="text-slate-400">/</span>
+            <input type="text" name="groupPath" id="groupPath" required
+                   placeholder="{{ message("problem-set.register-gitlab.group-path") }}"
+                   class="p-0 border-none shadow-none w-10 grow-[2]">
+        </div>
+
+        <label for="token" class="block mb-2">
+            {{ message("problem-set.register-gitlab.access-token") }}
+        </label>
+        <input type="password" name="token" id="token"
+               placeholder="abcdEFGHI01234-vwXYZ" class="block w-full mb-3">
+        <div class="form-text mb-3">
+            {{ message("problem-set.register-gitlab.access-token-desc") | raw }}
+        </div>
+
+        <div class="flex gap-3 mb-6">
+            <input type="checkbox" name="ignoreAuthorless" id="ignoreAuthorless"
+                {{ ignoreAuthorless ? "checked" : "" }}>
+            <label for="ignoreAuthorless">
+                {{ message("problem-set.register-gitlab.ignore-authorless") }}
+            </label>
+        </div>
+
+        <div class="button-group-2">
+            <button class="button">
+                {{ message("register") }}
+            </button>
+            <a href="." class="button button-secondary">
+                {{ message("cancel") }}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -9,7 +9,7 @@
 
 <div class="max-w-lg m-auto">
     <a href="{{ create ? ".." : "." }}" class="block mb-3 link group">
-        <i class="fa fa-arrow-left"></i>
+        <i class="fas fa-arrow-left"></i>
         <span class="group-hover:link-hover">
             {{ create ? message("home") : name }}
         </span>

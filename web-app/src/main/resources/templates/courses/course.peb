@@ -6,7 +6,7 @@
 
 {% block content %}
 <a href="../.." class="block mb-3 link group">
-    <i class="fa fa-arrow-left"></i>
+    <i class="fas fa-arrow-left"></i>
     <span class="group-hover:link-hover">{{ message("home") }}</span>
 </a>
 <h2 class="flex flex-wrap items-center gap-3">
@@ -17,16 +17,16 @@
     {% if beans.access.check(course) %}
     <span class="flex-grow flex gap-2 justify-end">
         <a href="problem-sets/add" class="title-button button-primary">
-            <i class="fa fa-fw fa-plus"></i>
+            <i class="fas fa-fw fa-file-circle-plus ms-1"></i>
             <span class="sr-only">{{ message("problem-set.add") }}</span>
         </a>
         <a href="edit" class="title-button button-secondary">
-            <i class="fa fa-fw fa-pen"></i>
+            <i class="fas fa-fw fa-pen"></i>
             <span class="sr-only">{{ message("edit") }}</span>
         </a>
         <button type="button" class="title-button button-danger"
                 data-modal-target="delete-modal" data-modal-toggle="delete-modal">
-            <i class="fa fa-fw fa-trash"></i>
+            <i class="fas fa-fw fa-trash"></i>
             <span class="sr-only">{{ message("delete") }}</span>
         </button>
     </span>

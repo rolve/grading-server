@@ -11,7 +11,7 @@
 {% set problemSet = sol.problemSet %}
 
 <a href="../../../.." class="block mb-3 link group">
-    <i class="fa fa-arrow-left"></i>
+    <i class="fas fa-arrow-left"></i>
     <span class="group-hover:link-hover">{{ sol.problemSet.name }}</span>
 </a>
 <h2 class="flex items-center gap-3 not-italic">
@@ -24,7 +24,7 @@
     </span>
 </h2>
 <p>
-    <i class="fa fa-fw fa-user{{ sol.authors.size > 1 ? "s" : "" }}"></i>
+    <i class="fas fa-fw fa-user{{ sol.authors.size > 1 ? "s" : "" }}"></i>
     {{ sol.authors | join(", ") }}
 </p>
 {% if submission.result == null %}
@@ -78,7 +78,7 @@
     <div class="flex justify-between text-lg mb-4">
         <span>
             {% if percent == 100 %}
-                <i class="fa fa-trophy text-emerald-600"></i>
+                <i class="fas fa-trophy text-emerald-600"></i>
             {% endif %}
             {{ percent }} %
         </span>

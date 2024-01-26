@@ -9,7 +9,7 @@
 {% block content %}
 <div class="max-w-lg m-auto">
     <a href="{{ add ? ".." : "." }}" class="block mb-3 link group">
-        <i class="fa fa-arrow-left"></i>
+        <i class="fas fa-arrow-left"></i>
         <span class="group-hover:link-hover">
             {{ add ? course.name : name }}
         </span>
@@ -44,11 +44,11 @@
         <div class="flex gap-3">
             <input type="checkbox" id="anonymous" name="anonymous" {{ anonymous ? "checked" : "" }}>
             <label for="anonymous">
-                    {{ message("problem-set.anonymous") }}
+                {{ message("problem-set.anonymous") }}
             </label>
         </div>
         <div class="form-text mb-3">
-                {{ message("problem-set.anonymous-desc") }}
+            {{ message("problem-set.anonymous-desc") }}
         </div>
 
         <div class="flex gap-3">

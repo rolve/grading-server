@@ -27,7 +27,8 @@
 
     input, select, textarea {
         @apply px-2 py-1 bg-white rounded-lg shadow-inner border-slate-200
-            border-2 focus:outline-none focus:border-blue-500 transition;
+            border-2 focus:outline-none focus:border-blue-500 transition
+            placeholder-slate-400;
     }
 
     input[type="file"], select[multiple] {
