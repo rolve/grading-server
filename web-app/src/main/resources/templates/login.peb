@@ -3,7 +3,7 @@
 {% block title %}{{ message("user.sign-in") }}{% endblock %}
 
 {% block content %}
-<div class="max-w-lg m-auto">
+<div class="max-w-sm m-auto">
     <h2>{{ message("user.sign-in") }}</h2>
 
     {% if request.getParameter("error") != null %}
@@ -31,7 +31,8 @@
             <button type="submit" class="button">
                 {{ message("user.sign-in") }}
             </button>
-            <a href="{{ request.getParameter("from") }}" class="button button-secondary">
+            <a href="{{ href(request.getParameter("from")) }}"
+               class="button button-secondary">
                 {{ message("cancel") }}
             </a>
         </div>

@@ -25,12 +25,12 @@
                 </a>
             </h1>
             {% if request.userPrincipal == null and request.servletPath != "/login" %}
-                <a href="/login?from={{ request.servletPath }}" class="text-slate-400 hover:text-slate-600 transition">
+                <a href="{{ href("/login?from=" + request.servletPath) }}" class="text-slate-400 hover:text-slate-600 transition">
                     <i class="fas fa-fw fa-xl fa-arrow-right-to-bracket"></i>
                     <span class="hidden sm:inline">{{ message("user.sign-in") }}</span>
                 </a>
             {% elseif request.userPrincipal != null %}
-                <form method="post" action="/logout">
+                <form method="post" action="{{ href("/logout") }}">
                     <button class="text-slate-400 hover:text-slate-600 transition">
                         <i class="fas fa-fw fa-xl fa-arrow-right-from-bracket"></i>
                         <span class="hidden sm:inline">{{ message("user.sign-out") }}</span>

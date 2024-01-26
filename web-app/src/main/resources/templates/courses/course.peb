@@ -65,7 +65,7 @@
     {% for problemSet in course.problemSets %}
     {% if not problemSet.hidden or beans.access.check(problemSet) %}
     <li>
-        <a href="{{ href("problem-sets/" + problemSet.id + "/" ) }}"
+        <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
            class="card group sm:flex items-center">
             <div class="sm:w-2/3 text-lg whitespace-nowrap overflow-hidden
                         overflow-ellipsis link">
