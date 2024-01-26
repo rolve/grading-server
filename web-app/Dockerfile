@@ -6,4 +6,4 @@ RUN chown spring:spring . db backup
 USER spring:spring
 COPY target/dependency/*.jar lib/
 COPY target/*.jar app.jar
-ENTRYPOINT ["java","-cp", "app.jar:lib/*", "--enable-preview", "ch.trick17.gradingserver.webapp.GradingServerWebApp"]
+ENTRYPOINT ["java","-cp", "app.jar:lib/*", "ch.trick17.gradingserver.webapp.GradingServerWebApp"]
