@@ -34,12 +34,25 @@ public class CourseController {
         return "courses/course";
     }
 
-    @GetMapping("/create")
-    public String createCourse(@AuthenticationPrincipal User user,
-                               Model model) {
-        model.addAttribute("create", true);
-        model.addAttribute("termKind", now().getMonthValue() < 7 ? "FS" : "HS");
-        model.addAttribute("termYear", now().getYear());
+    @GetMapping({"/create", "/{id}/edit"})
+    public String createOrEditCourse(@PathVariable(required = false) Integer id,
+                                     @AuthenticationPrincipal User user,
+                                     Model model) {
+        model.addAttribute("create", id == null);
+        if (id == null) {
+            model.addAttribute("termKind", now().getMonthValue() < 7 ? "FS" : "HS");
+            model.addAttribute("termYear", now().getYear());
+        } else {
+            var course = repo.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+            model.addAttribute("name", course.getName());
+            model.addAttribute("termKind", course.getTerm().getKind());
+            model.addAttribute("termYear", course.getTerm().getYear());
+            model.addAttribute("qualifier", course.getQualifier());
+            model.addAttribute("coLecturers", course.getLecturers().stream()
+                    .filter(not(user::equals))
+                    .toList());
+        }
         var possibleCoLecturers = userRepo.findAll().stream()
                 .filter(not(user::equals))
                 .filter(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))
@@ -48,9 +61,9 @@ public class CourseController {
         return "courses/edit";
     }
 
-    @PostMapping("/create")
-    public String createCourse(@RequestParam String name, @RequestParam String termKind,
-                               @RequestParam int termYear, @RequestParam String qualifier,
+    @PostMapping({"/create", "/{id}/edit"})
+    public String createOrEditCourse(@PathVariable(required = false) Integer id,
+                               String name, String termKind, int termYear, String qualifier,
                                @RequestParam(required = false) Set<Integer> coLecturers,
                                @AuthenticationPrincipal User user) {
         var lecturers = new HashSet<>(Set.of(user));
@@ -62,55 +75,15 @@ public class CourseController {
             throw new RuntimeException("cannot add non-LECTURER user as lecturer");
         }
 
-        var course = new Course(name, new Term(termYear, termKind),
-                qualifier.isBlank() ? null : qualifier);
-        course.getLecturers().addAll(lecturers);
-        course = repo.save(course);
-        return "redirect:" + course.getId() + "/";
-    }
-
-    @GetMapping("/{id}/edit")
-    public String editCourse(@PathVariable int id, @AuthenticationPrincipal User user,
-                             Model model) {
-        var course = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
-        model.addAttribute("create", false);
-        model.addAttribute("name", course.getName());
-        model.addAttribute("termKind", course.getTerm().getKind());
-        model.addAttribute("termYear", course.getTerm().getYear());
-        model.addAttribute("qualifier", course.getQualifier());
-        var possibleCoLecturers = userRepo.findAll().stream()
-                .filter(not(user::equals))
-                .filter(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))
-                .toList();
-        model.addAttribute("possibleCoLecturers", possibleCoLecturers);
-        model.addAttribute("coLecturers", course.getLecturers().stream()
-                .filter(not(user::equals))
-                .toList());
-        return "courses/edit";
-    }
-
-    @PostMapping("/{id}/edit")
-    public String editCourse(@PathVariable int id, @RequestParam String name,
-                             @RequestParam String termKind, @RequestParam int termYear,
-                             @RequestParam String qualifier,
-                             @RequestParam(required = false) Set<Integer> coLecturers,
-                             @AuthenticationPrincipal User user) {
-        var course = repo.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        var course = id == null
+                ? new Course()
+                : repo.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         course.setName(name);
         course.setTerm(new Term(termYear, termKind));
         course.setQualifier(qualifier.isBlank() ? null : qualifier);
-        var lecturers = new HashSet<>(Set.of(user));
-        if (coLecturers != null) {
-            lecturers.addAll(userRepo.findAllById(coLecturers));
-        }
-        if (!lecturers.stream().allMatch(u -> u.getRoles().stream().anyMatch(r -> r.includes(LECTURER)))) {
-            throw new RuntimeException("cannot add non-LECTURER user as lecturer");
-        }
-        course.getLecturers().clear();
-        course.getLecturers().addAll(lecturers);
-        repo.save(course);
-        return "redirect:.";
+        course.setLecturers(lecturers);
+        course = repo.save(course);
+        return "redirect:/courses/" + course.getId() + "/";
     }
 
     @PostMapping("/{id}/delete")

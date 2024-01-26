@@ -1,10 +1,7 @@
 package ch.trick17.gradingserver.webapp.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.ALL;
@@ -24,7 +21,7 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = ALL, orphanRemoval = true)
     private List<ProblemSet> problemSets = new ArrayList<>();
 
-    protected Course() {}
+    public Course() {}
 
     public Course(String name, Term term, String qualifier) {
         this.name = requireNonNull(name);
@@ -62,6 +59,11 @@ public class Course {
 
     public Set<User> getLecturers() {
         return lecturers;
+    }
+
+    public void setLecturers(Collection<? extends User> lecturers) {
+        this.lecturers.clear();
+        this.lecturers.addAll(lecturers);
     }
 
     public List<ProblemSet> getProblemSets() {
