@@ -43,16 +43,9 @@
         {% block content %}{% endblock %}
     </main>
 </div>
-<footer class="max-w-screen-md m-auto p-4 flex justify-between text-sm">
+<footer class="max-w-screen-md m-auto p-4 text-sm">
     <span>
         <i class="fas fa-code"></i> Michael Faes
-    </span>
-    <span>
-        {{ message("grading-service.status.label") }}
-        <span class="bg-slate-400 text-white ms-1 px-2 pt-1 pb-1.5
-                     rounded-full shadow shadow-slate-400">
-            {{ message("grading-service.status." + beans.gradingService.status) }}
-        </span>
     </span>
 </footer>
 <!-- required to initialize modals inserted by Turbo loads: -->

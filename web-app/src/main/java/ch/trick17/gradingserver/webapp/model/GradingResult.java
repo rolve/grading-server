@@ -1,6 +1,6 @@
-package ch.trick17.gradingserver.model;
+package ch.trick17.gradingserver.webapp.model;
 
-import ch.trick17.gradingserver.util.StringListConverter;
+import ch.trick17.gradingserver.webapp.util.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.persistence.Convert;

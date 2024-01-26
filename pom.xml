@@ -11,8 +11,6 @@
 
     <modules>
         <module>web-app</module>
-        <module>grading-service</module>
-        <module>common</module>
     </modules>
 
     <properties>

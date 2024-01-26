@@ -1,9 +1,8 @@
-package ch.trick17.gradingserver.gradingservice.service;
+package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.gradingservice.model.GradingJob;
-import ch.trick17.gradingserver.gradingservice.model.GradingJobRepository;
-import ch.trick17.gradingserver.model.GradingResult;
-import ch.trick17.gradingserver.model.JarFile;
+import ch.trick17.gradingserver.webapp.model.GradingJob;
+import ch.trick17.gradingserver.webapp.model.GradingResult;
+import ch.trick17.gradingserver.webapp.model.JarFile;
 import ch.trick17.jtt.grader.Compiler;
 import ch.trick17.jtt.grader.*;
 import ch.trick17.jtt.grader.result.Property;
@@ -15,12 +14,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static java.lang.Runtime.getRuntime;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.util.FileUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -37,54 +34,39 @@ public class JobRunner {
 
     private static final Logger logger = getLogger(JobRunner.class);
 
+    private final AtomicLong idCounter = new AtomicLong(0);
     private final CodeDownloader downloader;
     private final Grader grader;
-    private final GradingJobRepository jobRepo;
-    private final ExecutorService threadPool = newFixedThreadPool(getRuntime().availableProcessors());
 
-    public JobRunner(CodeDownloader downloader, Grader grader, GradingJobRepository jobRepo) {
+    public JobRunner(CodeDownloader downloader, Grader grader) {
         this.downloader = downloader;
         this.grader = grader;
-        this.jobRepo = jobRepo;
     }
 
-    public void submit(GradingJob job) {
-        submit(job, () -> {});
-    }
-
-    public void submit(GradingJob job, Runnable onCompletion) {
-        threadPool.submit(() -> {
-            run(job);
-            onCompletion.run();
-        });
-    }
-
-    private void run(GradingJob job) {
-        GradingResult result;
+    public GradingResult run(GradingJob job) {
         try {
-            result = tryRun(job);
+            return tryRun(job);
         } catch (Throwable e) {
-            e.printStackTrace();
+            logger.error("Error while running grading job for " + job.submission(), e);
             var error = e.getClass().getSimpleName() + ": " + e.getMessage();
-            result = new GradingResult(error, null, null, null, null);
+            return new GradingResult(error, null, null, null, null);
         }
-        job.setResult(result);
-        jobRepo.save(job);
     }
 
     private GradingResult tryRun(GradingJob job) throws IOException {
+        var id = idCounter.getAndIncrement() + "";
         logger.info("Running grading job for {} (job id: {})",
-                job.getSubmission(), job.getId());
-        var codeDir = JOBS_ROOT.resolve(job.getId() + "-code");
-        var depsDir = JOBS_ROOT.resolve(job.getId() + "-deps");
+                job.submission(), id);
+        var codeDir = JOBS_ROOT.resolve(id + "-code");
+        var depsDir = JOBS_ROOT.resolve(id + "-deps");
         try {
-            var config = job.getConfig();
-            downloader.downloadCode(job.getSubmission(), codeDir, job.getUsername(), job.getPassword());
+            var config = job.config();
+            downloader.downloadCode(job.submission(), codeDir, job.username(), job.password());
             var dependencies = writeDependencies(config.getDependencies(), depsDir);
 
             var codebaseDir = codeDir.resolve(config.getProjectRoot());
             // TODO: handle case when project root is missing
-            var codebase = new SingleCodebase(job.getId(), codebaseDir,
+            var codebase = new SingleCodebase(id, codebaseDir,
                     ProjectStructure.valueOf(config.getStructure().name()));
 
             var options = config.getOptions();

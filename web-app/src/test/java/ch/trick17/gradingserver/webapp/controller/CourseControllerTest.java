@@ -1,7 +1,7 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.model.GradingConfig;
-import ch.trick17.gradingserver.model.GradingOptions;
+import ch.trick17.gradingserver.webapp.model.GradingConfig;
+import ch.trick17.gradingserver.webapp.model.GradingOptions;
 import ch.trick17.gradingserver.webapp.model.Course;
 import ch.trick17.gradingserver.webapp.model.CourseRepository;
 import ch.trick17.gradingserver.webapp.model.ProblemSet;
@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
-import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
+import static ch.trick17.gradingserver.webapp.model.GradingConfig.ProjectStructure.ECLIPSE;
+import static ch.trick17.gradingserver.webapp.model.GradingOptions.Compiler.JAVAC;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;

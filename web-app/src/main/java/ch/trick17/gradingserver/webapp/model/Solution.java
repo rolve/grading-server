@@ -1,7 +1,6 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import ch.trick17.gradingserver.model.GradingResult;
-import ch.trick17.gradingserver.util.StringListConverter;
+import ch.trick17.gradingserver.webapp.util.StringListConverter;
 
 import javax.persistence.*;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver.util;
+package ch.trick17.gradingserver.webapp.util;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

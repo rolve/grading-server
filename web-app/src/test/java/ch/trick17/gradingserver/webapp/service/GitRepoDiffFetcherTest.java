@@ -4,11 +4,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class GitRepoDiffFetcherTest {
 
@@ -26,7 +24,7 @@ class GitRepoDiffFetcherTest {
     }
 
     @Test
-    void create() throws GitAPIException, IOException {
+    void create() {
         var paths = fetcher.affectedPaths(
                 "28ee26ac5c662e0be8e5afdfffacad07141e4487",
                 "e96481f61e8333245bd2d89cd943b75136782047");
@@ -34,7 +32,7 @@ class GitRepoDiffFetcherTest {
     }
 
     @Test
-    void delete() throws GitAPIException, IOException {
+    void delete() {
         var paths = fetcher.affectedPaths(
                 "5dcf0093c3cf97d50bba5b316a77586d6eb7c3f3",
                 "f09d278dce2255cf38bf1b002b66aabb15a0ab8f");
@@ -42,7 +40,7 @@ class GitRepoDiffFetcherTest {
     }
 
     @Test
-    void modify() throws GitAPIException, IOException {
+    void modify() {
         var paths = fetcher.affectedPaths(
                 "e876d3e1d934879958937574aba3fa25b57f5ab5",
                 "28ee26ac5c662e0be8e5afdfffacad07141e4487");
@@ -50,7 +48,7 @@ class GitRepoDiffFetcherTest {
     }
 
     @Test
-    void multipleCommits() throws GitAPIException, IOException {
+    void multipleCommits() {
         var paths = fetcher.affectedPaths(
                 "28ee26ac5c662e0be8e5afdfffacad07141e4487",
                 "5dcf0093c3cf97d50bba5b316a77586d6eb7c3f3");
@@ -58,7 +56,7 @@ class GitRepoDiffFetcherTest {
     }
 
     @Test
-    void fromStart() throws GitAPIException, IOException {
+    void fromStart() {
         var paths = fetcher.affectedPaths(
                 null,
                 "e876d3e1d934879958937574aba3fa25b57f5ab5");

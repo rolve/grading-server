@@ -1,7 +1,7 @@
 package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.model.JarFile;
-import ch.trick17.gradingserver.model.JarFileRepository;
+import ch.trick17.gradingserver.webapp.model.JarFile;
+import ch.trick17.gradingserver.webapp.model.JarFileRepository;
 import ch.trick17.gradingserver.webapp.model.ProblemSetRepository;
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;

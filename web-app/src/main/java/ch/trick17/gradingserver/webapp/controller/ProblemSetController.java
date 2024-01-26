@@ -1,10 +1,10 @@
 package ch.trick17.gradingserver.webapp.controller;
 
-import ch.trick17.gradingserver.model.GradingConfig;
-import ch.trick17.gradingserver.model.GradingConfig.ProjectStructure;
-import ch.trick17.gradingserver.model.GradingOptions;
-import ch.trick17.gradingserver.model.GradingOptions.Compiler;
-import ch.trick17.gradingserver.model.JarFile;
+import ch.trick17.gradingserver.webapp.model.GradingConfig;
+import ch.trick17.gradingserver.webapp.model.GradingConfig.ProjectStructure;
+import ch.trick17.gradingserver.webapp.model.GradingOptions;
+import ch.trick17.gradingserver.webapp.model.GradingOptions.Compiler;
+import ch.trick17.gradingserver.webapp.model.JarFile;
 import ch.trick17.gradingserver.webapp.Internationalization;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.*;

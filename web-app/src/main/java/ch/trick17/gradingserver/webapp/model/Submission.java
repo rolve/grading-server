@@ -1,8 +1,5 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import ch.trick17.gradingserver.model.CodeLocation;
-import ch.trick17.gradingserver.model.GradingResult;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;

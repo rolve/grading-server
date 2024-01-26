@@ -1,7 +1,5 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import ch.trick17.gradingserver.model.GradingConfig;
-
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
-package ch.trick17.gradingserver.gradingservice.service;
+package ch.trick17.gradingserver.webapp.service;
 
-import ch.trick17.gradingserver.model.CodeLocation;
+import ch.trick17.gradingserver.webapp.model.CodeLocation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CodeDownloaderTest {
 
-    private Path dir = Path.of("test-temp");
+    Path dir = Path.of("test-temp");
 
     @Test
     void specificCommit() throws IOException {
@@ -22,8 +22,8 @@ class CodeDownloaderTest {
         var location = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
                 "6493a0fe36f3739929a981ce1440111d0071e08e");
         downloader.downloadCode(location, dir, null, null);
-        var versionLine = Files.lines(dir.resolve("pom.xml"))
-                .filter(l -> l.contains("<version>")).findFirst().get().strip();
+        var versionLine = Files.readAllLines(dir.resolve("pom.xml")).stream()
+                .filter(l -> l.contains("<version>")).findFirst().orElseThrow().strip();
         assertEquals("<version>1.4.0-SNAPSHOT</version>", versionLine);
     }
 

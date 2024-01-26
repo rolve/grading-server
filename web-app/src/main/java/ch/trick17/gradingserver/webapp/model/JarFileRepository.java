@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver.model;
+package ch.trick17.gradingserver.webapp.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

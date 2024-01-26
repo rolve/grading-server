@@ -1,7 +1,5 @@
 package ch.trick17.gradingserver.webapp.model;
 
-import ch.trick17.gradingserver.model.GradingResult;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

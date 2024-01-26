@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.webapp;
 
+import ch.trick17.jtt.grader.Grader;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -19,8 +20,6 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 @EnableScheduling
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties(WebAppProperties.class)
-@EntityScan({"ch.trick17.gradingserver.webapp.model", "ch.trick17.gradingserver.model"})
-@EnableJpaRepositories({"ch.trick17.gradingserver.webapp.model", "ch.trick17.gradingserver.model"})
 public class GradingServerWebApp {
 
     public static void main(String[] args) {
@@ -30,5 +29,14 @@ public class GradingServerWebApp {
     @Bean
     public Executor taskExecutor() {
         return newCachedThreadPool();
+    }
+
+    @Bean
+    public Grader grader() {
+        var grader = new Grader();
+        grader.setLogDir(null);
+        grader.setResultsDir(null);
+        grader.setParallelism(1); // no need for parallelism, grading one at a time
+        return grader;
     }
 }
