@@ -5,6 +5,10 @@
 {% block title %}{{ course.fullName }}{% endblock %}
 
 {% block content %}
+<a href="../.." class="block mb-3 link group">
+    <i class="fa fa-arrow-left"></i>
+    <span class="group-hover:link-hover">{{ message("home") }}</span>
+</a>
 <h2 class="flex flex-wrap items-center gap-3">
     {{ course.name }}
     <span class="text-slate-400 text-lg font-normal not-italic">
