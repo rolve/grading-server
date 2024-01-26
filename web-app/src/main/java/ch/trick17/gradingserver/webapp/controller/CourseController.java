@@ -35,9 +35,8 @@ public class CourseController {
     }
 
     @GetMapping({"/create", "/{id}/edit"})
-    public String createOrEditCourse(@PathVariable(required = false) Integer id,
-                                     @AuthenticationPrincipal User user,
-                                     Model model) {
+    public String createOrEdit(@PathVariable(required = false) Integer id,
+                               @AuthenticationPrincipal User user, Model model) {
         model.addAttribute("create", id == null);
         if (id == null) {
             model.addAttribute("termKind", now().getMonthValue() < 7 ? "FS" : "HS");
@@ -62,7 +61,7 @@ public class CourseController {
     }
 
     @PostMapping({"/create", "/{id}/edit"})
-    public String createOrEditCourse(@PathVariable(required = false) Integer id,
+    public String createOrEdit(@PathVariable(required = false) Integer id,
                                String name, String termKind, int termYear, String qualifier,
                                @RequestParam(required = false) Set<Integer> coLecturers,
                                @AuthenticationPrincipal User user) {

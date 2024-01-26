@@ -37,6 +37,7 @@ import static ch.trick17.gradingserver.webapp.model.Solution.byCommitHash;
 import static ch.trick17.gradingserver.webapp.model.Solution.byResult;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.LocalDate.now;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.List.copyOf;
@@ -49,6 +50,9 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 public class ProblemSetController {
 
     private static final Set<String> LOCALHOST = Set.of("localhost", "127.0.0.1", "[::1]");
+
+    private static final GradingOptions DEFAULT_OPTIONS = new GradingOptions(
+            Compiler.ECLIPSE, 7, Duration.ofSeconds(1), Duration.ofSeconds(5), true);
 
     private static final Logger logger = LoggerFactory.getLogger(ProblemSetController.class);
 
@@ -100,119 +104,81 @@ public class ProblemSetController {
         return problemSet;
     }
 
-    @GetMapping("/add")
-    public String addProblemSet(@PathVariable int courseId, Model model) {
+    @GetMapping({"/add", "/{id}/edit"})
+    public String addOrEdit(@PathVariable int courseId,
+                            @PathVariable(required = false) Integer id,
+                            Model model) {
         var course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
-        populateModel(model, course, true,
-                "", LocalDate.now().plusDays(7), LocalTime.of(23, 59),
-                false, false, ProjectStructure.ECLIPSE, "", emptyList(), "",
-                Compiler.ECLIPSE, 7, 1_000, 5_000, "");
+        model.addAttribute("course", course);
+        model.addAttribute("add", id == null);
+        if (id == null) {
+            populateModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
+                    false, false, ProjectStructure.ECLIPSE, "", emptyList(), "",
+                    DEFAULT_OPTIONS, "");
+        } else {
+            var problemSet = findProblemSet(courseId, id);
+            var config = problemSet.getGradingConfig();
+            populateModel(model, problemSet.getName(),
+                    problemSet.getDeadline().toLocalDate(),
+                    problemSet.getDeadline().toLocalTime(),
+                    problemSet.isAnonymous(), problemSet.isHidden(),
+                    config.getStructure(), config.getProjectRoot(),
+                    config.getDependencies(), "", config.getOptions(), "");
+        }
         return "problem-sets/edit";
     }
 
-    @PostMapping("/add")
-    public String addProblemSet(@PathVariable int courseId, String name,
-                                LocalDate deadlineDate, LocalTime deadlineTime,
-                                @RequestParam(defaultValue = "false") boolean anonymous,
-                                @RequestParam(defaultValue = "false") boolean hidden,
-                                MultipartFile testClassFile, ProjectStructure structure,
-                                String projectRoot,
-                                @RequestParam(required = false) Set<Integer> dependencies,
-                                String newDependencies,
-                                Compiler compiler, int repetitions,
-                                int repTimeoutMs, int testTimeoutMs,
-                                Model model, HttpServletResponse response) throws IOException {
+    @PostMapping({"/add", "/{id}/edit"})
+    public String addOrEdit(@PathVariable int courseId,
+                            @PathVariable(required = false) Integer id,
+                            String name, LocalDate deadlineDate, LocalTime deadlineTime,
+                            @RequestParam(defaultValue = "false") boolean anonymous,
+                            @RequestParam(defaultValue = "false") boolean hidden,
+                            MultipartFile testClassFile, ProjectStructure structure,
+                            String projectRoot,
+                            @RequestParam(required = false) Set<Integer> dependencies,
+                            String newDependencies, Compiler compiler, int repetitions,
+                            int repTimeoutMs, int testTimeoutMs, Model model,
+                            HttpServletResponse response) throws IOException {
         var course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
-        var testClass = new String(testClassFile.getBytes(), UTF_8);
+        model.addAttribute("course", course);
+        model.addAttribute("add", id == null);
 
-        var dependencyJars = new ArrayList<JarFile>();
-        if (dependencies != null) {
-            dependencyJars.addAll(jarFileService.findAllById(dependencies));
-        }
-        try {
-            if (!newDependencies.isBlank()) {
-                for (var identifier : newDependencies.split("\\s+")) {
-                    dependencyJars.add(jarFileService.downloadAndStoreJarFile(identifier));
-                }
-            }
-        } catch (JarDownloadFailedException e) {
-            populateModel(model, course, true,
-                    name, deadlineDate, deadlineTime, anonymous, hidden,
-                    structure, projectRoot, dependencyJars, newDependencies,
-                    compiler, repetitions, repTimeoutMs, testTimeoutMs, errorFor(e));
-            response.setStatus(UNPROCESSABLE_ENTITY.value());
-            return "problem-sets/edit";
-        }
+        var problemSet = id == null
+                ? new ProblemSet(course)
+                : findProblemSet(courseId, id);
 
-        var config = new GradingConfig(testClass, projectRoot, structure,
-                dependencyJars, new GradingOptions(compiler, repetitions,
-                        Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true));
-        var deadline = ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault());
-        var problemSet = new ProblemSet(course, name, config,
-                deadline, anonymous, hidden);
-        problemSet = repo.save(problemSet);
-        return "redirect:" + problemSet.getId() + "/";
-    }
-
-    @GetMapping("/{id}/edit")
-    public String editProblemSet(@PathVariable int courseId,
-                                 @PathVariable int id, Model model) {
-        var problemSet = findProblemSet(courseId, id);
-        var config = problemSet.getGradingConfig();
-        var options = config.getOptions();
-        populateModel(model, problemSet.getCourse(), false,
-                problemSet.getName(),
-                problemSet.getDeadline().toLocalDate(),
-                problemSet.getDeadline().toLocalTime(),
-                problemSet.isAnonymous(), problemSet.isHidden(),
-                config.getStructure(), config.getProjectRoot(),
-                config.getDependencies(), "", options.getCompiler(),
-                options.getRepetitions(), options.getRepTimeout().toMillis(),
-                options.getTestTimeout().toMillis(), "");
-        return "problem-sets/edit";
-    }
-
-    @PostMapping("/{id}/edit")
-    public String editProblemSet(@PathVariable int courseId, @PathVariable int id,
-                                 String name, LocalDate deadlineDate, LocalTime deadlineTime,
-                                 @RequestParam(defaultValue = "false") boolean anonymous,
-                                 @RequestParam(defaultValue = "false") boolean hidden,
-                                 MultipartFile testClassFile, ProjectStructure structure,
-                                 String projectRoot,
-                                 @RequestParam(required = false) Set<Integer> dependencies,
-                                 String newDependencies, Compiler compiler,
-                                 int repetitions, int repTimeoutMs, int testTimeoutMs,
-                                 Model model, HttpServletResponse response) throws IOException {
-        var problemSet = findProblemSet(courseId, id);
-        var testClass = testClassFile.isEmpty()
-                ? problemSet.getGradingConfig().getTestClass()
+        var testClass = id != null && testClassFile.isEmpty()
+                ? problemSet.getGradingConfig().getTestClass() // keep old one
                 : new String(testClassFile.getBytes(), UTF_8);
-
-        var dependencyJars = new ArrayList<JarFile>();
-        if (dependencies != null) {
-            dependencyJars.addAll(jarFileService.findAllById(dependencies));
-        }
-        try {
-            if (!newDependencies.isBlank()) {
-                for (var identifier : newDependencies.split("\\s+")) {
-                    dependencyJars.add(jarFileService.downloadAndStoreJarFile(identifier));
-                }
-            }
-        } catch (JarDownloadFailedException e) {
-            populateModel(model, problemSet.getCourse(), false,
-                    name, deadlineDate, deadlineTime, anonymous, hidden,
-                    structure, projectRoot, dependencyJars, newDependencies,
-                    compiler, repetitions, repTimeoutMs, testTimeoutMs, errorFor(e));
-            response.setStatus(UNPROCESSABLE_ENTITY.value());
-            return "problem-sets/edit";
-        }
-
-        var prevDependencies = copyOf(problemSet.getGradingConfig().getDependencies());
 
         var options = new GradingOptions(compiler, repetitions,
                 Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true);
+
+        var dependencyJars = new ArrayList<JarFile>();
+        if (dependencies != null) {
+            dependencyJars.addAll(jarFileService.findAllById(dependencies));
+        }
+        try {
+            if (!newDependencies.isBlank()) {
+                for (var identifier : newDependencies.split("\\s+")) {
+                    dependencyJars.add(jarFileService.downloadAndStoreJarFile(identifier));
+                }
+            }
+        } catch (JarDownloadFailedException e) {
+            populateModel(model, name, deadlineDate, deadlineTime, anonymous, hidden,
+                    structure, projectRoot, dependencyJars, newDependencies,
+                    options, errorFor(e));
+            response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
+            return "problem-sets/edit";
+        }
+
+        var prevDependencies = id == null
+                ? new ArrayList<JarFile>()
+                : copyOf(problemSet.getGradingConfig().getDependencies());
+
         var config = new GradingConfig(testClass, projectRoot, structure,
                 dependencyJars, options);
         problemSet.setName(name);
@@ -220,22 +186,18 @@ public class ProblemSetController {
         problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
         problemSet.setAnonymous(anonymous);
         problemSet.setHidden(hidden);
-        repo.save(problemSet);
 
+        problemSet = repo.save(problemSet);
         prevDependencies.forEach(jarFileService::deleteIfUnused);
-        return "redirect:.";
+        return "redirect:/courses/" + courseId + "/problem-sets/" + problemSet.getId() + "/";
     }
 
-    private void populateModel(Model model, Course course, boolean add, String name,
+    private void populateModel(Model model, String name,
                                LocalDate deadlineDate, LocalTime deadlineTime,
                                boolean anonymous, boolean hidden,
                                ProjectStructure structure, String projectRoot,
                                List<JarFile> dependencies, String newDependencies,
-                               Compiler compiler, int repetitions,
-                               long repTimeoutMs, long testTimeoutMs,
-                               String error) {
-        model.addAttribute("course", course);
-        model.addAttribute("add", add);
+                               GradingOptions options, String error) {
         model.addAttribute("name", name);
         model.addAttribute("deadlineDate", deadlineDate);
         model.addAttribute("deadlineTime", deadlineTime);
@@ -246,10 +208,7 @@ public class ProblemSetController {
         model.addAttribute("possibleDependencies", jarFileService.findAll());
         model.addAttribute("dependencies", dependencies);
         model.addAttribute("newDependencies", newDependencies);
-        model.addAttribute("compiler", compiler);
-        model.addAttribute("repetitions", repetitions);
-        model.addAttribute("repTimeoutMs", repTimeoutMs);
-        model.addAttribute("testTimeoutMs", testTimeoutMs);
+        model.addAttribute("options", options);
         model.addAttribute("error", error);
     }
 

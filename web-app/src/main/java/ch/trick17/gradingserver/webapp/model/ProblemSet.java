@@ -32,15 +32,19 @@ public class ProblemSet {
 
     protected ProblemSet() {}
 
+    public ProblemSet(Course course) {
+        this.course = requireNonNull(course);
+        course.getProblemSets().add(this);
+    }
+
     public ProblemSet(Course course, String name, GradingConfig gradingConfig,
                       ZonedDateTime deadline, boolean anonymous, boolean hidden) {
-        this.course = requireNonNull(course);
+        this(course);
         this.name = requireNonNull(name);
         this.deadline = deadline;
         this.gradingConfig = gradingConfig;
         this.anonymous = anonymous;
         this.hidden = hidden;
-        course.getProblemSets().add(this);
     }
 
     public int getId() {
