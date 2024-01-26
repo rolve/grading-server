@@ -6,26 +6,26 @@
 <h2 class="flex justify-between items-center">
     {{ message("courses") }}
     {% if beans.access.hasRole("lecturer") %}
-    <a href="{{ href("/courses/create") }}" class="title-button">
-        <i class="fas fa-fw fa-plus"></i>
-        <span class="sr-only">{{ message("course.create") }}</span>
-    </a>
+        <a href="{{ href("/courses/create") }}" class="title-button">
+            <i class="fas fa-fw fa-plus"></i>
+            <span class="sr-only">{{ message("course.create") }}</span>
+        </a>
     {% endif %}
 </h2>
 
 <ul class="mt-4">
     {% for course in courses %}
-    <li>
-        <a href="{{ href("/courses/" + course.id + "/" ) }}"
-           class="card group flex items-center">
-            <span class="flex-grow text-xl link">
-                {{ course.name }}
-            </span>
-            <span class="text-slate-400">
-                {{ course.term }} {{ course.qualifier }}
-            </span>
-        </a>
-    </li>
+        <li>
+            <a href="{{ href("/courses/" + course.id + "/" ) }}"
+               class="card group flex items-center">
+                <span class="flex-grow text-xl link">
+                    {{ course.name }}
+                </span>
+                <span class="text-slate-400">
+                    {{ course.term }} {{ course.qualifier }}
+                </span>
+            </a>
+        </li>
     {% endfor %}
 </ul>
 {% endblock %}

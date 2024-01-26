@@ -15,21 +15,21 @@
         {{ course.term }} {{ course.qualifier }}
     </span>
     {% if beans.access.check(course) %}
-    <span class="flex-grow flex gap-2 justify-end">
-        <a href="problem-sets/add" class="title-button button-primary">
-            <i class="fas fa-fw fa-file-circle-plus ms-1"></i>
-            <span class="sr-only">{{ message("problem-set.add") }}</span>
-        </a>
-        <a href="edit" class="title-button button-secondary">
-            <i class="fas fa-fw fa-pen"></i>
-            <span class="sr-only">{{ message("edit") }}</span>
-        </a>
-        <button type="button" class="title-button button-danger"
-                data-modal-target="delete-modal" data-modal-toggle="delete-modal">
-            <i class="fas fa-fw fa-trash"></i>
-            <span class="sr-only">{{ message("delete") }}</span>
-        </button>
-    </span>
+        <span class="flex-grow flex gap-2 justify-end">
+            <a href="problem-sets/add" class="title-button button-primary">
+                <i class="fas fa-fw fa-file-circle-plus ms-1"></i>
+                <span class="sr-only">{{ message("problem-set.add") }}</span>
+            </a>
+            <a href="edit" class="title-button button-secondary">
+                <i class="fas fa-fw fa-pen"></i>
+                <span class="sr-only">{{ message("edit") }}</span>
+            </a>
+            <button type="button" class="title-button button-danger"
+                    data-modal-target="delete-modal" data-modal-toggle="delete-modal">
+                <i class="fas fa-fw fa-trash"></i>
+                <span class="sr-only">{{ message("delete") }}</span>
+            </button>
+        </span>
     {% endif %}
 </h2>
 <div class="fixed hidden top-0 left-0 right-0 bottom-0 z-50"
@@ -61,35 +61,35 @@
     {% endfor %}
 </p>
 {% if course.problemSets is not empty %}
-<ul>
-    {% for problemSet in course.problemSets %}
-    {% if not problemSet.hidden or beans.access.check(problemSet) %}
-    <li>
-        <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
-           class="card group sm:flex items-center">
-            <div class="sm:w-2/3 text-lg whitespace-nowrap overflow-hidden
-                        overflow-ellipsis link">
-                {{ problemSet.name }}
-            </div>
-            <div class="flex-grow flex justify-between text-sm py-1">
-                <span title="{{ problemSet.deadline | date }}">
-                    {{ problemSet.deadline | pretty }}
-                </span>
-                <span class="text-slate-400">
-                    {{ problemSet.solutionsWithSubmissions }}
-                    {{ message("submissions") }}
-                </span>
-            </div>
-        </a>
-    </li>
-    {% endif %}
-    {% endfor %}
-</ul>
+    <ul>
+        {% for problemSet in course.problemSets %}
+            {% if not problemSet.hidden or beans.access.check(problemSet) %}
+                <li>
+                    <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
+                       class="card group sm:flex items-center">
+                        <div class="sm:w-2/3 text-lg whitespace-nowrap overflow-hidden
+                                    overflow-ellipsis link">
+                            {{ problemSet.name }}
+                        </div>
+                        <div class="flex-grow flex justify-between text-sm py-1">
+                            <span title="{{ problemSet.deadline | date }}">
+                                {{ problemSet.deadline | pretty }}
+                            </span>
+                            <span class="text-slate-400">
+                                {{ problemSet.solutionsWithSubmissions }}
+                                {{ message("submissions") }}
+                            </span>
+                        </div>
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
 {% else %}
-{% embed "fragments/alert" with { "icon": "info-circle" } %}
-{% block content %}
-{{ message("course.no-problem-sets") }}
-{% endblock %}
-{% endembed %}
+    {% embed "fragments/alert" with { "icon": "info-circle" } %}
+    {% block content %}
+    {{ message("course.no-problem-sets") }}
+    {% endblock %}
+    {% endembed %}
 {% endif %}
 {% endblock %}

@@ -17,11 +17,11 @@
     <h2>{{ message(add ? "problem-set.add" : "problem-set.edit") }}</h2>
 
     {% if error %}
-    {% embed "fragments/alert" with { "icon": "triangle-exclamation" } %}
-    {% block content %}
-        {{ error }}
-    {% endblock %}
-    {% endembed %}
+        {% embed "fragments/alert" with { "icon": "triangle-exclamation" } %}
+        {% block content %}
+            {{ error }}
+        {% endblock %}
+        {% endembed %}
     {% endif %}
 
     <form method="post" enctype="multipart/form-data">

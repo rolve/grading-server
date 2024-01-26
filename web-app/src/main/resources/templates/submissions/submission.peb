@@ -18,120 +18,122 @@
     <span class="font-mono">
         {{ submission.shortCommitHash }}
     </span>
-    <span class="text-slate-400 text-lg font-normal"
+    <span class="grow text-slate-400 text-lg font-normal"
           title="{{ submission.receivedDate | date }}">
         {{ submission.receivedDate | pretty }}
     </span>
+    {% if beans.access.check(submission) %}
+        <button form="re-grade" class="title-button">
+            <i class="fas fa-fw fa-rotate-right"></i>
+            <span class="sr-only">{{ message("submission.re-grade") }}</span>
+        </button>
+    {% endif %}
 </h2>
+<form id="re-grade" method="post" action="re-grade"></form>
+
 <p>
     <i class="fas fa-fw fa-user{{ sol.authors.size > 1 ? "s" : "" }}"></i>
     {{ sol.authors | join(", ") }}
 </p>
-{% if submission.result == null %}
-<p class="mt-1">
-    {{ status(submission) }}
-</p>
-{% endif %}
 
-{% if submission.result != null %}
-
-{% if not submission.result.successful %}
-{% embed "fragments/alert" with { "icon": "bolt-lightning" } %}
-{% block content %}
-    <span class="font-mono text-sm" style="overflow-wrap: anywhere">
-        {{ submission.result.error }}
-    </span>
-{% endblock %}
-{% endembed %}
-{% endif %}
-
-{% if submission.result.successful and not submission.result.compiled %}
-{% embed "fragments/alert" with { "icon": "times-circle" } %}
-{% block content %}
-    {{ message("submission.warnings.fatal-compile-errors") }}
-{% endblock %}
-{% endembed %}
-{% endif %}
-
-{% for entry in {"compile errors":    "triangle-exclamation",
-                 "nondeterministic":  "random",
-                 "timeout":           "hourglass-half",
-                 "out of memory":     "microchip",
-                 "illegal operation": "ban"} %}
-{% if submission.result.properties contains entry.key %}
-{% embed "fragments/alert" with { "icon": entry.value } %}
-{% block content %}
-    {{ message("submission.warnings." + entry.key.replace(" ", "-")) }}
-{% endblock %}
-{% endembed %}
-{% endif %}
-{% endfor %}
-
-{% if submission.result.successful %}
-<div class="-mx-4 mt-4 bg-white px-4 py-3 shadow-lg shadow-slate-200
-            sm:mx-0 sm:rounded-lg">
-    {% set percent = submission.result.passedTestsPercent %}
-    <div class="bg-slate-200 h-6 rounded-lg overflow-hidden my-2">
-        <div class="h-full {{ percent >= problemSet.percentageGoal ? "bg-emerald-600" : "bg-slate-500" }}"
-             style="width: {{ percent }}%"></div>
-    </div>
-    <div class="flex justify-between text-lg mb-4">
-        <span>
-            {% if percent == 100 %}
-                <i class="fas fa-trophy text-emerald-600"></i>
-            {% endif %}
-            {{ percent }} %
-        </span>
-        <span class="text-slate-400">
-            {{ submission.result.passedTests.size }} / {{ submission.result.totalTests }}
-            {{ message("submission.tests-passed") }}
-        </span>
-    </div>
-
-    <ul>
-    {% for test in submission.result.allTests %}
-        {% set passed = submission.result.passedTests contains test %}
-        <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
-            <span class="overflow-hidden overflow-ellipsis {{ passed ? "" : "text-slate-400" }}">
-                {{ test }}<span class="sr-only">:</span>
+{% if submission.status == 'GRADED' %}
+    {% if not submission.result.successful %}
+        {% embed "fragments/alert" with { "icon": "bolt-lightning" } %}
+        {% block content %}
+            <span class="font-mono text-sm" style="overflow-wrap: anywhere">
+                {{ submission.result.error }}
             </span>
-            {% if passed %}
-            <i class="fas fa-circle-check text-emerald-600"></i>
-            <span class="sr-only">{{ message("submission.test-passed") }}</span>
-            {% else %}
-            <i class="fas fa-circle-xmark text-slate-400"></i>
-            <span class="sr-only">{{ message("submission.test-failed") }}</span>
-            {% endif %}
-        </li>
+        {% endblock %}
+        {% endembed %}
+    {% endif %}
+
+    {% if submission.result.successful and not submission.result.compiled %}
+        {% embed "fragments/alert" with { "icon": "times-circle" } %}
+        {% block content %}
+            {{ message("submission.warnings.fatal-compile-errors") }}
+        {% endblock %}
+        {% endembed %}
+    {% endif %}
+
+    {% for entry in {"compile errors":    "triangle-exclamation",
+                     "nondeterministic":  "random",
+                     "timeout":           "hourglass-half",
+                     "out of memory":     "microchip",
+                     "illegal operation": "ban"} %}
+        {% if submission.result.properties contains entry.key %}
+            {% embed "fragments/alert" with { "icon": entry.value } %}
+            {% block content %}
+                {{ message("submission.warnings." + entry.key.replace(" ", "-")) }}
+            {% endblock %}
+            {% endembed %}
+        {% endif %}
     {% endfor %}
+
+    {% if submission.result.successful %}
+        <div class="-mx-4 mt-4 bg-white px-4 py-3 shadow-lg shadow-slate-200
+                    sm:mx-0 sm:rounded-lg">
+            {% set percent = submission.result.passedTestsPercent %}
+            <div class="bg-slate-200 h-6 rounded-lg overflow-hidden my-2">
+                <div class="h-full {{ percent >= problemSet.percentageGoal ? "bg-emerald-600" : "bg-slate-500" }}"
+                     style="width: {{ percent }}%"></div>
+            </div>
+            <div class="flex justify-between text-lg mb-4">
+                <span>
+                    {% if percent == 100 %}
+                        <i class="fas fa-trophy text-emerald-600"></i>
+                    {% endif %}
+                    {{ percent }} %
+                </span>
+                <span class="text-slate-400">
+                    {{ submission.result.passedTests.size }} / {{ submission.result.totalTests }}
+                    {{ message("submission.tests-passed") }}
+                </span>
+            </div>
+
+            <ul>
+            {% for test in submission.result.allTests %}
+                {% set passed = submission.result.passedTests contains test %}
+                <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
+                    <span class="overflow-hidden overflow-ellipsis {{ passed ? "" : "text-slate-400" }}">
+                        {{ test }}<span class="sr-only">:</span>
+                    </span>
+                    {% if passed %}
+                        <i class="fas fa-circle-check text-emerald-600"></i>
+                        <span class="sr-only">{{ message("submission.test-passed") }}</span>
+                    {% else %}
+                        <i class="fas fa-circle-xmark text-slate-400"></i>
+                        <span class="sr-only">{{ message("submission.test-failed") }}</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% else %}
+    <p class="mt-1">
+        {{ status(submission) }}
+    </p>
+{% endif %}
+
+{% if allSubmissions.size > 1 %}
+    <h3 class="mt-6">{{ message("submission.other-submissions") }}</h3>
+    <ul class="grid gap-x-3 sm:gap-x-5"
+         style="grid-template-columns: max-content max-content minmax(auto, 16rem);">
+        {% for s in allSubmissions %}
+            <li class="col-span-3 grid grid-cols-subgrid">
+                <a {{ (s == submission ? "" : 'href="../' + s.id + '/"') | raw }}
+                   class="col-span-3 grid grid-cols-subgrid py-2 group">
+                    <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
+                        {{- s.shortCommitHash -}}
+                    </span>
+                    <span class="self-center text-sm sm:text-base"
+                          title="{{ s.receivedDate | date }}">
+                        {{ s.receivedDate | pretty }}
+                    </span>
+                    {{ status(s, false) }}
+                </a>
+            </li>
+        {% endfor %}
     </ul>
-</div>
-{% endif %}
-{% endif %}
-
-{% if allSubmissions is not empty %}
-<h3 class="mt-6">{{ message("submission.other-submissions") }}</h3>
-<ul class="grid gap-x-3 sm:gap-x-5"
-     style="grid-template-columns: max-content max-content minmax(auto, 16rem);">
-    {% for s in allSubmissions %}
-    <li class="col-span-3 grid grid-cols-subgrid">
-        <a {{ (s == submission ? "" : 'href="../' + s.id + '/"') | raw }}
-           class="col-span-3 grid grid-cols-subgrid py-2 group">
-            <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
-                {{- s.shortCommitHash -}}
-            </span>
-            <span class="self-center text-sm sm:text-base"
-                  title="{{ s.receivedDate | date }}">
-                {{ s.receivedDate | pretty }}
-            </span>
-            {% if s.result == null or not s.result.successful %}
-            {{ status(s) }}
-            {% else %}
-            {{ resultBar(s.result.passedTestsPercent, problemSet.percentageGoal, false) }}
-            {% endif %}
-        </a>
-    </li>
-    {% endfor %}
-</ul>
 {% endif %}
 {% endblock %}

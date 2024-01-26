@@ -90,11 +90,7 @@
                 </span>
             </div>
             <div class="sm:w-1/3 text-sm">
-                {% if latest.result == null or not latest.result.successful %}
-                {{ status(latest) }}
-                {% else %}
-                {{ resultBar(latest.result.passedTestsPercent, problemSet.percentageGoal, true) }}
-                {% endif %}
+                {{ status(latest, true) }}
             </div>
         </a>
         {% else %}

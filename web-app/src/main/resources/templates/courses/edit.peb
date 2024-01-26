@@ -44,9 +44,9 @@
         <select name="coLecturers" id="coLecturers" multiple size="3"
                 class="block w-full mb-1">
             {% for lect in possibleCoLecturers %}
-            <option value="{{ lect.id }}" {{ coLecturers contains lect ? "selected" : "" }}>
-                {{ lect.displayName }} ({{ lect.username }})
-            </option>
+                <option value="{{ lect.id }}" {{ coLecturers contains lect ? "selected" : "" }}>
+                    {{ lect.displayName }} ({{ lect.username }})
+                </option>
             {% endfor %}
         </select>
         <div class="form-text mb-6">

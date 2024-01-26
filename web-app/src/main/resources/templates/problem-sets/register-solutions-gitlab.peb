@@ -13,11 +13,11 @@
     <h2>{{ message("problem-set.register-gitlab") }}</h2>
 
     {% if error %}
-    {% embed "fragments/alert" with { "icon": "triangle-exclamation" } %}
-    {% block content %}
-        {{ error }}
-    {% endblock %}
-    {% endembed %}
+        {% embed "fragments/alert" with { "icon": "triangle-exclamation" } %}
+        {% block content %}
+            {{ error }}
+        {% endblock %}
+        {% endembed %}
     {% endif %}
 
     <form method="post">

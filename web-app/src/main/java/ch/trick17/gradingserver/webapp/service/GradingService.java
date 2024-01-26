@@ -4,6 +4,7 @@ import ch.trick17.gradingserver.model.GradingJob;
 import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.webapp.WebAppProperties;
 import ch.trick17.gradingserver.webapp.model.Submission;
+import ch.trick17.gradingserver.webapp.model.SubmissionRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +38,7 @@ public class GradingService {
     @Lazy
     @Autowired
     private GradingService proxy;
+    private final SubmissionRepository submissionRepo;
     private final SubmissionService submissionService;
     private final WebClient client;
 
@@ -46,8 +48,10 @@ public class GradingService {
     private final AtomicReference<Status> status = new AtomicReference<>();
     private final AtomicReference<Instant> lastStatusCheck = new AtomicReference<>();
 
-    public GradingService(@Lazy SubmissionService submissionService,
+    public GradingService(SubmissionRepository submissionRepo,
+                          @Lazy SubmissionService submissionService,
                           WebAppProperties props, WebClient.Builder clientBuilder) {
+        this.submissionRepo = submissionRepo;
         this.submissionService = submissionService;
 
         var baseUrl = props.getGradingServiceBaseUrl();
@@ -63,6 +67,9 @@ public class GradingService {
     }
 
     public Future<Void> grade(Submission submission) {
+        // remove previous result
+        submission.clearResult();
+        submissionRepo.save(submission);
         // initialize lazy dependencies collection
         submission.getSolution().getProblemSet().getGradingConfig()
                 .getDependencies().size();
