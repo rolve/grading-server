@@ -1,8 +1,9 @@
 package ch.trick17.gradingserver.controller;
 
-import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.GradingServerProperties;
+import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.model.*;
+import ch.trick17.gradingserver.model.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.service.JarFileService;
 import ch.trick17.gradingserver.service.ProblemSetService;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDate.now;
@@ -106,7 +108,7 @@ public class ProblemSetController {
         model.addAttribute("add", id == null);
         if (id == null) {
             populateModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
-                    false, false, GradingConfig.ProjectStructure.ECLIPSE, "", emptyList(), "",
+                    false, false, 80, ECLIPSE, "", emptyList(), "",
                     DEFAULT_OPTIONS, "");
         } else {
             var problemSet = findProblemSet(courseId, id);
@@ -115,6 +117,7 @@ public class ProblemSetController {
                     problemSet.getDeadline().toLocalDate(),
                     problemSet.getDeadline().toLocalTime(),
                     problemSet.isAnonymous(), problemSet.isHidden(),
+                    problemSet.getPercentageGoal(),
                     config.getStructure(), config.getProjectRoot(),
                     config.getDependencies(), "", config.getOptions(), "");
         }
@@ -127,8 +130,8 @@ public class ProblemSetController {
                             String name, LocalDate deadlineDate, LocalTime deadlineTime,
                             @RequestParam(defaultValue = "false") boolean anonymous,
                             @RequestParam(defaultValue = "false") boolean hidden,
-                            MultipartFile testClassFile, GradingConfig.ProjectStructure structure,
-                            String projectRoot,
+                            int percentageGoal, MultipartFile testClassFile,
+                            ProjectStructure structure, String projectRoot,
                             @RequestParam(required = false) Set<Integer> dependencies,
                             String newDependencies, GradingOptions.Compiler compiler, int repetitions,
                             int repTimeoutMs, int testTimeoutMs, Model model,
@@ -161,8 +164,8 @@ public class ProblemSetController {
             }
         } catch (JarFileService.JarDownloadFailedException e) {
             populateModel(model, name, deadlineDate, deadlineTime, anonymous, hidden,
-                    structure, projectRoot, dependencyJars, newDependencies,
-                    options, errorFor(e));
+                    percentageGoal, structure, projectRoot, dependencyJars,
+                    newDependencies, options, errorFor(e));
             response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
             return "problem-sets/edit";
         }
@@ -178,6 +181,7 @@ public class ProblemSetController {
         problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
         problemSet.setAnonymous(anonymous);
         problemSet.setHidden(hidden);
+        problemSet.setPercentageGoal(percentageGoal);
 
         problemSet = repo.save(problemSet);
         prevDependencies.forEach(jarFileService::deleteIfUnused);
@@ -186,8 +190,8 @@ public class ProblemSetController {
 
     private void populateModel(Model model, String name,
                                LocalDate deadlineDate, LocalTime deadlineTime,
-                               boolean anonymous, boolean hidden,
-                               GradingConfig.ProjectStructure structure, String projectRoot,
+                               boolean anonymous, boolean hidden, int percentageGoal,
+                               ProjectStructure structure, String projectRoot,
                                List<JarFile> dependencies, String newDependencies,
                                GradingOptions options, String error) {
         model.addAttribute("name", name);
@@ -195,6 +199,7 @@ public class ProblemSetController {
         model.addAttribute("deadlineTime", deadlineTime);
         model.addAttribute("anonymous", anonymous);
         model.addAttribute("hidden", hidden);
+        model.addAttribute("percentageGoal", percentageGoal);
         model.addAttribute("structure", structure);
         model.addAttribute("projectRoot", projectRoot);
         model.addAttribute("possibleDependencies", jarFileService.findAll());

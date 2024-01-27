@@ -57,8 +57,28 @@
                     {{ message("problem-set.hidden") }}
             </label>
         </div>
-        <div class="form-text mb-6">
+        <div class="form-text mb-3">
             {{ message("problem-set.hidden-desc") }}
+        </div>
+
+        <label for="percentageGoal" class="block mb-0.5">
+            {{ message("problem-set.percentage-goal") }}
+        </label>
+        <div class="flex items-center gap-3 mb-6">
+            <input type="range" id="percentageGoal" name="percentageGoal"
+                   min="0" max="100" step="5" value="{{ percentageGoal }}"
+                   class="block w-full grow">
+            <span id="percentageGoalLabel" class="text-slate-400 whitespace-nowrap"></span>
+            <script>
+                {
+                    const input = document.getElementById("percentageGoal");
+                    const label = document.getElementById("percentageGoalLabel");
+                    label.innerHTML = input.value + " %";
+                    input.addEventListener("input", () => {
+                        label.innerHTML = input.value + " %";
+                    });
+                }
+            </script>
         </div>
 
 
