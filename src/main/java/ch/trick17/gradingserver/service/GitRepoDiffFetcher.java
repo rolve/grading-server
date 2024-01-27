@@ -54,8 +54,8 @@ public class GitRepoDiffFetcher implements Closeable {
         try {
             var fromIterator = fromCommitHash == null
                     ? new CanonicalTreeParser()
-                    : treeIterator(repo, fromString(fromCommitHash));
-            var toIterator = treeIterator(repo, fromString(toCommitHash));
+                    : treeIterator(repo, fromCommitHash);
+            var toIterator = treeIterator(repo, toCommitHash);
             return git.diff()
                     .setOldTree(fromIterator)
                     .setNewTree(toIterator)
@@ -68,10 +68,10 @@ public class GitRepoDiffFetcher implements Closeable {
         }
     }
 
-    private static AbstractTreeIterator treeIterator(Repository repo, ObjectId commit)
+    private static AbstractTreeIterator treeIterator(Repository repo, String commitHash)
             throws IOException {
         try (var revWalk = new RevWalk(repo)) {
-            var tree = revWalk.parseCommit(commit).getTree();
+            var tree = revWalk.parseCommit(fromString(commitHash)).getTree();
             try (var reader = repo.newObjectReader()) {
                 return new CanonicalTreeParser(null, reader, tree.getId());
             }
