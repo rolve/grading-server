@@ -13,19 +13,27 @@
     {% endif %}
 </h2>
 
-<ul class="mt-4">
-    {% for course in courses %}
-        <li>
-            <a href="{{ href("/courses/" + course.id + "/" ) }}"
-               class="card group flex items-center">
-                <span class="flex-grow text-xl link">
-                    {{ course.name }}
-                </span>
-                <span class="text-slate-400">
-                    {{ course.term }} {{ course.qualifier }}
-                </span>
-            </a>
-        </li>
-    {% endfor %}
-</ul>
+{% if courses.isEmpty() %}
+    {% embed "fragments/alert" with { "icon": "info-circle" } %}
+    {% block content %}
+    {{ message("home.no-courses") }}
+    {% endblock %}
+    {% endembed %}
+{% else %}
+    <ul class="mt-4">
+        {% for course in courses %}
+            <li>
+                <a href="{{ href("/courses/" + course.id + "/" ) }}"
+                   class="card group flex items-center">
+                    <span class="flex-grow text-xl link">
+                        {{ course.name }}
+                    </span>
+                    <span class="text-slate-400">
+                        {{ course.term }} {{ course.qualifier }}
+                    </span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
 {% endblock %}
