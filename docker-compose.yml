@@ -2,17 +2,16 @@ version: "3.8"
 
 services:
   web-app:
-    build:
-      context: web-app
+    build: web-app
     volumes:
-      - "web-app-db:/app/db"
+      - "db:/app/db"
       - "${BACKUP_DIR}:/app/backup"
-    hostname: web-app
+    hostname: grading-server
     ports:
-      - "${WEBAPP_PORT}:8080"
+      - "${PORT}:8080"
       - "127.0.0.1:9092:9092"
     environment:
-      SERVER_SERVLET_CONTEXT_PATH: ${WEBAPP_CONTEXT_PATH}
+      SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH}
 
 volumes:
-  web-app-db:
+  db:
