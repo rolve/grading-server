@@ -36,18 +36,16 @@
     {{ sol.authors | join(", ") }}
 </p>
 
-{% if submission.status == 'GRADED' %}
-    {% if not submission.result.successful %}
-        {% embed "fragments/alert" with { "icon": "bolt-lightning" } %}
-        {% block content %}
-            <span class="font-mono text-sm" style="overflow-wrap: anywhere">
-                {{ submission.result.error }}
-            </span>
-        {% endblock %}
-        {% endembed %}
-    {% endif %}
-
-    {% if submission.result.successful and not submission.result.compiled %}
+{% if submission.status == 'ERROR' %}
+    {% embed "fragments/alert" with { "icon": "bolt-lightning" } %}
+    {% block content %}
+        <span class="font-mono text-sm" style="overflow-wrap: anywhere">
+            {{ submission.result.error }}
+        </span>
+    {% endblock %}
+    {% endembed %}
+{% elseif submission.status == 'GRADED' %}
+    {% if not submission.result.compiled %}
         {% embed "fragments/alert" with { "icon": "times-circle" } %}
         {% block content %}
             {{ message("submission.warnings.fatal-compile-errors") }}
