@@ -1,6 +1,6 @@
-{# @pebvariable name="course" type="ch.trick17.gradingserver.webapp.model.Course" #}
-{# @pebvariable name="possibleDependencies" type="java.util.List<ch.trick17.gradingserver.webapp.model.JarFile>" #}
-{# @pebvariable name="dependencies" type="java.util.List<ch.trick17.gradingserver.webapp.model.JarFile>" #}
+{# @pebvariable name="course" type="ch.trick17.gradingserver.model.Course" #}
+{# @pebvariable name="possibleDependencies" type="java.util.List<ch.trick17.gradingserver.model.JarFile>" #}
+{# @pebvariable name="dependencies" type="java.util.List<ch.trick17.gradingserver.model.JarFile>" #}
 
 {% extends "layout" %}
 

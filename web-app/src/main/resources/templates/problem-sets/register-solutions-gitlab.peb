@@ -1,4 +1,4 @@
-{# @pebvariable name="problemSet" type="ch.trick17.gradingserver.webapp.model.ProblemSet" #}
+{# @pebvariable name="problemSet" type="ch.trick17.gradingserver.model.ProblemSet" #}
 
 {% extends "layout" %}
 

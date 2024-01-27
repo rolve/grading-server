@@ -1,4 +1,4 @@
-{# @pebvariable name="course" type="ch.trick17.gradingserver.webapp.model.Course" #}
+{# @pebvariable name="course" type="ch.trick17.gradingserver.model.Course" #}
 
 {% extends "layout" %}
 

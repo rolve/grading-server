@@ -1,5 +1,5 @@
 {% macro status(submission, forceLabel) %}
-    {# @pebvariable name="submission" type="ch.trick17.gradingserver.webapp.model.Submission" #}
+{# @pebvariable name="submission" type="ch.trick17.gradingserver.model.Submission" #}
     <span>
         {% if submission.status == 'QUEUED' %}
             <i class="fas fa-fw fa-hourglass-half"></i>

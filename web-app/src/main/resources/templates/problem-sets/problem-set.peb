@@ -1,5 +1,5 @@
-{# @pebvariable name="problemSet" type="ch.trick17.gradingserver.webapp.model.ProblemSet" #}
-{# @pebvariable name="solutions" type="java.util.List<ch.trick17.gradingserver.webapp.model.Solution>" #}
+{# @pebvariable name="problemSet" type="ch.trick17.gradingserver.model.ProblemSet" #}
+{# @pebvariable name="solutions" type="java.util.List<ch.trick17.gradingserver.model.Solution>" #}
 
 {% extends "layout" %}
 {% import "macros" %}
@@ -70,7 +70,7 @@
                sm:mx-0 sm:rounded-lg">
         {% for sol in solutions %}
             {% set latest = sol.latestSubmission %}
-            {# @pebvariable name="latest" type="ch.trick17.gradingserver.webapp.model.Submission" #}
+            {# @pebvariable name="latest" type="ch.trick17.gradingserver.model.Submission" #}
             <li class="even:bg-slate-50">
                 {% if latest != null %}
                     <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"

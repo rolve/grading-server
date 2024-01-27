@@ -1,5 +1,5 @@
-{# @pebvariable name="possibleCoLecturers" type="java.util.List<ch.trick17.gradingserver.webapp.model.User>" #}
-{# @pebvariable name="coLecturers" type="java.util.List<ch.trick17.gradingserver.webapp.model.User>" #}
+{# @pebvariable name="possibleCoLecturers" type="java.util.List<ch.trick17.gradingserver.model.User>" #}
+{# @pebvariable name="coLecturers" type="java.util.List<ch.trick17.gradingserver.model.User>" #}
 
 {% extends "layout" %}
 
