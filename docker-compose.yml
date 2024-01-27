@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web-app:
-    build: web-app
+    build: .
     volumes:
       - "db:/app/db"
       - "${BACKUP_DIR}:/app/backup"
