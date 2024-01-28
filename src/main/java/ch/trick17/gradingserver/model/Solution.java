@@ -96,9 +96,9 @@ public class Solution implements Serializable {
         // tests (higher -> "less") and then by received date (earlier -> "less")
         return comparing(Solution::latestSubmission, nullsLast(
                 comparing(Submission::getStatus)
-                .thenComparing(Submission::getResult,
+                .thenComparing(Submission::getResult, nullsLast(
                         comparing(GradingResult::getPassedTests, nullsLast(
-                                reverseOrder(comparingInt(List::size))))))
+                                reverseOrder(comparingInt(List::size)))))))
                         .thenComparing(Submission::getReceivedDate));
     }
 
