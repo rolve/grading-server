@@ -48,6 +48,7 @@ public class GradingService {
     public Future<Void> grade(Submission submission) {
         // remove previous result
         submission.clearResult();
+        submission.setGradingStarted(false);
         submissionRepo.save(submission);
         // initialize lazy dependencies collection
         submission.getSolution().getProblemSet().getGradingConfig()

@@ -19,6 +19,12 @@
                 <i class="fab fa-fw fa-gitlab"></i>
                 <span class="sr-only">{{ message("problem-set.register-solutions-gitlab") }}</span>
             </a>
+            {% if solutions is not empty %}
+                <button form="re-grade" class="title-button">
+                    <i class="fas fa-fw fa-rotate-right"></i>
+                    <span class="sr-only">{{ message("submission.re-grade") }}</span>
+                </button>
+            {% endif %}
             <a href="edit" class="title-button button-secondary">
                 <i class="fas fa-fw fa-pen"></i>
                 <span class="sr-only">{{ message("edit") }}</span>
@@ -31,6 +37,7 @@
         </span>
     {% endif %}
 </h2>
+<form id="re-grade" method="post" action="re-grade-latest"></form>
 <div class="fixed hidden top-0 left-0 right-0 bottom-0 z-50"
      id="delete-modal" aria-hidden="true">
     <div class="self-start w-full max-w-screen-sm m-6 mt-16 p-4 bg-white rounded-lg shadow-xl">

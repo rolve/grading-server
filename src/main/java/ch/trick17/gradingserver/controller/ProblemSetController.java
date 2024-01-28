@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.gradingserver.model.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.service.GitLabGroupSolutionSupplier;
+import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.JarFileService;
 import ch.trick17.gradingserver.service.ProblemSetService;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -55,6 +56,7 @@ public class ProblemSetController {
     private final AccessTokenRepository accessTokenRepo;
     private final ProblemSetService problemSetService;
     private final JarFileService jarFileService;
+    private final GradingService gradingService;
     private final Internationalization i18n;
 
     private final String defaultGitLabHost;
@@ -62,7 +64,7 @@ public class ProblemSetController {
     public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
                                 AccessTokenRepository accessTokenRepo,
                                 ProblemSetService problemSetService,
-                                JarFileService jarFileService,
+                                JarFileService jarFileService, GradingService gradingService,
                                 Internationalization i18n,
                                 GradingServerProperties props) {
         this.repo = repo;
@@ -70,6 +72,7 @@ public class ProblemSetController {
         this.accessTokenRepo = accessTokenRepo;
         this.problemSetService = problemSetService;
         this.jarFileService = jarFileService;
+        this.gradingService = gradingService;
         this.i18n = i18n;
         this.defaultGitLabHost = props.getDefaultGitLabHost();
     }
@@ -79,7 +82,6 @@ public class ProblemSetController {
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
-        // somehow, sorting in the template doesn't work, so do it here:
         var sort = problemSet.isAnonymous() ? Solution.byCommitHash() : Solution.byResult();
         var solutions = problemSet.getSolutions().stream()
                 .sorted(sort).collect(toList());
@@ -281,6 +283,19 @@ public class ProblemSetController {
         supplier.setIgnoringAuthorless(ignoreAuthorless);
         problemSetService.registerSolutions(problemSet.getId(), tokenRecord.getId(), supplier); // async
         return "redirect:./";
+    }
+
+    @PostMapping("/{id}/re-grade-latest")
+    @Transactional
+    public String reGradeLatest(@PathVariable int courseId, @PathVariable int id) {
+        var problemSet = findProblemSet(courseId, id);
+        for (var solution : problemSet.getSolutions()) {
+            var latest = solution.latestSubmission();
+            if (latest != null) {
+                gradingService.grade(latest);
+            }
+        }
+        return "redirect:.";
     }
 
     @PostMapping("/{id}/delete")
