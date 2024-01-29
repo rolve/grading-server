@@ -11,15 +11,19 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import javax.servlet.ServletContext;
+
 import static java.util.Objects.requireNonNullElse;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepo;
+    private final ServletContext context;
 
-    public WebSecurityConfig(UserRepository userRepo) {
+    public WebSecurityConfig(UserRepository userRepo, ServletContext context) {
         this.userRepo = userRepo;
+        this.context = context;
     }
 
     @Override
@@ -58,12 +62,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login")
                     .successHandler((request, response, auth) -> {
                         var from = request.getParameter("from");
-                        response.sendRedirect(requireNonNullElse(from, "/"));
+                        var location = context.getContextPath() + requireNonNullElse(from, "/");
+                        response.sendRedirect(location);
                     })
                     .failureHandler((request, response, auth) -> {
                         var from = request.getParameter("from");
                         var suffix = from == null ? "" : "&from=" + from;
-                        response.sendRedirect("/login?error" + suffix);
+                        response.sendRedirect(context.getContextPath() + "/login?error" + suffix);
                     })
                     .permitAll()
                     .and()

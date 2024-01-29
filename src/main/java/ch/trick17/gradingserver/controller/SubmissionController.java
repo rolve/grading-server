@@ -51,7 +51,7 @@ public class SubmissionController {
                           @PathVariable int solId, @PathVariable int id) {
         var submission = findSubmission(courseId, probId, solId, id);
         gradingService.grade(submission); // async
-        return "redirect:.";
+        return "redirect:./";
     }
 
     public Submission findSubmission(int courseId, int probId, int solId, int id) {

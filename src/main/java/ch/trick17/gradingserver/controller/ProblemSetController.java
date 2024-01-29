@@ -289,7 +289,7 @@ public class ProblemSetController {
         var problemSet = findProblemSet(courseId, id);
         repo.delete(problemSet);
         problemSet.getGradingConfig().getDependencies().forEach(jarFileService::deleteIfUnused);
-        return "redirect:../..";
+        return "redirect:../../";
     }
 
     @PostMapping("/{id}/remove-solutions")
@@ -297,6 +297,6 @@ public class ProblemSetController {
         var problemSet = findProblemSet(courseId, id);
         problemSet.getSolutions().clear();
         repo.save(problemSet);
-        return "redirect:.";
+        return "redirect:./";
     }
 }

@@ -87,6 +87,6 @@ public class CourseController {
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable int id) {
         repo.deleteById(id);
-        return "redirect:../..";
+        return "redirect:/";
     }
 }
