@@ -67,9 +67,14 @@
                 <li>
                     <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
                        class="card group sm:flex items-center">
-                        <div class="sm:w-2/3 text-lg whitespace-nowrap overflow-hidden
-                                    overflow-ellipsis link">
-                            {{ problemSet.name }}
+                        <div class="sm:w-2/3 flex gap-3 justify-between items-center">
+                            <span class="link text-lg whitespace-nowrap overflow-hidden overflow-ellipsis">
+                                {{ problemSet.name }}
+                            </span>
+                            {% if problemSet.displaySetting == "HIDDEN" %}
+                                <i class="sm:grow fas fa-eye-slash text-sm pt-px text-slate-400"
+                                   title="{{ message("problem-set.display.hidden") }}"></i>
+                            {% endif %}
                         </div>
                         <div class="flex-grow flex justify-between text-sm py-1">
                             <span title="{{ problemSet.deadline | date }}">
