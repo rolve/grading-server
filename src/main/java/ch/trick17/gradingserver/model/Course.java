@@ -17,6 +17,7 @@ public class Course {
     private String qualifier;
     @ManyToMany
     private Set<User> lecturers = new HashSet<>();
+    private boolean hidden;
 
     @OneToMany(mappedBy = "course", cascade = ALL, orphanRemoval = true)
     private List<ProblemSet> problemSets = new ArrayList<>();
@@ -64,6 +65,14 @@ public class Course {
     public void setLecturers(Collection<? extends User> lecturers) {
         this.lecturers.clear();
         this.lecturers.addAll(lecturers);
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     public List<ProblemSet> getProblemSets() {

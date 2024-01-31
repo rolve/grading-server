@@ -49,8 +49,18 @@
                 </option>
             {% endfor %}
         </select>
-        <div class="form-text mb-6">
+        <div class="form-text mb-3">
             {{ message("course.lecturers-desc") }}
+        </div>
+
+        <div class="flex gap-3">
+            <input type="checkbox" id="hidden" name="hidden" {{ hidden ? "checked" : "" }}>
+            <label for="hidden">
+                {{ message("course.hidden") }}
+            </label>
+        </div>
+        <div class="form-text mb-6">
+            {{ message("course.hidden-desc") }}
         </div>
 
         <div class="button-group-2">

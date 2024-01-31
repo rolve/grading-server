@@ -50,6 +50,7 @@ public class CourseController {
             model.addAttribute("coLecturers", course.getLecturers().stream()
                     .filter(not(user::equals))
                     .toList());
+            model.addAttribute("hidden", course.isHidden());
         }
         var possibleCoLecturers = userRepo.findAll().stream()
                 .filter(not(user::equals))
@@ -63,6 +64,7 @@ public class CourseController {
     public String createOrEdit(@PathVariable(required = false) Integer id,
                                String name, String termKind, int termYear, String qualifier,
                                @RequestParam(required = false) Set<Integer> coLecturers,
+                               @RequestParam(defaultValue = "false") boolean hidden,
                                @AuthenticationPrincipal User user) {
         var lecturers = new HashSet<>(Set.of(user));
         if (coLecturers != null) {
@@ -80,6 +82,7 @@ public class CourseController {
         course.setTerm(new Term(termYear, termKind));
         course.setQualifier(qualifier.isBlank() ? null : qualifier);
         course.setLecturers(lecturers);
+        course.setHidden(hidden);
         course = repo.save(course);
         return "redirect:/courses/" + course.getId() + "/";
     }

@@ -24,10 +24,14 @@
         {% for course in courses %}
             <li>
                 <a href="{{ href("/courses/" + course.id + "/" ) }}"
-                   class="card group flex items-center">
-                    <span class="flex-grow text-xl link">
+                   class="card group flex gap-3 items-center">
+                    <span class="grow text-xl link">
                         {{ course.name }}
                     </span>
+                    {% if course.hidden %}
+                        <i class="grow-[9999] fas fa-eye-slash text-sm pt-px text-slate-400"
+                           title="{{ message("problem-set.display.hidden") }}"></i>
+                    {% endif %}
                     <span class="text-slate-400">
                         {{ course.term }} {{ course.qualifier }}
                     </span>
