@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.controller;
 
 import ch.trick17.gradingserver.model.*;
+import ch.trick17.gradingserver.service.AccessController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.HIDDEN;
 import static java.time.LocalDate.now;
 import static java.util.function.Predicate.not;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -20,16 +22,24 @@ public class CourseController {
 
     private final CourseRepository repo;
     private final UserRepository userRepo;
+    private final AccessController access;
 
-    public CourseController(CourseRepository repo, UserRepository userRepo) {
+    public CourseController(CourseRepository repo, UserRepository userRepo,
+                            AccessController access) {
         this.repo = repo;
         this.userRepo = userRepo;
+        this.access = access;
     }
 
     @GetMapping("/{id}/")
     public String coursePage(@PathVariable int id, Model model) {
-        model.addAttribute("course", repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND)));
+        var course = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        model.addAttribute("course", course);
+        var problemSets = course.getProblemSets().stream()
+                .filter(ps -> ps.getDisplaySetting() != HIDDEN || access.check(ps))
+                .toList();
+        model.addAttribute("problemSets", problemSets);
         return "courses/course";
     }
 

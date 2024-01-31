@@ -1,4 +1,5 @@
 {# @pebvariable name="course" type="ch.trick17.gradingserver.model.Course" #}
+{# @pebvariable name="problemSets" type="java.util.List<ch.trick17.gradingserver.model.ProblemSet>" #}
 
 {% extends "layout" %}
 
@@ -60,41 +61,39 @@
         </span>
     {% endfor %}
 </p>
-{% if course.problemSets is not empty %}
-    <ul>
-        {% for problemSet in course.problemSets %}
-            {% if problemSet.displaySetting != "HIDDEN" or beans.access.check(problemSet) %}
-                <li>
-                    <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
-                       class="card group sm:flex items-center">
-                        <div class="sm:w-2/3 flex gap-3 justify-between items-center">
-                            <span class="link text-lg whitespace-nowrap overflow-hidden overflow-ellipsis">
-                                {{ problemSet.name }}
-                            </span>
-                            {% if problemSet.displaySetting == "HIDDEN" %}
-                                <i class="sm:grow fas fa-eye-slash text-sm pt-px text-slate-400"
-                                   title="{{ message("problem-set.display.hidden") }}"></i>
-                            {% endif %}
-                        </div>
-                        <div class="flex-grow flex justify-between text-sm py-1">
-                            <span title="{{ problemSet.deadline | date }}">
-                                {{ problemSet.deadline | pretty }}
-                            </span>
-                            <span class="text-slate-400">
-                                {{ problemSet.solutionsWithSubmissions }}
-                                {{ message("submissions") }}
-                            </span>
-                        </div>
-                    </a>
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-{% else %}
+{% if problemSets is empty %}
     {% embed "fragments/alert" with { "icon": "info-circle" } %}
     {% block content %}
     {{ message("course.no-problem-sets") }}
     {% endblock %}
     {% endembed %}
+{% else %}
+    <ul>
+        {% for problemSet in problemSets %}
+            <li>
+                <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
+                   class="card group sm:flex items-center">
+                    <div class="sm:w-2/3 flex gap-3 justify-between items-center">
+                            <span class="link text-lg whitespace-nowrap overflow-hidden overflow-ellipsis">
+                                {{ problemSet.name }}
+                            </span>
+                        {% if problemSet.displaySetting == "HIDDEN" %}
+                            <i class="sm:grow fas fa-eye-slash text-sm pt-px text-slate-400"
+                               title="{{ message("problem-set.display.hidden") }}"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow flex justify-between text-sm py-1">
+                            <span title="{{ problemSet.deadline | date }}">
+                                {{ problemSet.deadline | pretty }}
+                            </span>
+                        <span class="text-slate-400">
+                            {{ problemSet.solutionsWithSubmissions }}
+                            {{ message("submissions") }}
+                        </span>
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 {% endif %}
 {% endblock %}
