@@ -49,7 +49,7 @@ public class ProblemSetService {
             for (var newSol : supplier.get(existingSols)) {
                 var authors = new ArrayList<Author>();
                 for (var name : newSol.authorNames()) {
-                    var existing = authorRepo.findByName(name);
+                    var existing = authorRepo.findByUsername(name);
                     if (existing.isPresent()) {
                         authors.add(existing.get());
                     } else {

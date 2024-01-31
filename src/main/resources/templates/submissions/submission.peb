@@ -33,7 +33,7 @@
 
 <p>
     <i class="fas fa-fw fa-user{{ sol.authors.size > 1 ? "s" : "" }}"></i>
-    {{ sol.authors | join(", ") }}
+    {{ sol | authors }}
 </p>
 
 {% if submission.status == 'ERROR' %}

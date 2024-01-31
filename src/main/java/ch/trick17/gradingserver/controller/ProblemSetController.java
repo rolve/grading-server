@@ -4,6 +4,7 @@ import ch.trick17.gradingserver.GradingServerProperties;
 import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.gradingserver.model.GradingConfig.ProjectStructure;
+import ch.trick17.gradingserver.model.ProblemSet.DisplaySetting;
 import ch.trick17.gradingserver.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.JarFileService;
@@ -30,6 +31,8 @@ import java.util.List;
 import java.util.Set;
 
 import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
+import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.ANONYMOUS;
+import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDate.now;
@@ -78,11 +81,13 @@ public class ProblemSetController {
     }
 
     @GetMapping("/{id}/")
-    @PreAuthorize("!this.findProblemSet(#courseId, #id).hidden || hasRole('LECTURER')")
+    @PreAuthorize("this.findProblemSet(#courseId, #id).displaySetting.name != 'HIDDEN' || hasRole('LECTURER')")
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
-        var sort = problemSet.isAnonymous() ? Solution.byCommitHash() : Solution.byResult();
+        var sort = problemSet.getDisplaySetting() == ANONYMOUS
+                ? Solution.byCommitHash()
+                : Solution.byResult();
         var solutions = problemSet.getSolutions().stream()
                 .sorted(sort).collect(toList());
         model.addAttribute("solutions", solutions);
@@ -109,16 +114,16 @@ public class ProblemSetController {
         model.addAttribute("course", course);
         model.addAttribute("add", id == null);
         if (id == null) {
-            populateModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
-                    false, false, 80, ECLIPSE, "", emptyList(), "",
+            populateEditModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
+                    WITH_SHORTENED_NAMES, 80, ECLIPSE, "", emptyList(), "",
                     DEFAULT_OPTIONS, "");
         } else {
             var problemSet = findProblemSet(courseId, id);
             var config = problemSet.getGradingConfig();
-            populateModel(model, problemSet.getName(),
+            populateEditModel(model, problemSet.getName(),
                     problemSet.getDeadline().toLocalDate(),
                     problemSet.getDeadline().toLocalTime(),
-                    problemSet.isAnonymous(), problemSet.isHidden(),
+                    problemSet.getDisplaySetting(),
                     problemSet.getPercentageGoal(),
                     config.getStructure(), config.getProjectRoot(),
                     config.getDependencies(), "", config.getOptions(), "");
@@ -129,9 +134,8 @@ public class ProblemSetController {
     @PostMapping({"/add", "/{id}/edit"})
     public String addOrEdit(@PathVariable int courseId,
                             @PathVariable(required = false) Integer id,
-                            String name, LocalDate deadlineDate, LocalTime deadlineTime,
-                            @RequestParam(defaultValue = "false") boolean anonymous,
-                            @RequestParam(defaultValue = "false") boolean hidden,
+                            String name, LocalDate deadlineDate,
+                            LocalTime deadlineTime, DisplaySetting displaySetting,
                             int percentageGoal, MultipartFile testClassFile,
                             ProjectStructure structure, String projectRoot,
                             @RequestParam(required = false) Set<Integer> dependencies,
@@ -165,7 +169,7 @@ public class ProblemSetController {
                 }
             }
         } catch (JarFileService.JarDownloadFailedException e) {
-            populateModel(model, name, deadlineDate, deadlineTime, anonymous, hidden,
+            populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
                     percentageGoal, structure, projectRoot, dependencyJars,
                     newDependencies, options, errorFor(e));
             response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
@@ -181,8 +185,7 @@ public class ProblemSetController {
         problemSet.setName(name);
         problemSet.setGradingConfig(config);
         problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
-        problemSet.setAnonymous(anonymous);
-        problemSet.setHidden(hidden);
+        problemSet.setDisplaySetting(displaySetting);
         problemSet.setPercentageGoal(percentageGoal);
 
         problemSet = repo.save(problemSet);
@@ -190,17 +193,17 @@ public class ProblemSetController {
         return "redirect:/courses/" + courseId + "/problem-sets/" + problemSet.getId() + "/";
     }
 
-    private void populateModel(Model model, String name,
-                               LocalDate deadlineDate, LocalTime deadlineTime,
-                               boolean anonymous, boolean hidden, int percentageGoal,
-                               ProjectStructure structure, String projectRoot,
-                               List<JarFile> dependencies, String newDependencies,
-                               GradingOptions options, String error) {
+    private void populateEditModel(Model model, String name,
+                                   LocalDate deadlineDate, LocalTime deadlineTime,
+                                   DisplaySetting displaySetting, int percentageGoal,
+                                   ProjectStructure structure, String projectRoot,
+                                   List<JarFile> dependencies, String newDependencies,
+                                   GradingOptions options, String error) {
         model.addAttribute("name", name);
         model.addAttribute("deadlineDate", deadlineDate);
         model.addAttribute("deadlineTime", deadlineTime);
-        model.addAttribute("anonymous", anonymous);
-        model.addAttribute("hidden", hidden);
+        model.addAttribute("displaySetting", displaySetting);
+        model.addAttribute("displaySettings", DisplaySetting.values());
         model.addAttribute("percentageGoal", percentageGoal);
         model.addAttribute("structure", structure);
         model.addAttribute("projectRoot", projectRoot);

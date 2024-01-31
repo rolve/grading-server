@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 
 import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
+import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -37,7 +38,7 @@ class CourseControllerTest {
                 emptyList(), new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
         var problemSet = new ProblemSet(course, "Woche 3", config, ZonedDateTime.of(
                 LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")),
-                false, false);
+                WITH_SHORTENED_NAMES);
         repo.save(course);
 
         var response = rest.getForObject("/courses/" + course.getId() + "/", String.class);

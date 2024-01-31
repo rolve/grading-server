@@ -13,6 +13,7 @@ import java.util.List;
 import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.MAVEN;
 import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
+import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static java.time.ZonedDateTime.now;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,7 +45,7 @@ class GradingServiceTest {
                     }
                 }""";
         var config = new GradingConfig(test, "", MAVEN, emptyList(), options);
-        var problemSet = new ProblemSet(course, "Test", config, now(), false, false);
+        var problemSet = new ProblemSet(course, "Test", config, now(), WITH_SHORTENED_NAMES);
 
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
                 "master", null, emptyList(), emptyList());
@@ -80,7 +81,7 @@ class GradingServiceTest {
                     }
                 }""";
         var config = new GradingConfig(test, "", ECLIPSE, emptyList(), options);
-        var problemSet = new ProblemSet(course, "Test", config, now(), false, false);
+        var problemSet = new ProblemSet(course, "Test", config, now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
         var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b",
@@ -113,7 +114,7 @@ class GradingServiceTest {
                     }
                 }""";
         var config = new GradingConfig(test, "", ECLIPSE, emptyList(), options);
-        var problemSet = new ProblemSet(course, "Test", config, now(), false, false);
+        var problemSet = new ProblemSet(course, "Test", config, now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
         var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b",

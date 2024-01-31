@@ -33,7 +33,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/{id}/")
-    @PreAuthorize("!this.findSubmission(#courseId, #probId, #solId, #id).solution.problemSet.hidden || hasRole('LECTURER')")
+    @PreAuthorize("this.findSubmission(#courseId, #probId, #solId, #id).solution.problemSet.displaySetting.name != 'HIDDEN' || hasRole('LECTURER')")
     public String submissionPage(@PathVariable int courseId, @PathVariable int probId,
                                  @PathVariable int solId, @PathVariable int id,
                                  Model model) {
