@@ -298,7 +298,7 @@ public class ProblemSetController {
                 gradingService.grade(latest);
             }
         }
-        return "redirect:.";
+        return "redirect:./";
     }
 
     @PostMapping("/{id}/delete")
