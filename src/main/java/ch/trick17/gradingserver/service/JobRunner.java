@@ -4,12 +4,12 @@ import ch.trick17.gradingserver.model.GradingJob;
 import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.model.JarFile;
 import ch.trick17.jtt.grader.Grader;
-import ch.trick17.jtt.grader.ProjectStructure;
-import ch.trick17.jtt.grader.SingleCodebase;
+import ch.trick17.jtt.grader.Property;
+import ch.trick17.jtt.grader.Submission;
 import ch.trick17.jtt.grader.Task;
-import ch.trick17.jtt.grader.result.Property;
 import ch.trick17.jtt.memcompile.Compiler;
 import ch.trick17.jtt.sandbox.Whitelist;
+import ch.trick17.jtt.testrunner.TestMethod;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +26,8 @@ import static org.eclipse.jgit.util.FileUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Runs {@link GradingJob}s, i.e., downloads a submission from
- * the specified code location, runs the {@link Grader} on it,
- * and persists the result.
+ * Runs {@link GradingJob}s, i.e., downloads a submission from the specified
+ * code location, runs the {@link Grader} on it, and persists the result.
  */
 @Service
 public class JobRunner {
@@ -39,11 +38,10 @@ public class JobRunner {
 
     private final AtomicLong idCounter = new AtomicLong(0);
     private final CodeDownloader downloader;
-    private final Grader grader;
+    private final Grader grader = new Grader();
 
-    public JobRunner(CodeDownloader downloader, Grader grader) {
+    public JobRunner(CodeDownloader downloader) {
         this.downloader = downloader;
-        this.grader = grader;
     }
 
     public GradingResult run(GradingJob job) {
@@ -67,10 +65,11 @@ public class JobRunner {
             downloader.downloadCode(job.submission(), codeDir, job.username(), job.password());
             var dependencies = writeDependencies(config.getDependencies(), depsDir);
 
-            var codebaseDir = codeDir.resolve(config.getProjectRoot());
             // TODO: handle case when project root is missing
-            var codebase = new SingleCodebase(id, codebaseDir,
-                    ProjectStructure.valueOf(config.getStructure().name()));
+            var srcDir = codeDir
+                    .resolve(config.getProjectRoot())
+                    .resolve(config.getStructure().srcDirPath);
+            var submission = new Submission(id, srcDir);
 
             var options = config.getOptions();
             var task = Task.fromString(config.getTestClass())
@@ -82,12 +81,12 @@ public class JobRunner {
                             : null)
                     .dependencies(dependencies);
 
-            var res = grader.run(codebase, List.of(task))
-                    .get(0).submissionResults().get(0);
+            var result = grader.grade(task, submission);
 
-            var props = res.properties().stream()
+            var props = result.properties().stream()
                     .map(Property::prettyName).collect(toList());
-            return new GradingResult(null, props, res.passedTests(), res.failedTests(), null);
+            return new GradingResult(null, props, format(result.passedTests()),
+                    format(result.failedTests()), null);
         } finally {
             try {
                 delete(codeDir.toFile(), RECURSIVE | RETRY);
@@ -96,6 +95,12 @@ public class JobRunner {
                 logger.warn("Could not delete " + codeDir, e);
             }
         }
+    }
+
+    private List<String> format(List<TestMethod> methods) {
+        return methods.stream()
+                .map(m -> m.className() + "." + m.name())
+                .toList();
     }
 
     private List<Path> writeDependencies(List<JarFile> dependencies, Path dir)

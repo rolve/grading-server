@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,6 +71,13 @@ public class GradingConfig {
     }
 
     public enum ProjectStructure {
-        ECLIPSE, MAVEN
+        ECLIPSE(Path.of("src")),
+        MAVEN(Path.of("src/main/java"));
+
+        public final Path srcDirPath;
+
+        ProjectStructure(Path srcDirPath) {
+            this.srcDirPath = srcDirPath;
+        }
     }
 }
