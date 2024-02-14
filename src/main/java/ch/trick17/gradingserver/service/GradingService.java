@@ -51,7 +51,7 @@ public class GradingService {
         submission.setGradingStarted(false);
         submissionRepo.save(submission);
         // initialize lazy dependencies collection
-        submission.getSolution().getProblemSet().getGradingConfig()
+        var ignored = submission.getSolution().getProblemSet().getGradingConfig()
                 .getDependencies().size();
         // then call async method through proxy
         return proxy.doGrade(submission);

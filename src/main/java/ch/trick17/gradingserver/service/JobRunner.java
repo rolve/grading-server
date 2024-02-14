@@ -84,7 +84,8 @@ public class JobRunner {
             var result = grader.grade(task, submission);
 
             var props = result.properties().stream()
-                    .map(Property::prettyName).collect(toList());
+                    .map(Property::prettyName)
+                    .toList();
             return new GradingResult(null, props, format(result.passedTests()),
                     format(result.failedTests()), null);
         } finally {
