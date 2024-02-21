@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.service;
 
 import ch.trick17.gradingserver.model.GradingJob;
 import ch.trick17.gradingserver.model.GradingResult;
+import ch.trick17.gradingserver.model.ImplGradingConfig;
 import ch.trick17.gradingserver.model.JarFile;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
@@ -69,23 +70,28 @@ public class JobRunner {
                     .resolve(job.projectConfig().getStructure().srcDirPath);
             var submission = new Submission(id, srcDir);
 
-            var options = job.gradingConfig().options();
-            var task = Task.fromString(job.gradingConfig().testClass())
-                    .compiler(Compiler.valueOf(options.compiler().name()))
-                    .repetitions(options.repetitions())
-                    .timeouts(options.repTimeout(), options.testTimeout())
-                    .permittedCalls(options.permRestrictions()
-                            ? Whitelist.DEFAULT_WHITELIST_DEF
-                            : null)
-                    .dependencies(dependencies);
+            if (job.gradingConfig() instanceof ImplGradingConfig gradingConfig) {
+                var options = gradingConfig.options();
+                var task = Task.fromString(gradingConfig.testClass())
+                        .compiler(Compiler.valueOf(options.compiler().name()))
+                        .repetitions(options.repetitions())
+                        .timeouts(options.repTimeout(), options.testTimeout())
+                        .permittedCalls(options.permRestrictions()
+                                ? Whitelist.DEFAULT_WHITELIST_DEF
+                                : null)
+                        .dependencies(dependencies);
 
-            var result = grader.grade(task, submission);
+                var result = grader.grade(task, submission);
 
-            var props = result.properties().stream()
-                    .map(Property::prettyName)
-                    .toList();
-            return new GradingResult(null, props, format(result.passedTests(), result.allTests()),
-                    format(result.failedTests(), result.allTests()), null);
+                var props = result.properties().stream()
+                        .map(Property::prettyName)
+                        .toList();
+                return new GradingResult(null, props, format(result.passedTests(), result.allTests()),
+                        format(result.failedTests(), result.allTests()), null);
+            } else {
+                // TODO
+                throw new AssertionError("Unknown grading config type: " + job.gradingConfig());
+            }
         } finally {
             try {
                 delete(codeDir.toFile(), RECURSIVE | RETRY);

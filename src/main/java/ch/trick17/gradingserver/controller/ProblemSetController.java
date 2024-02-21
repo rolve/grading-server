@@ -120,14 +120,18 @@ public class ProblemSetController {
         } else {
             var problemSet = findProblemSet(courseId, id);
             var projectConfig = problemSet.getProjectConfig();
-            var gradingConfig = problemSet.getGradingConfig();
-            populateEditModel(model, problemSet.getName(),
-                    problemSet.getDeadline().toLocalDate(),
-                    problemSet.getDeadline().toLocalTime(),
-                    problemSet.getDisplaySetting(),
-                    problemSet.getPercentageGoal(),
-                    projectConfig.getProjectRoot(), projectConfig.getStructure(),
-                    projectConfig.getDependencies(), "", gradingConfig.options(), "");
+            if (problemSet.getGradingConfig() instanceof ImplGradingConfig gradingConfig) {
+                populateEditModel(model, problemSet.getName(),
+                        problemSet.getDeadline().toLocalDate(),
+                        problemSet.getDeadline().toLocalTime(),
+                        problemSet.getDisplaySetting(),
+                        problemSet.getPercentageGoal(),
+                        projectConfig.getProjectRoot(), projectConfig.getStructure(),
+                        projectConfig.getDependencies(), "", gradingConfig.options(), "");
+            } else {
+                // TODO
+                throw new AssertionError("Unexpected grading config type: " + problemSet.getGradingConfig().getClass());
+            }
         }
         return "problem-sets/edit";
     }
@@ -154,10 +158,15 @@ public class ProblemSetController {
                 ? new ProblemSet(course)
                 : findProblemSet(courseId, id);
 
-        var testClass = id != null && testClassFile.isEmpty()
-                ? problemSet.getGradingConfig().testClass() // keep old one
-                : new String(testClassFile.getBytes(), UTF_8);
-
+        String testClass;
+        if (id == null || !testClassFile.isEmpty()) {
+            testClass = new String(testClassFile.getBytes(), UTF_8);
+        } else if (problemSet.getGradingConfig() instanceof ImplGradingConfig gradingConfig) {
+            testClass = gradingConfig.testClass(); // keep old one
+        } else {
+            // TODO
+            throw new AssertionError("Unexpected grading config type: " + problemSet.getGradingConfig().getClass());
+        }
         var options = new GradingOptions(compiler, repetitions,
                 Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true);
 
@@ -185,7 +194,7 @@ public class ProblemSetController {
 
         problemSet.setName(name);
         problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, dependencyJars));
-        problemSet.setGradingConfig(new GradingConfig(testClass, options));
+        problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
         problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
         problemSet.setDisplaySetting(displaySetting);
         problemSet.setPercentageGoal(percentageGoal);

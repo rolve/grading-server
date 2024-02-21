@@ -25,8 +25,7 @@ class GradingServiceTest {
     @Autowired GradingService service;
     @Autowired SubmissionRepository submissionRepo;
     @Autowired AuthorRepository authorRepo;
-    @Autowired
-    UserRepository userRepo;
+    @Autowired UserRepository userRepo;
 
     Course course = new Course("OOPI2", new Term(2021, "FS"), "");
     GradingOptions options = new GradingOptions(JAVAC, 7,
@@ -45,7 +44,7 @@ class GradingServiceTest {
                     }
                 }""";
         var projectConfig = new ProjectConfig("", MAVEN, emptyList());
-        var gradingConfig = new GradingConfig(test, options);
+        var gradingConfig = new ImplGradingConfig(test, options);
         var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
                 now(), WITH_SHORTENED_NAMES);
 
@@ -83,7 +82,7 @@ class GradingServiceTest {
                     }
                 }""";
         var projectConfig = new ProjectConfig("", ECLIPSE, emptyList());
-        var gradingConfig = new GradingConfig(test, options);
+        var gradingConfig = new ImplGradingConfig(test, options);
         var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
                 now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
@@ -118,7 +117,7 @@ class GradingServiceTest {
                     }
                 }""";
         var projectConfig = new ProjectConfig("", ECLIPSE, emptyList());
-        var gradingConfig = new GradingConfig(test, options);
+        var gradingConfig = new ImplGradingConfig(test, options);
         var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
                 now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
