@@ -1,7 +1,5 @@
 package ch.trick17.gradingserver.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import javax.persistence.Embeddable;
 import java.time.Duration;
 import java.util.Objects;
@@ -19,7 +17,6 @@ public class GradingOptions {
 
     protected GradingOptions() {}
 
-    @JsonCreator
     public GradingOptions(Compiler compiler, int repetitions, Duration repTimeout,
                           Duration testTimeout, boolean permRestrictions) {
         this.compiler = requireNonNull(compiler);

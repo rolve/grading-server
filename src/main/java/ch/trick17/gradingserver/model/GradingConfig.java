@@ -1,7 +1,5 @@
 package ch.trick17.gradingserver.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
@@ -25,7 +23,6 @@ public class GradingConfig {
 
     protected GradingConfig() {}
 
-    @JsonCreator
     public GradingConfig(String testClass, String projectRoot,
                          ProjectStructure structure,
                          List<JarFile> dependencies,
