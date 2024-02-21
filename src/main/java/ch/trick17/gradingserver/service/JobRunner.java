@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
-import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.util.FileUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -61,18 +60,17 @@ public class JobRunner {
         var codeDir = JOBS_ROOT.resolve(id + "-code");
         var depsDir = JOBS_ROOT.resolve(id + "-deps");
         try {
-            var config = job.config();
             downloader.downloadCode(job.submission(), codeDir, job.username(), job.password());
-            var dependencies = writeDependencies(config.getDependencies(), depsDir);
+            var dependencies = writeDependencies(job.projectConfig().getDependencies(), depsDir);
 
             // TODO: handle case when project root is missing
             var srcDir = codeDir
-                    .resolve(config.getProjectRoot())
-                    .resolve(config.getStructure().srcDirPath);
+                    .resolve(job.projectConfig().getProjectRoot())
+                    .resolve(job.projectConfig().getStructure().srcDirPath);
             var submission = new Submission(id, srcDir);
 
-            var options = config.getOptions();
-            var task = Task.fromString(config.getTestClass())
+            var options = job.gradingConfig().getOptions();
+            var task = Task.fromString(job.gradingConfig().getTestClass())
                     .compiler(Compiler.valueOf(options.getCompiler().name()))
                     .repetitions(options.getRepetitions())
                     .timeouts(options.getRepTimeout(), options.getTestTimeout())

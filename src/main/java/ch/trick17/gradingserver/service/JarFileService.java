@@ -148,7 +148,7 @@ public class JarFileService {
     }
 
     public boolean deleteIfUnused(JarFile jarFile) {
-        var uses = problemSetRepo.countByGradingConfigDependenciesContaining(jarFile);
+        var uses = problemSetRepo.countByProjectConfigDependenciesContaining(jarFile);
         if (uses == 0) {
             repo.delete(jarFile);
         }

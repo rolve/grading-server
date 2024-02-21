@@ -3,8 +3,8 @@ package ch.trick17.gradingserver.controller;
 import ch.trick17.gradingserver.GradingServerProperties;
 import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.model.*;
-import ch.trick17.gradingserver.model.GradingConfig.ProjectStructure;
 import ch.trick17.gradingserver.model.ProblemSet.DisplaySetting;
+import ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure;
 import ch.trick17.gradingserver.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.JarFileService;
@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.ANONYMOUS;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
+import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDate.now;
@@ -115,18 +115,19 @@ public class ProblemSetController {
         model.addAttribute("add", id == null);
         if (id == null) {
             populateEditModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
-                    WITH_SHORTENED_NAMES, 80, ECLIPSE, "", emptyList(), "",
+                    WITH_SHORTENED_NAMES, 80, "", ECLIPSE, emptyList(), "",
                     DEFAULT_OPTIONS, "");
         } else {
             var problemSet = findProblemSet(courseId, id);
-            var config = problemSet.getGradingConfig();
+            var projectConfig = problemSet.getProjectConfig();
+            var gradingConfig = problemSet.getGradingConfig();
             populateEditModel(model, problemSet.getName(),
                     problemSet.getDeadline().toLocalDate(),
                     problemSet.getDeadline().toLocalTime(),
                     problemSet.getDisplaySetting(),
                     problemSet.getPercentageGoal(),
-                    config.getStructure(), config.getProjectRoot(),
-                    config.getDependencies(), "", config.getOptions(), "");
+                    projectConfig.getProjectRoot(), projectConfig.getStructure(),
+                    projectConfig.getDependencies(), "", gradingConfig.getOptions(), "");
         }
         return "problem-sets/edit";
     }
@@ -136,10 +137,12 @@ public class ProblemSetController {
                             @PathVariable(required = false) Integer id,
                             String name, LocalDate deadlineDate,
                             LocalTime deadlineTime, DisplaySetting displaySetting,
-                            int percentageGoal, MultipartFile testClassFile,
-                            ProjectStructure structure, String projectRoot,
+                            int percentageGoal,
+                            String projectRoot, ProjectStructure structure,
                             @RequestParam(required = false) Set<Integer> dependencies,
-                            String newDependencies, GradingOptions.Compiler compiler, int repetitions,
+                            String newDependencies,
+                            MultipartFile testClassFile,
+                            GradingOptions.Compiler compiler, int repetitions,
                             int repTimeoutMs, int testTimeoutMs, Model model,
                             HttpServletResponse response) throws IOException {
         var course = courseRepo.findById(courseId)
@@ -170,7 +173,7 @@ public class ProblemSetController {
             }
         } catch (JarFileService.JarDownloadFailedException e) {
             populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
-                    percentageGoal, structure, projectRoot, dependencyJars,
+                    percentageGoal, projectRoot, structure, dependencyJars,
                     newDependencies, options, errorFor(e));
             response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
             return "problem-sets/edit";
@@ -178,12 +181,11 @@ public class ProblemSetController {
 
         var prevDependencies = id == null
                 ? new ArrayList<JarFile>()
-                : copyOf(problemSet.getGradingConfig().getDependencies());
+                : copyOf(problemSet.getProjectConfig().getDependencies());
 
-        var config = new GradingConfig(testClass, projectRoot, structure,
-                dependencyJars, options);
         problemSet.setName(name);
-        problemSet.setGradingConfig(config);
+        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, dependencyJars));
+        problemSet.setGradingConfig(new GradingConfig(testClass, options));
         problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
         problemSet.setDisplaySetting(displaySetting);
         problemSet.setPercentageGoal(percentageGoal);
@@ -196,7 +198,7 @@ public class ProblemSetController {
     private void populateEditModel(Model model, String name,
                                    LocalDate deadlineDate, LocalTime deadlineTime,
                                    DisplaySetting displaySetting, int percentageGoal,
-                                   ProjectStructure structure, String projectRoot,
+                                   String projectRoot, ProjectStructure structure,
                                    List<JarFile> dependencies, String newDependencies,
                                    GradingOptions options, String error) {
         model.addAttribute("name", name);
@@ -205,8 +207,8 @@ public class ProblemSetController {
         model.addAttribute("displaySetting", displaySetting);
         model.addAttribute("displaySettings", DisplaySetting.values());
         model.addAttribute("percentageGoal", percentageGoal);
-        model.addAttribute("structure", structure);
         model.addAttribute("projectRoot", projectRoot);
+        model.addAttribute("structure", structure);
         model.addAttribute("possibleDependencies", jarFileService.findAll());
         model.addAttribute("dependencies", dependencies);
         model.addAttribute("newDependencies", newDependencies);
@@ -276,7 +278,7 @@ public class ProblemSetController {
         repo.save(problemSet);
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
-                problemSet.getGradingConfig().getProjectRoot(), tokenRecord.getToken());
+                problemSet.getProjectConfig().getProjectRoot(), tokenRecord.getToken());
         if (LOCALHOST.contains(req.getServerName())) {
             logger.warn("Cannot determine server name (access via localhost), will not add webhooks");
         } else {
@@ -306,7 +308,7 @@ public class ProblemSetController {
     public String delete(@PathVariable int courseId, @PathVariable int id) {
         var problemSet = findProblemSet(courseId, id);
         repo.delete(problemSet);
-        problemSet.getGradingConfig().getDependencies().forEach(jarFileService::deleteIfUnused);
+        problemSet.getProjectConfig().getDependencies().forEach(jarFileService::deleteIfUnused);
         return "redirect:../../";
     }
 

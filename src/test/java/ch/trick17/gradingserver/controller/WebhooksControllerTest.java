@@ -27,7 +27,7 @@ class WebhooksControllerTest {
     @Mock
     ProblemSet problemSet;
     @Mock
-    GradingConfig config;
+    ProjectConfig projectConfig;
     @Mock
     Solution sol;
     @Mock
@@ -49,8 +49,8 @@ class WebhooksControllerTest {
         when(solRepo.findByRepoUrl(repoUrl)).thenReturn(List.of(sol));
         when(sol.getProblemSet()).thenReturn(problemSet);
         when(sol.getBranch()).thenReturn("master");
-        when(problemSet.getGradingConfig()).thenReturn(config);
-        when(config.getProjectRoot()).thenReturn("");
+        when(problemSet.getProjectConfig()).thenReturn(projectConfig);
+        when(projectConfig.getProjectRoot()).thenReturn("");
 
         var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new GitLabPushEvent.Project(repoUrl),
@@ -94,8 +94,8 @@ class WebhooksControllerTest {
         when(sol.getBranch()).thenReturn("master");
         when(sol.getAccessToken()).thenReturn(new AccessToken(
                 new User("name", "pass", "User"), HOST, TOKEN));
-        when(problemSet.getGradingConfig()).thenReturn(config);
-        when(config.getProjectRoot()).thenReturn("foo");
+        when(problemSet.getProjectConfig()).thenReturn(projectConfig);
+        when(projectConfig.getProjectRoot()).thenReturn("foo");
 
         var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new GitLabPushEvent.Project(repoUrl),
@@ -118,8 +118,8 @@ class WebhooksControllerTest {
         when(sol.getBranch()).thenReturn("master");
         when(sol.getAccessToken()).thenReturn(new AccessToken(
                 new User("name", "pass", "User"), HOST, TOKEN));
-        when(problemSet.getGradingConfig()).thenReturn(config);
-        when(config.getProjectRoot()).thenReturn("bar");
+        when(problemSet.getProjectConfig()).thenReturn(projectConfig);
+        when(projectConfig.getProjectRoot()).thenReturn("bar");
 
         var controller = new WebhooksController(solRepo, submissionRepo, gradingService);
         var event = new GitLabPushEvent(new GitLabPushEvent.Project(repoUrl),

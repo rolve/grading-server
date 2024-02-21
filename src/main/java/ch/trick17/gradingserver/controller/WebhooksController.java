@@ -55,7 +55,7 @@ public class WebhooksController {
                 ignoredUser++;
                 continue;
             }
-            var projectRoot = sol.getProblemSet().getGradingConfig().getProjectRoot();
+            var projectRoot = sol.getProblemSet().getProjectConfig().getProjectRoot();
             if (!projectRoot.isEmpty()) {
                 var token = sol.getAccessToken().getToken();
                 try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), sol.getBranch(), "", token)) {

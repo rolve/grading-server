@@ -18,6 +18,7 @@ public class ProblemSet {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Course course;
     private String name;
+    private ProjectConfig projectConfig;
     private GradingConfig gradingConfig;
     private ZonedDateTime deadline;
     private DisplaySetting displaySetting;
@@ -35,11 +36,13 @@ public class ProblemSet {
         course.getProblemSets().add(this);
     }
 
-    public ProblemSet(Course course, String name, GradingConfig gradingConfig,
-                      ZonedDateTime deadline, DisplaySetting displaySetting) {
+    public ProblemSet(Course course, String name, ProjectConfig projectConfig,
+                      GradingConfig gradingConfig, ZonedDateTime deadline,
+                      DisplaySetting displaySetting) {
         this(course);
         this.name = requireNonNull(name);
         this.deadline = deadline;
+        this.projectConfig = requireNonNull(projectConfig);
         this.gradingConfig = gradingConfig;
         this.displaySetting = requireNonNull(displaySetting);
     }
@@ -58,6 +61,14 @@ public class ProblemSet {
 
     public void setName(String name) {
         this.name = requireNonNull(name);
+    }
+
+    public ProjectConfig getProjectConfig() {
+        return projectConfig;
+    }
+
+    public void setProjectConfig(ProjectConfig projectConfig) {
+        this.projectConfig = requireNonNull(projectConfig);
     }
 
     public GradingConfig getGradingConfig() {

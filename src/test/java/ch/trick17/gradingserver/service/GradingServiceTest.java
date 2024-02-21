@@ -10,10 +10,10 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.ECLIPSE;
-import static ch.trick17.gradingserver.model.GradingConfig.ProjectStructure.MAVEN;
 import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
+import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
+import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.MAVEN;
 import static java.time.ZonedDateTime.now;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,8 +44,10 @@ class GradingServiceTest {
                         assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
                     }
                 }""";
-        var config = new GradingConfig(test, "", MAVEN, emptyList(), options);
-        var problemSet = new ProblemSet(course, "Test", config, now(), WITH_SHORTENED_NAMES);
+        var projectConfig = new ProjectConfig("", MAVEN, emptyList());
+        var gradingConfig = new GradingConfig(test, options);
+        var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
+                now(), WITH_SHORTENED_NAMES);
 
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
                 "master", null, emptyList(), emptyList());
@@ -80,8 +82,10 @@ class GradingServiceTest {
                         assertEquals(3, Foo.add(1, 2));
                     }
                 }""";
-        var config = new GradingConfig(test, "", ECLIPSE, emptyList(), options);
-        var problemSet = new ProblemSet(course, "Test", config, now(), WITH_SHORTENED_NAMES);
+        var projectConfig = new ProjectConfig("", ECLIPSE, emptyList());
+        var gradingConfig = new GradingConfig(test, options);
+        var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
+                now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
         var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b",
@@ -113,8 +117,10 @@ class GradingServiceTest {
                         assertEquals(3, Foo.add(1, 2));
                     }
                 }""";
-        var config = new GradingConfig(test, "", ECLIPSE, emptyList(), options);
-        var problemSet = new ProblemSet(course, "Test", config, now(), WITH_SHORTENED_NAMES);
+        var projectConfig = new ProjectConfig("", ECLIPSE, emptyList());
+        var gradingConfig = new GradingConfig(test, options);
+        var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
+                now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
         var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b",

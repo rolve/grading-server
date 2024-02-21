@@ -2,10 +2,6 @@ package ch.trick17.gradingserver.model;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -15,39 +11,17 @@ public class GradingConfig {
 
     @Lob
     private String testClass;
-    private String projectRoot;
-    private ProjectStructure structure;
-    @ManyToMany
-    private List<JarFile> dependencies;
     private GradingOptions options;
 
     protected GradingConfig() {}
 
-    public GradingConfig(String testClass, String projectRoot,
-                         ProjectStructure structure,
-                         List<JarFile> dependencies,
-                         GradingOptions options) {
+    public GradingConfig(String testClass, GradingOptions options) {
         this.testClass = requireNonNull(testClass);
-        this.projectRoot = requireNonNull(projectRoot);
-        this.structure = requireNonNull(structure);
-        this.dependencies = new ArrayList<>(dependencies);
         this.options = requireNonNull(options);
     }
 
     public String getTestClass() {
         return testClass;
-    }
-
-    public String getProjectRoot() {
-        return projectRoot;
-    }
-
-    public ProjectStructure getStructure() {
-        return structure;
-    }
-
-    public List<JarFile> getDependencies() {
-        return dependencies;
     }
 
     public GradingOptions getOptions() {
@@ -65,16 +39,5 @@ public class GradingConfig {
     @Override
     public int hashCode() {
         return Objects.hash(options, testClass);
-    }
-
-    public enum ProjectStructure {
-        ECLIPSE(Path.of("src")),
-        MAVEN(Path.of("src/main/java"));
-
-        public final Path srcDirPath;
-
-        ProjectStructure(Path srcDirPath) {
-            this.srcDirPath = srcDirPath;
-        }
     }
 }

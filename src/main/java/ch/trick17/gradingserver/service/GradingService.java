@@ -51,8 +51,8 @@ public class GradingService {
         submission.setGradingStarted(false);
         submissionRepo.save(submission);
         // initialize lazy dependencies collection
-        var ignored = submission.getSolution().getProblemSet().getGradingConfig()
-                .getDependencies().size();
+        var ignored = submission.getSolution().getProblemSet()
+                .getProjectConfig().getDependencies().size();
         // then call async method through proxy
         return proxy.doGrade(submission);
     }
@@ -68,8 +68,9 @@ public class GradingService {
         var token = submission.getSolution().getAccessToken();
         var username = token == null ? null : "";
         var password = token == null ? null : token.getToken();
-        var config = submission.getSolution().getProblemSet().getGradingConfig();
-        var job = new GradingJob(code, username, password, config);
+        var projectConfig = submission.getSolution().getProblemSet().getProjectConfig();
+        var gradingConfig = submission.getSolution().getProblemSet().getGradingConfig();
+        var job = new GradingJob(code, username, password, projectConfig, gradingConfig);
 
         submissionService.setGradingStarted(submission, true);
 
