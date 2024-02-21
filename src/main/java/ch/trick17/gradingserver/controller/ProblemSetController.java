@@ -127,7 +127,7 @@ public class ProblemSetController {
                     problemSet.getDisplaySetting(),
                     problemSet.getPercentageGoal(),
                     projectConfig.getProjectRoot(), projectConfig.getStructure(),
-                    projectConfig.getDependencies(), "", gradingConfig.getOptions(), "");
+                    projectConfig.getDependencies(), "", gradingConfig.options(), "");
         }
         return "problem-sets/edit";
     }
@@ -155,7 +155,7 @@ public class ProblemSetController {
                 : findProblemSet(courseId, id);
 
         var testClass = id != null && testClassFile.isEmpty()
-                ? problemSet.getGradingConfig().getTestClass() // keep old one
+                ? problemSet.getGradingConfig().testClass() // keep old one
                 : new String(testClassFile.getBytes(), UTF_8);
 
         var options = new GradingOptions(compiler, repetitions,

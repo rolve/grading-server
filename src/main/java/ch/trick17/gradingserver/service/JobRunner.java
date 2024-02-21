@@ -69,12 +69,12 @@ public class JobRunner {
                     .resolve(job.projectConfig().getStructure().srcDirPath);
             var submission = new Submission(id, srcDir);
 
-            var options = job.gradingConfig().getOptions();
-            var task = Task.fromString(job.gradingConfig().getTestClass())
-                    .compiler(Compiler.valueOf(options.getCompiler().name()))
-                    .repetitions(options.getRepetitions())
-                    .timeouts(options.getRepTimeout(), options.getTestTimeout())
-                    .permittedCalls(options.getPermRestrictions()
+            var options = job.gradingConfig().options();
+            var task = Task.fromString(job.gradingConfig().testClass())
+                    .compiler(Compiler.valueOf(options.compiler().name()))
+                    .repetitions(options.repetitions())
+                    .timeouts(options.repTimeout(), options.testTimeout())
+                    .permittedCalls(options.permRestrictions()
                             ? Whitelist.DEFAULT_WHITELIST_DEF
                             : null)
                     .dependencies(dependencies);

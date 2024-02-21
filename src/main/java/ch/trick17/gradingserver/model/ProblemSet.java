@@ -1,5 +1,7 @@
 package ch.trick17.gradingserver.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class ProblemSet {
     private Course course;
     private String name;
     private ProjectConfig projectConfig;
+    @Type(type = "json")
     private GradingConfig gradingConfig;
     private ZonedDateTime deadline;
     private DisplaySetting displaySetting;

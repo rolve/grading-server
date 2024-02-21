@@ -1,0 +1,17 @@
+ALTER TABLE PROBLEM_SET
+    ADD COLUMN GRADING_CONFIG JSON NOT NULL DEFAULT '';
+
+UPDATE PROBLEM_SET
+    SET GRADING_CONFIG = JSON_OBJECT(
+            'testClass': TEST_CLASS,
+            'options': JSON_OBJECT(
+                'compiler': CASE WHEN COMPILER = 0 THEN 'JAVAC' ELSE 'ECLIPSE' END,
+                'repetitions': REPETITIONS,
+                'repTimeout': REP_TIMEOUT_MILLIS / 1000.0,
+                'testTimeout': TEST_TIMEOUT_MILLIS / 1000.0,
+                'permRestrictions': PERM_RESTRICTIONS
+            )
+        );
+
+ALTER TABLE PROBLEM_SET
+    DROP COLUMN TEST_CLASS, COMPILER, REPETITIONS, REP_TIMEOUT_MILLIS, TEST_TIMEOUT_MILLIS, PERM_RESTRICTIONS;
