@@ -86,8 +86,8 @@ public class JobRunner {
             var props = result.properties().stream()
                     .map(Property::prettyName)
                     .toList();
-            return new GradingResult(null, props, format(result.passedTests()),
-                    format(result.failedTests()), null);
+            return new GradingResult(null, props, format(result.passedTests(), result.allTests()),
+                    format(result.failedTests(), result.allTests()), null);
         } finally {
             try {
                 delete(codeDir.toFile(), RECURSIVE | RETRY);
@@ -98,9 +98,15 @@ public class JobRunner {
         }
     }
 
-    private List<String> format(List<TestMethod> methods) {
-        return methods.stream()
-                .map(m -> m.className() + "." + m.name())
+    private List<String> format(List<TestMethod> tests, List<TestMethod> allTests) {
+        var classes = allTests.stream()
+                .map(TestMethod::className)
+                .distinct()
+                .count();
+        return tests.stream()
+                .map(m -> classes > 1
+                        ? m.className().substring(m.className().lastIndexOf('.') + 1) + "." + m.name()
+                        : m.name())
                 .toList();
     }
 
