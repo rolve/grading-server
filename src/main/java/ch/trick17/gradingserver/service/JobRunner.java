@@ -3,11 +3,10 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
-import ch.trick17.jtt.grader.Submission;
-import ch.trick17.jtt.grader.Task;
 import ch.trick17.jtt.memcompile.Compiler;
 import ch.trick17.jtt.sandbox.Whitelist;
 import ch.trick17.jtt.testrunner.TestMethod;
+import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +35,7 @@ public class JobRunner {
     private final AtomicLong idCounter = new AtomicLong(0);
     private final CodeDownloader downloader;
     private final Grader grader = new Grader();
+    private final TestSuiteGrader testSuiteGrader = new TestSuiteGrader();
 
     public JobRunner(CodeDownloader downloader) {
         this.downloader = downloader;
@@ -64,11 +64,11 @@ public class JobRunner {
             var srcDir = codeDir
                     .resolve(job.projectConfig().getProjectRoot())
                     .resolve(job.projectConfig().getStructure().srcDirPath);
-            var submission = new Submission(id, srcDir);
 
             if (job.gradingConfig() instanceof ImplGradingConfig gradingConfig) {
+                var submission = new Grader.Submission(id, srcDir);
                 var options = gradingConfig.options();
-                var task = Task.fromString(gradingConfig.testClass())
+                var task = Grader.Task.fromString(gradingConfig.testClass())
                         .compiler(Compiler.valueOf(options.compiler().name()))
                         .repetitions(options.repetitions())
                         .timeouts(options.repTimeout(), options.testTimeout())
@@ -84,8 +84,16 @@ public class JobRunner {
                         .toList();
                 return new ImplGradingResult(props, format(result.passedTests(), result.allTests()),
                         format(result.failedTests(), result.allTests()));
+            } else if (job.gradingConfig() instanceof TestSuiteGradingConfig gradingConfig) {
+                var testDir = codeDir
+                        .resolve(job.projectConfig().getProjectRoot())
+                        .resolve(job.projectConfig().getStructure().testDirPath);
+                var submission = TestSuiteGrader.Submission.loadFrom(testDir);
+
+                var result = testSuiteGrader.grade(gradingConfig.task(), submission);
+
+                return new TestSuiteGradingResult(result);
             } else {
-                // TODO
                 throw new AssertionError("Unknown grading config type: " + job.gradingConfig());
             }
         } finally {
