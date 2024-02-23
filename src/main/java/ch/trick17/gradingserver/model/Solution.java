@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.*;
 import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.*;
@@ -25,6 +24,7 @@ public class Solution implements Serializable {
     private AccessToken accessToken;
     @ManyToMany(cascade = {PERSIST, MERGE})
     private final Set<Author> authors = new HashSet<>();
+    // TODO: Convert the following to JSON
     @Lob
     @Convert(converter = StringListConverter.class)
     private final List<String> ignoredPushers = new ArrayList<>();
@@ -92,14 +92,10 @@ public class Solution implements Serializable {
     }
 
     public static Comparator<Solution> byResult() {
-        // totally unreadable, but the following sorts first by number of passed
-        // tests (higher -> "less") and then by received date (earlier -> "less")
         return comparing(Solution::latestSubmission, nullsLast(
                 comparing(Submission::getStatus)
-                .thenComparing(Submission::getResult, nullsLast(
-                        comparing(GradingResult::getPassedTests, nullsLast(
-                                reverseOrder(comparingInt(List::size)))))))
-                        .thenComparing(Submission::getReceivedDate));
+                        .thenComparing(Submission::getResult, nullsLast(GradingResult.betterFirst()))
+                        .thenComparing(Submission::getReceivedDate)));
     }
 
     public static Comparator<Solution> byCommitHash() {

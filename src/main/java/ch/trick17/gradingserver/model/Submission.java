@@ -1,5 +1,7 @@
 package ch.trick17.gradingserver.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -21,6 +23,7 @@ public class Submission implements Serializable {
     private String commitHash;
     private ZonedDateTime receivedDate;
     private boolean gradingStarted;
+    @Type(type = "json")
     private GradingResult result;
 
     protected Submission() {}
@@ -84,10 +87,10 @@ public class Submission implements Serializable {
             return SubmissionState.QUEUED;
         } else if (!hasResult()) {
             return SubmissionState.GRADING;
-        } else if (result.successful()) {
-            return SubmissionState.GRADED;
-        } else {
+        } else if (result instanceof ErrorResult) {
             return SubmissionState.ERROR;
+        } else {
+            return SubmissionState.GRADED;
         }
     }
 }

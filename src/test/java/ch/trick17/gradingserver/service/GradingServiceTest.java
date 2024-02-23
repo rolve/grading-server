@@ -56,13 +56,10 @@ class GradingServiceTest {
 
         service.grade(submission).get();
 
-        var result = submission.getResult();
-        assertNotNull(result);
-        assertTrue(result.successful());
-        assertNull(result.getError());
-        assertEquals(List.of("compiled"), result.getProperties());
-        assertEquals(List.of("testToRgbInt"), result.getPassedTests());
-        assertEquals(emptyList(), result.getFailedTests());
+        var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
+        assertEquals(List.of("compiled"), result.properties());
+        assertEquals(List.of("testToRgbInt"), result.passedTests());
+        assertEquals(emptyList(), result.failedTests());
     }
 
     @Test
@@ -93,13 +90,10 @@ class GradingServiceTest {
 
         service.grade(submission).get();
 
-        var result = submission.getResult();
-        assertNotNull(result);
-        assertTrue(result.successful());
-        assertNull(result.getError());
-        assertEquals(List.of("compiled"), result.getProperties());
-        assertEquals(List.of("testAdd"), result.getPassedTests());
-        assertEquals(emptyList(), result.getFailedTests());
+        var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
+        assertEquals(List.of("compiled"), result.properties());
+        assertEquals(List.of("testAdd"), result.passedTests());
+        assertEquals(emptyList(), result.failedTests());
     }
 
     @Test
@@ -128,14 +122,9 @@ class GradingServiceTest {
 
         service.grade(submission).get();
 
-        var result = submission.getResult();
-        assertNotNull(result);
-        assertFalse(result.successful());
-        assertNotNull(result.getError());
-        assertTrue(result.getError().toLowerCase()
+        var result = assertInstanceOf(ErrorResult.class, submission.getResult());
+        assertNotNull(result.error());
+        assertTrue(result.error().toLowerCase()
                 .matches(".*ioexception.*authentication.*required.*"));
-        assertNull(result.getProperties());
-        assertNull(result.getPassedTests());
-        assertNull(result.getFailedTests());
     }
 }

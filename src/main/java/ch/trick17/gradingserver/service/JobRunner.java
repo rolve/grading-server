@@ -1,9 +1,6 @@
 package ch.trick17.gradingserver.service;
 
-import ch.trick17.gradingserver.model.GradingJob;
-import ch.trick17.gradingserver.model.GradingResult;
-import ch.trick17.gradingserver.model.ImplGradingConfig;
-import ch.trick17.gradingserver.model.JarFile;
+import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
 import ch.trick17.jtt.grader.Submission;
@@ -49,8 +46,7 @@ public class JobRunner {
             return tryRun(job);
         } catch (Throwable e) {
             logger.error("Error while running grading job for " + job.submission(), e);
-            var error = e.getClass().getSimpleName() + ": " + e.getMessage();
-            return new GradingResult(error, null, null, null, null);
+            return new ErrorResult(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
     }
 
@@ -86,8 +82,8 @@ public class JobRunner {
                 var props = result.properties().stream()
                         .map(Property::prettyName)
                         .toList();
-                return new GradingResult(null, props, format(result.passedTests(), result.allTests()),
-                        format(result.failedTests(), result.allTests()), null);
+                return new ImplGradingResult(props, format(result.passedTests(), result.allTests()),
+                        format(result.failedTests(), result.allTests()));
             } else {
                 // TODO
                 throw new AssertionError("Unknown grading config type: " + job.gradingConfig());

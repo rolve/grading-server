@@ -17,7 +17,7 @@ public class GradingConfigMigrationTest {
     @Autowired
     ProblemSetRepository problemSetRepo;
 
-    // see test data inserted by V6.1__test-config.sql
+    // see test data inserted by V6.1__test-configs.sql
 
     @Test
     void migrate() {
