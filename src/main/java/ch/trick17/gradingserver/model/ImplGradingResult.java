@@ -2,7 +2,6 @@ package ch.trick17.gradingserver.model;
 
 import java.util.List;
 
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
@@ -43,6 +42,6 @@ public record ImplGradingResult(
 
     @Override
     public int compareTo(ImplGradingResult other) {
-        return comparing(ImplGradingResult::passedTestsRatio).compare(this, other);
+        return Double.compare(passedTestsRatio(), other.passedTestsRatio());
     }
 }
