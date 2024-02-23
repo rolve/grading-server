@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
+import static java.util.Collections.emptyList;
 import static org.eclipse.jgit.util.FileUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -78,21 +79,24 @@ public class JobRunner {
                         .dependencies(dependencies);
 
                 var result = grader.grade(task, submission);
-
-                var props = result.properties().stream()
-                        .map(Property::prettyName)
-                        .toList();
-                return new ImplGradingResult(props, format(result.passedTests(), result.allTests()),
-                        format(result.failedTests(), result.allTests()));
+                return convert(result);
             } else if (job.gradingConfig() instanceof TestSuiteGradingConfig gradingConfig) {
                 var testDir = codeDir
                         .resolve(job.projectConfig().getProjectRoot())
                         .resolve(job.projectConfig().getStructure().testDirPath);
-                var submission = TestSuiteGrader.Submission.loadFrom(testDir);
+                var testSuiteSubmission = TestSuiteGrader.Submission.loadFrom(testDir);
 
-                var result = testSuiteGrader.grade(gradingConfig.task(), submission);
+                var testSuiteResult = testSuiteGrader.grade(gradingConfig.task(), testSuiteSubmission, dependencies);
+                if (!testSuiteResult.compiled() || testSuiteResult.emptyTestSuite()) {
+                    return new TestSuiteGradingResult(testSuiteResult, null);
+                }
 
-                return new TestSuiteGradingResult(result);
+                var task = new Grader.Task(testSuiteSubmission.testSuite(), emptyList())
+                        .dependencies(dependencies);
+                var implSubmission = new Grader.Submission(id, srcDir);
+                var implResult = grader.grade(task, implSubmission);
+
+                return new TestSuiteGradingResult(testSuiteResult, convert(implResult));
             } else {
                 throw new AssertionError("Unknown grading config type: " + job.gradingConfig());
             }
@@ -104,6 +108,14 @@ public class JobRunner {
                 logger.warn("Could not delete " + codeDir, e);
             }
         }
+    }
+
+    private ImplGradingResult convert(Grader.Result result) {
+        var props = result.properties().stream()
+                .map(Property::prettyName)
+                .toList();
+        return new ImplGradingResult(props, format(result.passedTests(), result.allTests()),
+                format(result.failedTests(), result.allTests()));
     }
 
     private List<String> format(List<TestMethod> tests, List<TestMethod> allTests) {

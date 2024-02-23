@@ -157,10 +157,14 @@ class GradingServiceTest {
         service.grade(submission).get();
 
         var result = assertInstanceOf(TestSuiteGradingResult.class, submission.getResult());
-        assertTrue(result.compiled());
-        assertFalse(result.emptyTestSuite());
-        assertEquals(1.0, result.refImplementationScore(), 0.001);
-        assertEquals(0.5, result.mutantScore(), 0.001); // test suite covers half the tasks/tests
-        assertEquals(0.5, result.totalScore(), 0.001);
+        assertTrue(result.testSuiteResult().compiled());
+        assertFalse(result.testSuiteResult().emptyTestSuite());
+        assertEquals(1.0, result.testSuiteResult().refImplementationScore(), 0.001);
+        assertEquals(0.5, result.testSuiteResult().mutantScore(), 0.001); // test suite covers half the tasks/tests
+        assertEquals(0.5, result.testSuiteResult().totalScore(), 0.001);
+
+        assertEquals(9, result.implResult().passedTests().size()); // implementation passes 9/12 of the submitted tests
+        assertEquals(3, result.implResult().failedTests().size());
+        assertEquals(0.75, result.implResult().passedTestsRatio(), 0.001);
     }
 }
