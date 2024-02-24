@@ -76,7 +76,7 @@
                 <div class="h-full bg-blue-500{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
                      style="width: {{ percent }}%"></div>
             </div>
-            <div class="text-lg mb-4">
+            <div class="text-lg mx-0.5 mb-4">
                 {% if percent == 100 %}
                     <i class="fas fa-trophy text-blue-500"></i>
                 {% endif %}
@@ -93,16 +93,16 @@
             <div class="h-full bg-emerald-600{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
                  style="width: {{ percent }}%"></div>
         </div>
-        <div class="flex justify-between text-lg mb-4">
+        <div class="flex justify-between text-lg mx-0.5 mb-4">
             <span>
                 {% if percent == 100 %}
                     <i class="fas fa-trophy text-emerald-600"></i>
                 {% endif %}
-                {{ percent }} %
+                {{ percent }} % {{ message("submission.passed") }}
             </span>
             <span class="text-slate-400">
                     {{ implResult.passedTests.size }} / {{ implResult.totalTests }}
-                {{ message("submission.tests-passed") }}
+                {{ message("submission.tests") }}
             </span>
         </div>
 
