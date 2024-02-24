@@ -120,11 +120,11 @@
         {% for s in allSubmissions %}
             <li class="col-span-3 grid grid-cols-subgrid">
                 <a {{ (s == submission ? "" : 'href="../' + s.id + '/"') | raw }}
-                   class="col-span-3 grid grid-cols-subgrid py-2 group">
+                   class="col-span-3 grid grid-cols-subgrid items-center py-2 group">
                     <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
                         {{- s.shortCommitHash -}}
                     </span>
-                    <span class="self-center text-sm sm:text-base"
+                    <span class="text-sm sm:text-base"
                           title="{{ s.receivedDate | date }}">
                         {{ s.receivedDate | pretty }}
                     </span>
