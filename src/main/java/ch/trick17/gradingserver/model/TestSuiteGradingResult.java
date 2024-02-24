@@ -24,6 +24,9 @@ public record TestSuiteGradingResult(
         if (testSuiteResult.emptyTestSuite()) {
             properties.add("empty test suite");
         }
+        if (!incorrectTests().isEmpty()) {
+            properties.add("incorrect tests");
+        }
         return properties;
     }
 
@@ -34,6 +37,16 @@ public record TestSuiteGradingResult(
     public int implPercent() {
         var implRatio = implResult != null ? implResult.passedTestsRatio() : 0;
         return (int) (100 * testSuiteResult.totalScore() * implRatio);
+    }
+
+    public List<String> incorrectTests() {
+        return testSuiteResult.refImplementationResults().stream()
+                .filter(r -> !r.passed())
+                .flatMap(r -> r.failedTests().stream())
+                .map(m -> m.className().substring(m.className().lastIndexOf('.') + 1) + "." + m.name())
+                .sorted()
+                .distinct()
+                .toList();
     }
 
     @Override
