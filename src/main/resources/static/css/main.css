@@ -25,6 +25,10 @@
         @apply text-xl mt-1.5 mb-2;
     }
 
+    h4 {
+        @apply text-lg mb-1;
+    }
+
     input, select, textarea {
         @apply px-2 py-1 bg-white rounded-lg shadow-inner border-slate-200
             border-2 focus:outline-none focus:border-blue-500 transition
@@ -33,6 +37,10 @@
 
     input[type="file"], select[multiple] {
         @apply p-1;
+    }
+
+    code {
+        @apply text-sm px-1 py-0.5 bg-slate-100 rounded-md;
     }
 }
 

@@ -2,7 +2,9 @@ package ch.trick17.gradingserver.controller;
 
 import ch.trick17.gradingserver.model.Submission;
 import ch.trick17.gradingserver.model.SubmissionRepository;
+import ch.trick17.gradingserver.model.TestSuiteGradingResult;
 import ch.trick17.gradingserver.service.GradingService;
+import ch.trick17.gradingserver.service.TestSuiteResultService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,10 +28,13 @@ public class SubmissionController {
 
     private final SubmissionRepository repo;
     private final GradingService gradingService;
+    private final TestSuiteResultService testSuiteResultService;
 
-    public SubmissionController(SubmissionRepository repo, GradingService gradingService) {
+    public SubmissionController(SubmissionRepository repo, GradingService gradingService,
+                                TestSuiteResultService testSuiteResultService) {
         this.repo = repo;
         this.gradingService = gradingService;
+        this.testSuiteResultService = testSuiteResultService;
     }
 
     @GetMapping("/{id}/")
@@ -42,6 +47,10 @@ public class SubmissionController {
                 .sorted(comparing(Submission::getReceivedDate, reverseOrder()))
                 .collect(Collectors.toList());
         model.addAttribute("submission", submission);
+        if (submission.getResult() instanceof TestSuiteGradingResult result) {
+            var suggestions = testSuiteResultService.getSuggestions(submission, result);
+            model.addAttribute("suggestions", suggestions);
+        }
         model.addAttribute("allSubmissions", allSubmissions);
         return "submissions/submission";
     }
