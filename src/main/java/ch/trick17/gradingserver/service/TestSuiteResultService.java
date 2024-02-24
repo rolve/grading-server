@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 public class TestSuiteResultService {
@@ -19,11 +19,10 @@ public class TestSuiteResultService {
         var missingTests = result.testSuiteResult().mutantResults().stream()
                 .filter(r -> r.passed())
                 .flatMap(r -> r.mutation().killers().stream())
-                .distinct()
-                .sorted(comparingInt(result.testSuiteResult().allTests()::indexOf))
-                .toList();
-        return missingTests.stream()
-                .map(config.task().refTestDescriptions()::get)
+                .collect(toSet());
+        return config.task().refTestDescriptions().entrySet().stream()
+                .filter(e -> missingTests.contains(e.getKey()))
+                .map(e -> e.getValue())
                 .limit(SUGGESTIONS)
                 .toList();
     }
