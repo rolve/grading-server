@@ -10,29 +10,63 @@
         {% elseif submission.status == 'ERROR' %}
             <i class="fas fa-fw fa-bolt-lightning"></i>
             {{ message("submission.status.error") }}
+        {% elseif submission.implResult != null %}
+            {{ implResultBar(submission.implResult.passedTestsPercent,
+                             submission.solution.problemSet.percentageGoal,
+                             forceLabel) }}
         {% else %}
-            {{ resultBar(submission.result.passedTestsPercent,
-                         submission.solution.problemSet.percentageGoal,
-                         forceLabel) }}
+            {{ testSuiteResultBar(submission.testSuiteResult.testSuitePercent,
+                                  submission.testSuiteResult.implPercent,
+                                  submission.solution.problemSet.percentageGoal,
+                                  forceLabel) }}
         {% endif %}
     </span>
 {% endmacro %}
 
-{% macro resultBar(percent, goal, forceLabel) %}
+{% macro implResultBar(percent, goal, forceLabel) %}
     {# @pebvariable name="percent" type="int" #}
     {# @pebvariable name="goal" type="int" #}
     {# @pebvariable name="forceLabel" type="boolean" #}
     <div class="flex items-center gap-2 ps-px">
         <div class="flex-grow rounded-full bg-slate-200 h-2 overflow-hidden">
-            <div class="h-full {{ percent >= goal ? "bg-emerald-600" : "bg-slate-500" }}"
+            <div class="h-full bg-emerald-600{{ percent < goal ? " opacity-50" : "" }}"
                  style="width: {{ percent }}%"></div>
         </div>
         {% if percent == 100 %}
             <i class="fas fa-trophy text-emerald-600 -ms-1"></i>
         {% endif %}
-        <div class="whitespace-nowrap
-                    {% if not forceLabel %}hidden sm:block{% endif %}">
+        <div class="whitespace-nowrap {% if not forceLabel %}hidden sm:block{% endif %}">
             {{ (percent | numberformat("000"))
+                    .replaceAll("^00", "  ")
+                    .replaceAll("^0", " ") }} %
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro testSuiteResultBar(testSuitePercent, implPercent, goal, forceLabel) %}
+    {# @pebvariable name="testSuitePercent" type="int" #}
+    {# @pebvariable name="implPercent" type="int" #}
+    {# @pebvariable name="goal" type="int" #}
+    {# @pebvariable name="forceLabel" type="boolean" #}
+    <div class="flex items-center gap-2 ps-px">
+        <div class="flex-grow flex flex-col gap-0.5">
+            <div class="rounded-full bg-slate-200 h-1.5 overflow-hidden">
+                <div class="h-full bg-blue-500{{ testSuitePercent < goal ? " opacity-50" : "" }}"
+                     style="width: {{ testSuitePercent }}%"></div>
+            </div>
+            <div class="rounded-full bg-slate-200 h-1.5 overflow-hidden">
+                <div class="h-full bg-emerald-600{{ implPercent < goal ? " opacity-50" : "" }}"
+                     style="width: {{ implPercent }}%"></div>
+            </div>
+        </div>
+        {% if testSuitePercent == 100 %}
+            <i class="fas fa-trophy text-blue-500 -ms-1"></i>
+        {% endif %}
+        {% if implPercent == 100 %}
+            <i class="fas fa-trophy text-emerald-600 -ms-1"></i>
+        {% endif %}
+        <div class="whitespace-nowrap {% if not forceLabel %}hidden sm:block{% endif %}">
+            {{ (implPercent | numberformat("000"))
                     .replaceAll("^00", "  ")
                     .replaceAll("^0", " ") }} %
         </div>

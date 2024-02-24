@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.model;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.Comparator;
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS;
 import static java.lang.Boolean.compare;
@@ -14,6 +15,8 @@ public sealed interface GradingResult
     default boolean successful() {
         return !(this instanceof ErrorResult);
     }
+
+    List<String> properties();
 
     static Comparator<GradingResult> betterFirst() {
         return (r1, r2) -> {

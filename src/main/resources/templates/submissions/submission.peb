@@ -45,7 +45,7 @@
     {% endblock %}
     {% endembed %}
 {% elseif submission.status == 'GRADED' %}
-    {% if not submission.result.compiled %}
+    {% if submission.result.properties contains not "compiled" %}
         {% embed "fragments/alert" with { "icon": "times-circle" } %}
         {% block content %}
             {{ message("submission.warnings.fatal-compile-errors") }}
@@ -57,7 +57,8 @@
                      "nondeterministic":  "random",
                      "timeout":           "hourglass-half",
                      "out of memory":     "microchip",
-                     "illegal operation": "ban"} %}
+                     "illegal operation": "ban",
+                     "empty test suite":  "file-circle-question"} %}
         {% if submission.result.properties contains entry.key %}
             {% embed "fragments/alert" with { "icon": entry.value } %}
             {% block content %}
@@ -67,46 +68,62 @@
         {% endif %}
     {% endfor %}
 
-    {% if submission.result.successful %}
-        <div class="-mx-4 mt-4 bg-white px-4 py-3 shadow-lg shadow-slate-200
-                    sm:mx-0 sm:rounded-lg">
-            {% set percent = submission.result.passedTestsPercent %}
-            <div class="bg-slate-200 h-6 rounded-lg overflow-hidden my-2">
-                <div class="h-full {{ percent >= problemSet.percentageGoal ? "bg-emerald-600" : "bg-slate-500" }}"
+    <div class="-mx-4 mt-4 bg-white px-4 py-3 shadow-lg shadow-slate-200
+                sm:mx-0 sm:rounded-lg">
+        {% if submission.testSuiteResult != null %}
+            {% set percent = submission.testSuiteResult.testSuitePercent %}
+            <div class="bg-slate-200 h-6 rounded-full overflow-hidden my-2">
+                <div class="h-full bg-blue-500{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
                      style="width: {{ percent }}%"></div>
             </div>
-            <div class="flex justify-between text-lg mb-4">
-                <span>
-                    {% if percent == 100 %}
-                        <i class="fas fa-trophy text-emerald-600"></i>
-                    {% endif %}
-                    {{ percent }} %
-                </span>
-                <span class="text-slate-400">
-                    {{ submission.result.passedTests.size }} / {{ submission.result.totalTests }}
-                    {{ message("submission.tests-passed") }}
-                </span>
+            <div class="text-lg mb-4">
+                {% if percent == 100 %}
+                    <i class="fas fa-trophy text-blue-500"></i>
+                {% endif %}
+                {{ percent }} % {{ message("submission.test-coverage") }}
             </div>
+            {% set implResult = submission.testSuiteResult.implResult %}
+            {% set percent = submission.testSuiteResult.implPercent %}
+        {% else %}
+            {% set implResult = submission.implResult %}
+            {% set percent = implResult.passedTestsPercent %}
+        {% endif %}
 
-            <ul>
-            {% for test in submission.result.allTests %}
-                {% set passed = submission.result.passedTests contains test %}
-                <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
-                    <span class="overflow-hidden overflow-ellipsis {{ passed ? "" : "text-slate-400" }}">
-                        {{ test }}<span class="sr-only">:</span>
-                    </span>
-                    {% if passed %}
-                        <i class="fas fa-circle-check text-emerald-600"></i>
-                        <span class="sr-only">{{ message("submission.test-passed") }}</span>
-                    {% else %}
-                        <i class="fas fa-circle-xmark text-slate-400"></i>
-                        <span class="sr-only">{{ message("submission.test-failed") }}</span>
-                    {% endif %}
-                </li>
-            {% endfor %}
-            </ul>
+        <div class="bg-slate-200 h-6 rounded-full overflow-hidden my-2">
+            <div class="h-full bg-emerald-600{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
+                 style="width: {{ percent }}%"></div>
         </div>
-    {% endif %}
+        <div class="flex justify-between text-lg mb-4">
+            <span>
+                {% if percent == 100 %}
+                    <i class="fas fa-trophy text-emerald-600"></i>
+                {% endif %}
+                {{ percent }} %
+            </span>
+            <span class="text-slate-400">
+                    {{ implResult.passedTests.size }} / {{ implResult.totalTests }}
+                {{ message("submission.tests-passed") }}
+            </span>
+        </div>
+
+        <ul>
+            {% for test in implResult.allTests %}
+            {% set passed = implResult.passedTests contains test %}
+            <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
+                <span class="overflow-hidden overflow-ellipsis {{ passed ? "" : "text-slate-400" }}">
+                    {{ test }}<span class="sr-only">:</span>
+                </span>
+                {% if passed %}
+                    <i class="fas fa-circle-check text-emerald-600"></i>
+                    <span class="sr-only">{{ message("submission.test-passed") }}</span>
+                    {% else %}
+                    <i class="fas fa-circle-xmark text-slate-400"></i>
+                    <span class="sr-only">{{ message("submission.test-failed") }}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% else %}
     <p class="mt-1">
         {{ status(submission) }}

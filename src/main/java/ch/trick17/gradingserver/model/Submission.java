@@ -87,10 +87,18 @@ public class Submission implements Serializable {
             return SubmissionState.QUEUED;
         } else if (!hasResult()) {
             return SubmissionState.GRADING;
-        } else if (result instanceof ErrorResult) {
-            return SubmissionState.ERROR;
-        } else {
+        } else if (result.successful()) {
             return SubmissionState.GRADED;
+        } else {
+            return SubmissionState.ERROR;
         }
+    }
+
+    public ImplGradingResult getImplResult() {
+        return result instanceof ImplGradingResult i ? i : null;
+    }
+
+    public TestSuiteGradingResult getTestSuiteResult() {
+        return result instanceof TestSuiteGradingResult t ? t : null;
     }
 }
