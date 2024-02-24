@@ -53,8 +53,7 @@ public class JobRunner {
 
     private GradingResult tryRun(GradingJob job) throws IOException {
         var id = idCounter.getAndIncrement() + "";
-        logger.info("Running grading job for {} (job id: {})",
-                job.submission(), id);
+        logger.info("Running grading job {} for {}", id, job.submission());
         var codeDir = JOBS_ROOT.resolve(id + "-code");
         var depsDir = JOBS_ROOT.resolve(id + "-deps");
         try {
@@ -101,6 +100,7 @@ public class JobRunner {
                 throw new AssertionError("Unknown grading config type: " + job.gradingConfig());
             }
         } finally {
+            logger.info("Job {} finished", id);
             try {
                 delete(codeDir.toFile(), RECURSIVE | RETRY);
                 delete(depsDir.toFile(), RECURSIVE | RETRY);
