@@ -1,12 +1,15 @@
 package ch.trick17.gradingserver.model;
 
+import ch.trick17.jtt.testrunner.TestMethod;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS;
 import static java.lang.Boolean.compare;
+import static java.util.Comparator.comparingInt;
 
 @JsonTypeInfo(use = CLASS, property = "@class")
 public sealed interface GradingResult
@@ -30,5 +33,18 @@ public sealed interface GradingResult
                 throw new AssertionError("incomparable grading results: " + r1 + ", " + r2);
             }
         };
+    }
+
+    static List<String> formatTestMethods(Collection<TestMethod> tests, List<TestMethod> allTests) {
+        var classes = allTests.stream()
+                .map(TestMethod::className)
+                .distinct()
+                .count();
+        return tests.stream()
+                .sorted(comparingInt(allTests::indexOf))
+                .map(m -> classes > 1
+                        ? m.className().substring(m.className().lastIndexOf('.') + 1) + "." + m.name()
+                        : m.name())
+                .toList();
     }
 }

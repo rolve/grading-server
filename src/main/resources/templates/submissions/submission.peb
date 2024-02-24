@@ -72,51 +72,51 @@
     <div class="-mx-4 mt-4 bg-white px-4 py-3 shadow-lg shadow-slate-200
                 sm:mx-0 sm:rounded-lg">
         {% if submission.testSuiteResult != null %}
+            <h3>{{ message("submission.test-suite") }}</h3>
+            {% set percent = submission.testSuiteResult.testSuitePercent %}
+            <div class="bg-slate-200 h-6 rounded-full overflow-hidden my-2">
+                <div class="h-full bg-blue-500{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
+                     style="width: {{ percent }}%"></div>
+            </div>
+            <div class="text-lg mx-0.5 mb-3">
+                {% if percent == 100 %}
+                    <i class="fas fa-trophy text-blue-500"></i>
+                {% endif %}
+                {{ percent }} % {{ message("submission.test-coverage") }}
+            </div>
+
             {% if submission.testSuiteResult.incorrectTests is not empty %}
-                <h3>{{ message("submission.incorrect-tests") }}</h3>
-                <ul>
+                <ul class="mb-4">
                     {% for test in submission.testSuiteResult.incorrectTests %}
-                        <li class="py-2 flex flex-row items-center gap-2">
-                            <i class="fas fa-circle-xmark text-red-600"></i>
-                            <span class="overflow-hidden overflow-ellipsis">
-                                {{ test }}
-                            </span>
-                        </li>
+                    <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
+                        <span class="overflow-hidden overflow-ellipsis">
+                            {{ test }}<span class="sr-only">:</span>
+                        </span>
+                        <i class="fas fa-circle-xmark text-red-600"></i>
+                        <span class="sr-only">{{ message("submission.test-incorrect") }}</span>
+                    </li>
                     {% endfor %}
                 </ul>
-                {% set percent = null %}
-                {% set implResult = null %}
-            {% else %}
-                {% set percent = submission.testSuiteResult.testSuitePercent %}
-                <div class="bg-slate-200 h-6 rounded-full overflow-hidden my-2">
-                    <div class="h-full bg-blue-500{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
-                         style="width: {{ percent }}%"></div>
-                </div>
-                <div class="text-lg mx-0.5 mb-4">
-                    {% if percent == 100 %}
-                        <i class="fas fa-trophy text-blue-500"></i>
-                    {% endif %}
-                    {{ percent }} % {{ message("submission.test-coverage") }}
-                </div>
-                {% set percent = submission.testSuiteResult.implPercent %}
-                {% set implResult = submission.testSuiteResult.implResult %}
             {% endif %}
+            <h3>{{ message("submission.implementation") }}</h3>
+            {% set percent = submission.testSuiteResult.implPercent %}
+            {% set implResult = submission.testSuiteResult.implResult %}
         {% else %}
             {% set implResult = submission.implResult %}
             {% set percent = implResult.passedTestsPercent %}
         {% endif %}
 
-        {% if implResult is not null %}
+        {% if implResult != null %}
             <div class="bg-slate-200 h-6 rounded-full overflow-hidden my-2">
                 <div class="h-full bg-emerald-600{{ percent < problemSet.percentageGoal ? " opacity-50" : "" }}"
                      style="width: {{ percent }}%"></div>
             </div>
-            <div class="flex justify-between text-lg mx-0.5 mb-4">
+            <div class="flex justify-between text-lg mx-0.5 mb-3">
                 <span>
                     {% if percent == 100 %}
                         <i class="fas fa-trophy text-emerald-600"></i>
                     {% endif %}
-                    {{ percent }} % {{ message("submission.passed") }}
+                    {{ percent }} % {{ message("submission.complete") }}
                 </span>
                 <span class="text-slate-400">
                     {{ implResult.passedTests.size }} / {{ implResult.totalTests }}

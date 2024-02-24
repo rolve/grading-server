@@ -5,6 +5,7 @@ import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsFirst;
 
@@ -31,28 +32,27 @@ public record TestSuiteGradingResult(
     }
 
     public int testSuitePercent() {
-        return (int) (testSuiteResult.totalScore() * 100);
+        return (int) (testSuiteScore() * 100);
+    }
+
+    private double testSuiteScore() {
+        var correctTestsRatio = 1 - testSuiteResult.incorrectTests().size() / (double) testSuiteResult.allTests().size();
+        return testSuiteResult.mutantScore() * correctTestsRatio;
     }
 
     public int implPercent() {
-        var implRatio = implResult != null ? implResult.passedTestsRatio() : 0;
-        return (int) (100 * testSuiteResult.totalScore() * implRatio);
+        var implScore = implResult != null ? implResult.passedTestsRatio() : 0;
+        return (int) (testSuiteScore() * implScore * 100);
     }
 
     public List<String> incorrectTests() {
-        return testSuiteResult.refImplementationResults().stream()
-                .filter(r -> !r.passed())
-                .flatMap(r -> r.failedTests().stream())
-                .map(m -> m.className().substring(m.className().lastIndexOf('.') + 1) + "." + m.name())
-                .sorted()
-                .distinct()
-                .toList();
+        return formatTestMethods(testSuiteResult.incorrectTests(), testSuiteResult.allTests());
     }
 
     @Override
     public int compareTo(TestSuiteGradingResult other) {
         return comparing(TestSuiteGradingResult::testSuiteResult,
-                    comparing(TestSuiteGrader.Result::totalScore, nullsFirst(Double::compare)))
+                    comparing(TestSuiteGrader.Result::mutantScore, nullsFirst(Double::compare)))
                 .thenComparing(TestSuiteGradingResult::implResult)
                 .compare(this, other);
     }

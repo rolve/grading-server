@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static java.util.Collections.emptyList;
@@ -114,20 +115,8 @@ public class JobRunner {
         var props = result.properties().stream()
                 .map(Property::prettyName)
                 .toList();
-        return new ImplGradingResult(props, format(result.passedTests(), result.allTests()),
-                format(result.failedTests(), result.allTests()));
-    }
-
-    private List<String> format(List<TestMethod> tests, List<TestMethod> allTests) {
-        var classes = allTests.stream()
-                .map(TestMethod::className)
-                .distinct()
-                .count();
-        return tests.stream()
-                .map(m -> classes > 1
-                        ? m.className().substring(m.className().lastIndexOf('.') + 1) + "." + m.name()
-                        : m.name())
-                .toList();
+        return new ImplGradingResult(props, formatTestMethods(result.passedTests(), result.allTests()),
+                formatTestMethods(result.failedTests(), result.allTests()));
     }
 
     private List<Path> writeDependencies(List<JarFile> dependencies, Path dir)
