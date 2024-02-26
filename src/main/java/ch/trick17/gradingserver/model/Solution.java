@@ -93,9 +93,12 @@ public class Solution implements Serializable {
 
     public static Comparator<Solution> byResult() {
         return comparing(Solution::latestSubmission, nullsLast(
-                comparing(Submission::getStatus)
-                        .thenComparing(Submission::getResult, nullsLast(GradingResult.betterFirst()))
-                        .thenComparing(Submission::getReceivedDate)));
+                    comparing(Submission::getStatus)
+                    .thenComparing(Submission::getResult, nullsLast(GradingResult.betterFirst()))
+                    .thenComparing(Submission::getReceivedDate)))
+                .thenComparing(Solution::getAuthors,
+                    comparing((Set<Author> authors) -> !authors.isEmpty())
+                    .thenComparing(authors -> authors.iterator().next().getDisplayName()));
     }
 
     public static Comparator<Solution> byCommitHash() {

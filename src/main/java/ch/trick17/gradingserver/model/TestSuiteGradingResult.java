@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.nullsFirst;
+import static java.util.Comparator.comparingInt;
 
 public record TestSuiteGradingResult(
         TestSuiteGrader.Result testSuiteResult,
@@ -51,9 +50,8 @@ public record TestSuiteGradingResult(
 
     @Override
     public int compareTo(TestSuiteGradingResult other) {
-        return comparing(TestSuiteGradingResult::testSuiteResult,
-                    comparing(TestSuiteGrader.Result::mutantScore, nullsFirst(Double::compare)))
-                .thenComparing(TestSuiteGradingResult::implResult)
+        return comparingInt(TestSuiteGradingResult::implPercent)
+                .thenComparingInt(TestSuiteGradingResult::testSuitePercent)
                 .compare(this, other);
     }
 }
