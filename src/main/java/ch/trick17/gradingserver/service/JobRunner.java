@@ -5,7 +5,7 @@ import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
 import ch.trick17.jtt.memcompile.Compiler;
 import ch.trick17.jtt.sandbox.Whitelist;
-import ch.trick17.jtt.testrunner.TestMethod;
+import ch.trick17.jtt.testrunner.TestRunner;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -36,8 +36,10 @@ public class JobRunner {
 
     private final AtomicLong idCounter = new AtomicLong(0);
     private final CodeDownloader downloader;
-    private final Grader grader = new Grader();
-    private final TestSuiteGrader testSuiteGrader = new TestSuiteGrader();
+
+    private final TestRunner testRunner = new TestRunner();
+    private final Grader grader = new Grader(testRunner);
+    private final TestSuiteGrader testSuiteGrader = new TestSuiteGrader(testRunner);
 
     public JobRunner(CodeDownloader downloader) {
         this.downloader = downloader;
