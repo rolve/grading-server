@@ -7,6 +7,9 @@
         {% elseif submission.status == 'GRADING' %}
             <i class="fas fa-fw fa-gear fa-spin"></i>
             {{ message("submission.status.grading") }}
+        {% elseif submission.status == 'OUTDATED' %}
+            <i class="fas fa-fw fa-triangle-exclamation"></i>
+            {{ message("submission.status.outdated") }}
         {% elseif submission.status == 'ERROR' %}
             <i class="fas fa-fw fa-bolt-lightning"></i>
             {{ message("submission.status.error") }}
