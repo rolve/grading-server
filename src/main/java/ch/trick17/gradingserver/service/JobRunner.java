@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.service;
 
+import ch.trick17.gradingserver.GradingServerProperties;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
@@ -37,12 +38,15 @@ public class JobRunner {
     private final AtomicLong idCounter = new AtomicLong(0);
     private final CodeDownloader downloader;
 
-    private final TestRunner testRunner = new TestRunner();
-    private final Grader grader = new Grader(testRunner);
-    private final TestSuiteGrader testSuiteGrader = new TestSuiteGrader(testRunner);
+    private final Grader grader;
+    private final TestSuiteGrader testSuiteGrader;
 
-    public JobRunner(CodeDownloader downloader) {
+    public JobRunner(CodeDownloader downloader, GradingServerProperties properties) {
         this.downloader = downloader;
+
+        var testRunner = new TestRunner(properties.getTestRunnerVmArgs());
+        grader = new Grader(testRunner);
+        testSuiteGrader = new TestSuiteGrader(testRunner);
     }
 
     public GradingResult run(GradingJob job) {
