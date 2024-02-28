@@ -18,11 +18,11 @@ public record TestSuiteGradingResult(
         if (implResult != null) {
             properties.addAll(implResult.properties());
         }
-        if (!testSuiteResult.compiled()) {
-            properties.remove("compiled");
-        }
         if (testSuiteResult.emptyTestSuite()) {
             properties.add("empty test suite");
+        }
+        if (!testSuiteResult.compilationFailed()) {
+            properties.add("compiled test suite");
         }
         if (!incorrectTests().isEmpty()) {
             properties.add("incorrect tests");

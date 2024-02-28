@@ -89,7 +89,7 @@ public class JobRunner {
                 var testSuiteSubmission = TestSuiteGrader.Submission.loadFrom(testDir);
 
                 var testSuiteResult = testSuiteGrader.grade(gradingConfig.task(), testSuiteSubmission, dependencies);
-                if (!testSuiteResult.compiled() || testSuiteResult.emptyTestSuite()) {
+                if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {
                     return new TestSuiteGradingResult(testSuiteResult, null);
                 }
 

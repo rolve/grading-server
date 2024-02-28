@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.model;
 
+import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -13,17 +14,17 @@ public class GradingResultTest {
     @Test
     void betterFirst() {
         var sorted = Stream.of(
-                new ErrorResult("error"),
-                new ImplGradingResult(null, List.of("foo"), List.of("bar")),
-                new ImplGradingResult(null, List.of("foo", "bar"), emptyList()),
-                new ErrorResult("error")
+                new ImplGradingResult(null, List.of("foo"), List.of("bar", "baz")),
+                new ImplGradingResult(null, List.of("foo", "bar", "baz"), emptyList()),
+                new ImplGradingResult(null, List.of("foo", "baz"), List.of("bar"))
         ).sorted(GradingResult.betterFirst()).toList();
 
         assertEquals(List.of(
-                new ImplGradingResult(null, List.of("foo", "bar"), emptyList()),
-                new ImplGradingResult(null, List.of("foo"), List.of("bar")),
-                new ErrorResult("error"),
-                new ErrorResult("error")
+                new ImplGradingResult(null, List.of("foo", "bar", "baz"), emptyList()),
+                new ImplGradingResult(null, List.of("foo", "baz"), List.of("bar")),
+                new ImplGradingResult(null, List.of("foo"), List.of("bar", "baz"))
         ), sorted);
+
+        // TODO: Test other types
     }
 }
