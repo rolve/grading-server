@@ -41,8 +41,7 @@ public class GradingService {
 
     @Bean
     Executor gradingExecutor() {
-        var processors = getRuntime().availableProcessors();
-        return newFixedThreadPool(Math.max(1, processors - 1));
+        return newFixedThreadPool(1);
     }
 
     public Future<Void> grade(Submission submission) {
