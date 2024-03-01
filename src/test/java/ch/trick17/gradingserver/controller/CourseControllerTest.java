@@ -34,7 +34,7 @@ class CourseControllerTest {
     @DirtiesContext
     void coursePage() {
         var course = new Course("OOPI2", new Term(2021, "FS"), "2Ibb1");
-        var projectConfig = new ProjectConfig("", ECLIPSE, emptyList());
+        var projectConfig = new ProjectConfig("", ECLIPSE, null, emptyList());
         var gradingConfig = new ImplGradingConfig("class Foo {}",
                 new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
         var problemSet = new ProblemSet(course, "Woche 3", projectConfig, gradingConfig,

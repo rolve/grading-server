@@ -73,6 +73,7 @@ public class JobRunner {
                     .resolve(job.projectConfig().getStructure().srcDirPath);
 
             if (job.gradingConfig() instanceof ImplGradingConfig gradingConfig) {
+                // TODO: Refactor Grader to be able to apply package filter
                 var submission = new Grader.Submission(id, srcDir);
                 var options = gradingConfig.options();
                 var task = Grader.Task.fromString(gradingConfig.testClass())
@@ -90,7 +91,7 @@ public class JobRunner {
                 var testDir = codeDir
                         .resolve(job.projectConfig().getProjectRoot())
                         .resolve(job.projectConfig().getStructure().testDirPath);
-                var testSuiteSubmission = TestSuiteGrader.Submission.loadFrom(testDir);
+                var testSuiteSubmission = TestSuiteGrader.Submission.loadFrom(testDir, job.projectConfig().getPackageFilter());
 
                 var testSuiteResult = testSuiteGrader.grade(gradingConfig.task(), testSuiteSubmission, dependencies);
                 if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {

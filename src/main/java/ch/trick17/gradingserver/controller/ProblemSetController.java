@@ -192,7 +192,8 @@ public class ProblemSetController {
                 : copyOf(problemSet.getProjectConfig().getDependencies());
 
         problemSet.setName(name);
-        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, dependencyJars));
+        // TODO: make package filter configurable
+        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, null, dependencyJars));
         problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
         problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
         problemSet.setDisplaySetting(displaySetting);
