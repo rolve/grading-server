@@ -18,7 +18,8 @@
                              submission.solution.problemSet.percentageGoal,
                              forceLabel) }}
         {% else %}
-            {{ testSuiteResultBar(submission.testSuiteResult.testSuitePercent,
+            {{ testSuiteResultBar(submission.testSuiteResult.percentFinished,
+                                  submission.testSuiteResult.testSuitePercent,
                                   submission.testSuiteResult.implPercent,
                                   submission.solution.problemSet.percentageGoal,
                                   forceLabel) }}
@@ -46,7 +47,8 @@
     </div>
 {% endmacro %}
 
-{% macro testSuiteResultBar(testSuitePercent, implPercent, goal, forceLabel) %}
+{% macro testSuiteResultBar(percent, testSuitePercent, implPercent, goal, forceLabel) %}
+    {# @pebvariable name="percent" type="int" #}
     {# @pebvariable name="testSuitePercent" type="int" #}
     {# @pebvariable name="implPercent" type="int" #}
     {# @pebvariable name="goal" type="int" #}
@@ -69,7 +71,7 @@
             <i class="fas fa-trophy text-emerald-600 {{ testSuitePercent == 100 ? "-ms-1.5" : "-ms-1" }}"></i>
         {% endif %}
         <div class="whitespace-nowrap {% if not forceLabel %}hidden sm:block{% endif %}">
-            {{ (implPercent | numberformat("000"))
+            {{ (percent | numberformat("000"))
                     .replaceAll("^00", "  ")
                     .replaceAll("^0", " ") }} %
         </div>

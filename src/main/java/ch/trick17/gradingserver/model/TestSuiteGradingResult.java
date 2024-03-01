@@ -30,8 +30,16 @@ public record TestSuiteGradingResult(
         return properties;
     }
 
+    public int percentFinished() {
+        return (int) ((testSuiteScore() + implScore()) / 2 * 100);
+    }
+
     public int testSuitePercent() {
         return (int) (testSuiteScore() * 100);
+    }
+
+    public int implPercent() {
+        return (int) (implScore() * 100);
     }
 
     private double testSuiteScore() {
@@ -39,9 +47,9 @@ public record TestSuiteGradingResult(
         return testSuiteResult.mutantScore() * correctTestsRatio;
     }
 
-    public int implPercent() {
-        var implScore = implResult != null ? implResult.passedTestsRatio() : 0;
-        return (int) (testSuiteScore() * implScore * 100);
+    private double implScore() {
+        var passedTestsRatio = implResult != null ? implResult.passedTestsRatio() : 0;
+        return testSuiteScore() * passedTestsRatio;
     }
 
     public List<String> incorrectTests() {
@@ -50,7 +58,7 @@ public record TestSuiteGradingResult(
 
     @Override
     public int compareTo(TestSuiteGradingResult other) {
-        return comparingInt(TestSuiteGradingResult::implPercent)
+        return comparingInt(TestSuiteGradingResult::percentFinished)
                 .thenComparingInt(TestSuiteGradingResult::testSuitePercent)
                 .compare(this, other);
     }
