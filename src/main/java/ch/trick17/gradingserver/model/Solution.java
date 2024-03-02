@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.*;
 
 @Entity
-public class Solution implements Serializable {
+public class Solution {
 
     @Id
     @GeneratedValue

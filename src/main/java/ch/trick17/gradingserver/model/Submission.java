@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.PERSIST;
 
 @Entity
-public class Submission implements Serializable {
+public class Submission {
 
     @Id
     @GeneratedValue
