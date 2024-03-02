@@ -22,14 +22,12 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 @Service
 public class GradingService {
 
-    @Lazy
-    @Autowired
-    private GradingService proxy;
     private final SubmissionRepository submissionRepo;
     private final SubmissionService submissionService;
     private final JobRunner jobRunner;
-
-    private final Set<Integer> queued = newSetFromMap(new ConcurrentHashMap<>());
+    @Lazy
+    @Autowired
+    private GradingService proxy;
 
     public GradingService(SubmissionRepository submissionRepo,
                           @Lazy SubmissionService submissionService,
@@ -58,11 +56,6 @@ public class GradingService {
 
     @Async("gradingExecutor")
     Future<Void> doGrade(Submission submission) {
-        var added = queued.add(submission.getId());
-        if (!added) {
-            return completedFuture(null);
-        }
-
         var code = submission.getCodeLocation();
         var token = submission.getSolution().getAccessToken();
         var username = token == null ? null : "";
@@ -76,8 +69,6 @@ public class GradingService {
         var result = jobRunner.run(job);
         // set result in separate, @Transactional method:
         submissionService.setResult(submission, result);
-
-        queued.remove(submission.getId());
         return completedFuture(null);
     }
 }
