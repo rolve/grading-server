@@ -10,7 +10,7 @@ public enum Role implements GrantedAuthority {
     LECTURER,
     ADMIN(LECTURER);
 
-    public Set<Role> includedRoles;
+    public final Set<Role> includedRoles;
 
     Role(Role... includedRoles) {
         this.includedRoles = Set.copyOf(asList(includedRoles));
