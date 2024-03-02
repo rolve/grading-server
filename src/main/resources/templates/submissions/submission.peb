@@ -98,7 +98,14 @@
                     <h4>{{ message("submission.suggestions") }}</h4>
                     <ul class="list-disc ms-5">
                         {% for test in submission.testSuiteResult.incorrectTests %}
-                            <li class="py-1">{{ message("submission.revise-test", test) | raw }}</li>
+                            <li class="py-1">
+                                {{ message("submission.revise-test",
+                                           submission.testSuiteResult.format(test),
+                                           submission.testSuiteResult.exceptionLineNumberFor(test)) | raw }}
+                                <div class="mt-1 p-2 bg-slate-100 rounded-md font-mono text-sm">
+                                    {{- submission.testSuiteResult.exceptionDescriptionFor(test) -}}
+                                </div>
+                            </li>
                         {% endfor %}
                         {% for suggestion in suggestions %}
                             <li class="py-1">{{ suggestion | raw }}</li>

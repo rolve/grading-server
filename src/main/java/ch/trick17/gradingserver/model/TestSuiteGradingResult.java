@@ -1,11 +1,13 @@
 package ch.trick17.gradingserver.model;
 
+import ch.trick17.jtt.testrunner.TestMethod;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
+import static java.util.Arrays.stream;
 import static java.util.Comparator.comparingInt;
 
 public record TestSuiteGradingResult(
@@ -52,8 +54,35 @@ public record TestSuiteGradingResult(
         return testSuiteScore() * passedTestsRatio;
     }
 
-    public List<String> incorrectTests() {
-        return formatTestMethods(testSuiteResult.incorrectTests(), testSuiteResult.allTests());
+    public List<TestMethod> incorrectTests() {
+        return testSuiteResult.incorrectTests().stream()
+                .sorted()
+                .toList();
+    }
+
+    public String format(TestMethod test) {
+        return formatTestMethods(List.of(test), testSuiteResult.allTests()).get(0);
+    }
+
+    public int exceptionLineNumberFor(TestMethod incorrectTest) {
+        return stream(exceptionFor(incorrectTest).getStackTrace())
+                .filter(e -> e.getClassName().equals(incorrectTest.className())
+                             && e.getMethodName().equals(incorrectTest.name()))
+                .findFirst()
+                .map(e -> e.getLineNumber())
+                .orElseThrow(AssertionError::new);
+    }
+
+    public String exceptionDescriptionFor(TestMethod incorrectTest) {
+        var exception = exceptionFor(incorrectTest);
+        return exception.getClass().getSimpleName() + ": " + exception.getMessage();
+    }
+
+    private Throwable exceptionFor(TestMethod incorrectTest) {
+        return testSuiteResult.refImplementationResults().stream()
+                .flatMap(r -> r.failedTests().get(incorrectTest).stream())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("invalid test: " + incorrectTest));
     }
 
     @Override
