@@ -34,12 +34,12 @@ public class Submission {
         this.receivedDate = requireNonNull(receivedDate);
     }
 
-    public Solution getSolution() {
-        return solution;
-    }
-
     public int getId() {
         return id;
+    }
+
+    public Solution getSolution() {
+        return solution;
     }
 
     public String getCommitHash() {
@@ -102,5 +102,9 @@ public class Submission {
 
     public TestSuiteGradingResult getTestSuiteResult() {
         return result instanceof TestSuiteGradingResult t ? t : null;
+    }
+
+    public boolean isLatest() {
+        return solution.latestSubmission() == this;
     }
 }
