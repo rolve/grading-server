@@ -12,6 +12,8 @@ services:
       - "127.0.0.1:9092:9092"
     environment:
       SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH}
+      JAVA_TOOL_OPTIONS: ${MAIN_VM_ARGS}
+      GRADING_SERVER_TEST_RUNNER_VM_ARGS: ${TEST_RUNNER_VM_ARGS}
 
 volumes:
   db:
