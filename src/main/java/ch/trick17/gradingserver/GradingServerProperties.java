@@ -2,16 +2,12 @@ package ch.trick17.gradingserver;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.List;
-
-import static java.util.Collections.emptyList;
-
 @ConfigurationProperties("grading-server")
 public class GradingServerProperties {
 
     private DbServer dbServer;
     private String defaultGitLabHost;
-    private List<String> testRunnerVmArgs = emptyList();
+    private String testRunnerVmArgs = "";
 
     public DbServer getDbServer() {
         return dbServer;
@@ -29,11 +25,11 @@ public class GradingServerProperties {
         this.defaultGitLabHost = defaultGitLabHost;
     }
 
-    public List<String> getTestRunnerVmArgs() {
+    public String getTestRunnerVmArgs() {
         return testRunnerVmArgs;
     }
 
-    public void setTestRunnerVmArgs(List<String> testRunnerVmArgs) {
+    public void setTestRunnerVmArgs(String testRunnerVmArgs) {
         this.testRunnerVmArgs = testRunnerVmArgs;
     }
 

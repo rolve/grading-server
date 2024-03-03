@@ -21,6 +21,7 @@ import java.util.concurrent.*;
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.eclipse.jgit.util.FileUtils.*;
@@ -48,7 +49,7 @@ public class GradingService {
         this.submissionService = submissionService;
         this.downloader = downloader;
 
-        var testRunner = new TestRunner(properties.getTestRunnerVmArgs());
+        var testRunner = new TestRunner(asList(properties.getTestRunnerVmArgs().split(" ")));
         grader = new Grader(testRunner);
         testSuiteGrader = new TestSuiteGrader(testRunner);
 
