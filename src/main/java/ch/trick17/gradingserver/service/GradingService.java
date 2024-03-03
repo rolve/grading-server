@@ -67,11 +67,10 @@ public class GradingService {
         submission.setGradingStarted(false);
         submissionRepo.save(submission);
 
-        // initialize lazy properties needed for grading in this thread
+        // initialize lazy collections needed for grading in this thread
         var ignored1 = submission.getSolution().getProblemSet()
                 .getProjectConfig().getDependencies().size();
-        var ignored2 = submission.getSolution().getProblemSet().getGradingConfig();
-        var ignored3 = submission.getSolution().getSubmissions().size();
+        var ignored2 = submission.getSolution().getSubmissions().size();
 
         // then submit
         var task = new GradingTask(submission);
