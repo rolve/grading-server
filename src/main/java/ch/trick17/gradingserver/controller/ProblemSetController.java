@@ -85,11 +85,11 @@ public class ProblemSetController {
     public String problemSetPage(@PathVariable int courseId, @PathVariable int id, Model model) {
         var problemSet = findProblemSet(courseId, id);
         model.addAttribute("problemSet", problemSet);
-        var sort = problemSet.getDisplaySetting() == ANONYMOUS
-                ? Solution.byCommitHash()
-                : Solution.byResult();
         var solutions = problemSet.getSolutions().stream()
-                .sorted(sort).collect(toList());
+                .sorted(problemSet.getDisplaySetting() == ANONYMOUS
+                        ? Solution.byCommitHash()
+                        : Solution.byResult())
+                .toList();
         model.addAttribute("solutions", solutions);
         return "problem-sets/problem-set";
     }
