@@ -3,8 +3,7 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.model.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import static java.util.Locale.ROOT;
 
@@ -17,7 +16,7 @@ public class AccessController {
         this.courseRepo = courseRepo;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean check(Course course) {
         if (currentPrincipal() instanceof User user) {
             return user.getRoles().contains(Role.ADMIN) ||
@@ -27,22 +26,22 @@ public class AccessController {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean check(int courseId) {
         return courseRepo.findById(courseId).map(this::check).orElse(false);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean check(ProblemSet problemSet) {
         return check(problemSet.getCourse());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean check(Submission submission) {
         return check(submission.getSolution().getProblemSet());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean hasRole(String roleString) {
         var role = Role.valueOf(roleString.toUpperCase(ROOT));
         if (currentPrincipal() instanceof User user) {
