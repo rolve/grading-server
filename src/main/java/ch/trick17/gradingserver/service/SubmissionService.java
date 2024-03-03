@@ -5,8 +5,7 @@ import ch.trick17.gradingserver.model.Submission;
 import ch.trick17.gradingserver.model.SubmissionRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SubmissionService {

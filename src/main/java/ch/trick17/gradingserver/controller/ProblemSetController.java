@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +24,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.*;
 import java.util.ArrayList;
@@ -39,7 +39,6 @@ import static java.time.LocalDate.now;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.List.copyOf;
-import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 

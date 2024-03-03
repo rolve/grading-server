@@ -7,13 +7,13 @@ import ch.trick17.gradingserver.model.UserRepository;
 import ch.trick17.gradingserver.service.PasswordService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
