@@ -4,13 +4,11 @@ import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.model.Author;
 import ch.trick17.gradingserver.model.ProblemSet;
 import ch.trick17.gradingserver.model.Solution;
-import ch.trick17.gradingserver.model.User;
 import ch.trick17.gradingserver.service.AccessController;
 import com.mitchellbosecke.pebble.extension.AbstractExtension;
 import com.mitchellbosecke.pebble.extension.Filter;
 import com.mitchellbosecke.pebble.template.EvaluationContext;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
@@ -24,7 +22,6 @@ import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_FULL
 import static java.time.format.FormatStyle.MEDIUM;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
-import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
 @Component
 public class GradingServerPebbleExtension extends AbstractExtension {
