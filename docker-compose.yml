@@ -10,6 +10,8 @@ services:
     ports:
       - "${PORT}:8080"
       - "127.0.0.1:9092:9092"
+      - "127.0.0.1:6000:6000" # JMX main VM
+      - "127.0.0.1:6001:6001" # JMX test runner VM
     environment:
       SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH}
       JAVA_TOOL_OPTIONS: ${VM_ARGS}
