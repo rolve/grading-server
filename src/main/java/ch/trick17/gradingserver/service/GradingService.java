@@ -49,7 +49,8 @@ public class GradingService {
         this.submissionService = submissionService;
         this.downloader = downloader;
 
-        var testRunner = new TestRunner(asList(properties.getTestRunnerVmArgs().split(" ")));
+        var args = properties.getTestRunnerVmArgs();
+        var testRunner = new TestRunner(args.isEmpty() ? emptyList() : asList(args.split(" ")));
         grader = new Grader(testRunner);
         testSuiteGrader = new TestSuiteGrader(testRunner);
 
@@ -66,10 +67,11 @@ public class GradingService {
         submission.setGradingStarted(false);
         submissionRepo.save(submission);
 
-        // initialize lazy collections needed for grading in this thread
+        // initialize lazy properties needed for grading in this thread
         var ignored1 = submission.getSolution().getProblemSet()
                 .getProjectConfig().getDependencies().size();
-        var ignored2 = submission.getSolution().getSubmissions().size();
+        var ignored2 = submission.getSolution().getProblemSet().getGradingConfig();
+        var ignored3 = submission.getSolution().getSubmissions().size();
 
         // then submit
         var task = new GradingTask(submission);
