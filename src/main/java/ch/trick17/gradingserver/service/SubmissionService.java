@@ -3,12 +3,18 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.model.Submission;
 import ch.trick17.gradingserver.model.SubmissionRepository;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.slf4j.Logger;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Service
 public class SubmissionService {
+
+    private static final Logger logger = getLogger(SubmissionService.class);
 
     private final SubmissionRepository repo;
     private final GradingService gradingService;
@@ -30,11 +36,13 @@ public class SubmissionService {
         repo.save(submission);
     }
 
-    @Scheduled(fixedRate = 60 * 60 * 1000)
+    @EventListener
     @Transactional
-    public void requeueUngradedSubmissions() {
-        var ungraded = repo.findByGradingStartedIsFalse();
-        // some of these may already be queued and ignored by GradingService
+    public void gradeUngradedSubmissions(ContextRefreshedEvent ignored) {
+        var ungraded = repo.findByResultIsNull();
+        if (!ungraded.isEmpty()) {
+            logger.info("Found {} ungraded submissions", ungraded.size());
+        }
         for (var submission : ungraded) {
             gradingService.grade(submission); // async
         }

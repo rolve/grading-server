@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Integer> {
-    List<Submission> findByGradingStartedIsFalse();
+    List<Submission> findByResultIsNull();
 }

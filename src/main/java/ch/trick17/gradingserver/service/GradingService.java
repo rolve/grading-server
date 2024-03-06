@@ -11,6 +11,7 @@ import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -61,13 +62,14 @@ public class GradingService {
         executor = new ThreadPoolExecutor(1, 1, 0, MILLISECONDS, new PriorityBlockingQueue<>());
     }
 
+    @Transactional
     public Future<Void> grade(Submission submission) {
         // remove previous result
         submission.clearResult();
         submission.setGradingStarted(false);
         submissionRepo.save(submission);
 
-        // initialize lazy collections needed for grading in this thread
+        // initialize lazy collections needed for grading, in this thread
         var ignored1 = submission.getSolution().getProblemSet()
                 .getProjectConfig().getDependencies().size();
         var ignored2 = submission.getSolution().getSubmissions().size();
