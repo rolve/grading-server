@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
 import ch.trick17.jtt.memcompile.Compiler;
+import ch.trick17.jtt.memcompile.InMemSource;
 import ch.trick17.jtt.sandbox.Whitelist;
 import ch.trick17.jtt.testrunner.TestRunner;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
@@ -142,12 +143,10 @@ public class GradingService {
             var srcDir = codeDir
                     .resolve(projectConfig.getProjectRoot())
                     .resolve(projectConfig.getStructure().srcDirPath);
+            var sources = InMemSource.fromDirectory(srcDir, projectConfig.getPackageFilter());
 
             var gradingConfig = submission.getSolution().getProblemSet().getGradingConfig();
             if (gradingConfig instanceof ImplGradingConfig config) {
-                // TODO: Refactor Grader to be able to apply package filter
-                // TODO: Refactor Grader to not require a submission name
-                var implSubmission = new Grader.Submission("", srcDir);
                 var options = config.options();
                 var task = Grader.Task.fromString(config.testClass())
                         .compiler(Compiler.valueOf(options.compiler().name()))
@@ -158,23 +157,21 @@ public class GradingService {
                                 : null)
                         .dependencies(dependencies);
 
-                var result = grader.grade(task, implSubmission);
+                var result = grader.grade(task, sources);
                 return convert(result);
             } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
                 var testDir = codeDir
                         .resolve(projectConfig.getProjectRoot())
                         .resolve(projectConfig.getStructure().testDirPath);
-                var testSuiteSubmission = TestSuiteGrader.Submission.loadFrom(testDir, projectConfig.getPackageFilter());
-
-                var testSuiteResult = testSuiteGrader.grade(config.task(), testSuiteSubmission, dependencies);
+                var testSuite = InMemSource.fromDirectory(testDir, projectConfig.getPackageFilter());
+                var testSuiteResult = testSuiteGrader.grade(config.task(), testSuite, dependencies);
                 if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {
                     return new TestSuiteGradingResult(testSuiteResult, null);
                 }
 
-                var task = new Grader.Task(testSuiteSubmission.testSuite(), emptyList())
+                var task = new Grader.Task(testSuite, emptyList())
                         .dependencies(dependencies);
-                var implSubmission = new Grader.Submission("", srcDir);
-                var implResult = grader.grade(task, implSubmission);
+                var implResult = grader.grade(task, sources);
 
                 return new TestSuiteGradingResult(testSuiteResult, convert(implResult));
             } else {
