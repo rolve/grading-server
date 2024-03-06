@@ -170,6 +170,8 @@ public class GradingService {
                 }
 
                 var task = new Grader.Task(testSuite, emptyList())
+                        .permittedCalls(TestSuiteGrader.WHITELIST)
+                        .restrictTests(true)
                         .dependencies(dependencies);
                 var implResult = grader.grade(task, sources);
 
