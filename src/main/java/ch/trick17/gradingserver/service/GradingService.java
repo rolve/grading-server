@@ -41,7 +41,7 @@ public class GradingService {
 
     private final Grader grader;
     private final TestSuiteGrader testSuiteGrader;
-    private final Executor executor;
+    private final ThreadPoolExecutor executor;
 
     public GradingService(SubmissionRepository submissionRepo,
                           @Lazy SubmissionService submissionService,
@@ -60,6 +60,10 @@ public class GradingService {
         //  prevent the same submission to be graded multiple times in parallel (which is useless
         //  anyway). Or, even better: implement full in-memory checkout and grading.
         executor = new ThreadPoolExecutor(1, 1, 0, MILLISECONDS, new PriorityBlockingQueue<>());
+    }
+
+    public boolean isIdle() {
+        return executor.getActiveCount() == 0;
     }
 
     @Transactional
@@ -90,11 +94,15 @@ public class GradingService {
 
         public int compareTo(GradingTask other) {
             if (submission.isLatest() != other.submission.isLatest()) {
-                // latest submissions have higher priority, allowing to batch re-grade older
-                // submissions without impacting newer ones
+                // latest submissions always have higher priority, allowing to re-grade older
+                // submissions without affecting latest ones
                 return submission.isLatest() ? -1 : 1;
+            } else if (submission.isLatest()) {
+                // among latest submissions, it's first come, first served, to avoid starvation
+                return Integer.compare(submission.getId(), other.submission.getId());
             } else {
-                // but among latest submissions, it's first come, first served
+                // among older submissions, prioritize newer ones again, as they are probably
+                // more relevant
                 return Integer.compare(submission.getId(), other.submission.getId());
             }
         }

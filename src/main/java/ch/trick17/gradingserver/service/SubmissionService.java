@@ -6,9 +6,11 @@ import ch.trick17.gradingserver.model.SubmissionRepository;
 import org.slf4j.Logger;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static ch.trick17.gradingserver.model.SubmissionState.OUTDATED;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -45,6 +47,24 @@ public class SubmissionService {
         }
         for (var submission : ungraded) {
             gradingService.grade(submission); // async
+        }
+    }
+
+    @Scheduled(fixedRate = 10 * 1000, initialDelay = 5 * 1000)
+    @Transactional
+    public void updateOutdatedResults() {
+        if (gradingService.isIdle()) {
+            // Enqueue outdated results one at a time, to avoid enqueuing a huge amount of
+            // submissions at once after changing the result format. The grading service would
+            // prioritize sensibly anyway, but this way, the more expressive "outdated" status is
+            // kept for a longer time.
+            var outdated = repo.findByResultNotNullOrderByIdDesc()
+                    .filter(s -> s.getStatus() == OUTDATED)
+                    .findFirst();
+            if (outdated.isPresent()) {
+                logger.info("Re-grading submission {} due to outdated result", outdated.get().getId());
+                gradingService.grade(outdated.get()); // async
+            }
         }
     }
 }
