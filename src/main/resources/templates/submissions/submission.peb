@@ -98,13 +98,14 @@
                     <h4>{{ message("submission.suggestions") }}</h4>
                     <ul class="list-disc ms-5">
                         {% for test in submission.testSuiteResult.incorrectTests %}
+                            {% set exception = submission.testSuiteResult.exceptionFor(test) %}
                             <li class="py-1">
                                 {{ message("submission.revise-test",
                                            submission.testSuiteResult.format(test),
                                            submission.testSuiteResult.exceptionLineNumberFor(test)) | raw }}
                                 <div class="mt-1 p-2 bg-slate-100 rounded-md font-mono text-sm">
-                                    {{ submission.testSuiteResult.exceptionFor(test).simpleClassName }}:
-                                    {{ submission.testSuiteResult.exceptionFor(test).message }}
+                                    {{ exception.simpleClassName }}:
+                                    {{ escape(exception.message).replaceAll('\r?\n', '<br>') | raw }}
                                 </div>
                             </li>
                         {% endfor %}
