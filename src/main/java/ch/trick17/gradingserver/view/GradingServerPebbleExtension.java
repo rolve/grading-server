@@ -7,11 +7,9 @@ import ch.trick17.gradingserver.model.Solution;
 import ch.trick17.gradingserver.service.AccessController;
 import com.mitchellbosecke.pebble.extension.AbstractExtension;
 import com.mitchellbosecke.pebble.extension.Filter;
-import com.mitchellbosecke.pebble.extension.Function;
 import com.mitchellbosecke.pebble.template.EvaluationContext;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
 import org.springframework.stereotype.Component;
-import org.unbescape.html.HtmlEscape;
 
 import java.time.ZonedDateTime;
 import java.time.format.FormatStyle;
@@ -43,11 +41,6 @@ public class GradingServerPebbleExtension extends AbstractExtension {
                 "date", new DateFilter(),
                 "pretty", new PrettyFilter(),
                 "authors", new AuthorsFilter());
-    }
-
-    @Override
-    public Map<String, Function> getFunctions() {
-        return Map.of("escape", new EscapeFunction());
     }
 
     public class DateFilter implements Filter {
@@ -110,21 +103,6 @@ public class GradingServerPebbleExtension extends AbstractExtension {
             return problemSet.getDisplaySetting() == WITH_FULL_NAMES || access.check(problemSet)
                     ? author.getDisplayName()
                     : author.getShortenedDisplayName();
-        }
-    }
-
-    public static class EscapeFunction implements Function {
-
-        @Override
-        public List<String> getArgumentNames() {
-            return List.of("text");
-        }
-
-        @Override
-        public Object execute(Map<String, Object> args, PebbleTemplate self,
-                              EvaluationContext context, int lineNumber) {
-            var text = (String) args.get("text");
-            return HtmlEscape.escapeHtml4Xml(text);
         }
     }
 }
