@@ -100,13 +100,16 @@
                         {% for test in submission.testSuiteResult.incorrectTests %}
                             <li class="py-1">
                                 {{ message("submission.revise-test",
-                                           submission.testSuiteResult.format(test),
-                                           submission.testSuiteResult.exceptionLineNumberFor(test)) | raw }}
-                                <div class="mt-1 p-2 bg-slate-100 rounded-md text-sm
-                                            font-mono whitespace-pre overflow-x-scroll">
-                                    {{- submission.testSuiteResult.exceptionFor(test).simpleClassName + ': ' -}}
-                                    {{- submission.testSuiteResult.exceptionFor(test).message -}}
-                                </div>
+                                           submission.testSuiteResult.format(test)) | raw }}
+                                {% if submission.testSuiteResult.exceptionFor(test) != null %}
+                                    {{ message("submission.revise-test-exception",
+                                               submission.testSuiteResult.exceptionLineNumberFor(test)) }}
+                                    <div class="mt-1 p-2 bg-slate-100 rounded-md text-sm
+                                                font-mono whitespace-pre overflow-x-scroll">
+                                        {{- submission.testSuiteResult.exceptionFor(test).simpleClassName + ': ' -}}
+                                        {{- submission.testSuiteResult.exceptionFor(test).message -}}
+                                    </div>
+                                {% endif %}
                             </li>
                         {% endfor %}
                         {% for suggestion in suggestions %}

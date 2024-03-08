@@ -55,9 +55,7 @@ public record TestSuiteGradingResult(
     }
 
     public List<TestMethod> incorrectTests() {
-        return testSuiteResult.incorrectTests().stream()
-                .sorted()
-                .toList();
+        return testSuiteResult.incorrectTests().stream().sorted().toList();
     }
 
     public String format(TestMethod test) {
@@ -75,9 +73,9 @@ public record TestSuiteGradingResult(
 
     public ExceptionDescription exceptionFor(TestMethod incorrectTest) {
         return testSuiteResult.refImplementationResults().stream()
-                .flatMap(r -> r.failedTests().get(incorrectTest).stream())
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("invalid test: " + incorrectTest));
+                .filter(r -> r.method().equals(incorrectTest))
+                .flatMap(r -> r.exceptions().stream())
+                .findFirst().orElse(null);
     }
 
     @Override
