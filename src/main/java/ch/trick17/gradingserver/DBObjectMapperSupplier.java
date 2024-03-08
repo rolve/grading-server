@@ -28,11 +28,9 @@ public class DBObjectMapperSupplier implements ObjectMapperSupplier {
         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                                                       BeanDescription beanDesc,
                                                       JsonDeserializer<?> deserializer) {
-            if (beanDesc.getBeanClass() == GradingResult.class) {
-                return new GradingResultDeserializer(deserializer);
-            } else {
-                return deserializer;
-            }
+            return beanDesc.getBeanClass() == GradingResult.class
+                    ? new GradingResultDeserializer(deserializer)
+                    : deserializer;
         }
     }
 

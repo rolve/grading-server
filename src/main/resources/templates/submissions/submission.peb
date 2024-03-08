@@ -103,7 +103,8 @@
                                            submission.testSuiteResult.format(test),
                                            submission.testSuiteResult.exceptionLineNumberFor(test)) | raw }}
                                 <div class="mt-1 p-2 bg-slate-100 rounded-md font-mono text-sm">
-                                    {{- submission.testSuiteResult.exceptionDescriptionFor(test) -}}
+                                    {{ submission.testSuiteResult.exceptionFor(test).simpleClassName }}:
+                                    {{ submission.testSuiteResult.exceptionFor(test).message }}
                                 </div>
                             </li>
                         {% endfor %}

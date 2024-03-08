@@ -1,5 +1,6 @@
 package ch.trick17.gradingserver.model;
 
+import ch.trick17.jtt.testrunner.ExceptionDescription;
 import ch.trick17.jtt.testrunner.TestMethod;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 
@@ -7,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
-import static java.util.Arrays.stream;
 import static java.util.Comparator.comparingInt;
 
 public record TestSuiteGradingResult(
@@ -65,7 +65,7 @@ public record TestSuiteGradingResult(
     }
 
     public int exceptionLineNumberFor(TestMethod incorrectTest) {
-        return stream(exceptionFor(incorrectTest).getStackTrace())
+        return exceptionFor(incorrectTest).stackTrace().stream()
                 .filter(e -> e.getClassName().equals(incorrectTest.className())
                              && e.getMethodName().equals(incorrectTest.name()))
                 .findFirst()
@@ -73,12 +73,7 @@ public record TestSuiteGradingResult(
                 .orElseThrow(AssertionError::new);
     }
 
-    public String exceptionDescriptionFor(TestMethod incorrectTest) {
-        var exception = exceptionFor(incorrectTest);
-        return exception.getClass().getSimpleName() + ": " + exception.getMessage();
-    }
-
-    private Throwable exceptionFor(TestMethod incorrectTest) {
+    public ExceptionDescription exceptionFor(TestMethod incorrectTest) {
         return testSuiteResult.refImplementationResults().stream()
                 .flatMap(r -> r.failedTests().get(incorrectTest).stream())
                 .findFirst()
