@@ -2,10 +2,12 @@ package ch.trick17.gradingserver.model;
 
 import ch.trick17.jtt.testrunner.ExceptionDescription;
 import ch.trick17.jtt.testrunner.TestMethod;
+import ch.trick17.jtt.testrunner.TestResult;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 import static java.util.Comparator.comparingInt;
@@ -62,6 +64,12 @@ public record TestSuiteGradingResult(
         return formatTestMethods(List.of(test), testSuiteResult.allTests()).get(0);
     }
 
+    public ExceptionDescription exceptionFor(TestMethod incorrectTest) {
+        return refImplResultsFor(incorrectTest)
+                .flatMap(r -> r.exceptions().stream())
+                .findFirst().orElse(null);
+    }
+
     public int exceptionLineNumberFor(TestMethod incorrectTest) {
         return exceptionFor(incorrectTest).stackTrace().stream()
                 .filter(e -> e.getClassName().equals(incorrectTest.className())
@@ -71,11 +79,24 @@ public record TestSuiteGradingResult(
                 .orElseThrow(AssertionError::new);
     }
 
-    public ExceptionDescription exceptionFor(TestMethod incorrectTest) {
+    public List<String> illegalOpsFor(TestMethod incorrectTest) {
+        return refImplResultsFor(incorrectTest)
+                .flatMap(r -> r.illegalOps().stream())
+                .distinct()
+                .toList();
+    }
+
+    public boolean ranOutOfMemory(TestMethod incorrectTest) {
+        return refImplResultsFor(incorrectTest).anyMatch(r -> r.outOfMemory());
+    }
+
+    public boolean hasTimedOut(TestMethod incorrectTest) {
+        return refImplResultsFor(incorrectTest).anyMatch(r -> r.timeout());
+    }
+
+    private Stream<TestResult> refImplResultsFor(TestMethod incorrectTest) {
         return testSuiteResult.refImplementationResults().stream()
-                .filter(r -> r.method().equals(incorrectTest))
-                .flatMap(r -> r.exceptions().stream())
-                .findFirst().orElse(null);
+                .filter(r -> r.method().equals(incorrectTest));
     }
 
     @Override

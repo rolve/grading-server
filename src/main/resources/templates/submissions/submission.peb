@@ -109,6 +109,16 @@
                                         {{- submission.testSuiteResult.exceptionFor(test).simpleClassName + ': ' -}}
                                         {{- submission.testSuiteResult.exceptionFor(test).message -}}
                                     </div>
+                                {% elseif submission.testSuiteResult.illegalOpsFor(test) is not empty %}
+                                    {{ message("submission.revise-test-illegal-operation") }}
+                                    {% for op in submission.testSuiteResult.illegalOpsFor(test) %}
+                                        <code class="whitespace-nowrap">{{ op }}</code>
+                                        {%- if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% elseif submission.testSuiteResult.ranOutOfMemory(test) %}
+                                    {{ message("submission.revise-test-out-of-memory") }}
+                                {% elseif submission.testSuiteResult.hasTimedOut(test) %}
+                                    {{ message("submission.revise-test-timeout") }}
                                 {% endif %}
                             </li>
                         {% endfor %}
