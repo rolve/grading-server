@@ -71,10 +71,16 @@ public record TestSuiteGradingResult(
     }
 
     public int exceptionLineNumberFor(TestMethod incorrectTest) {
-        return exceptionFor(incorrectTest).stackTrace().stream()
+        var stackTrace = exceptionFor(incorrectTest).stackTrace();
+        // try to find the stack trace element for the test method first, then for the test class
+        // in general (in case the error occurred in a setup method)
+        return stackTrace.stream()
                 .filter(e -> e.getClassName().equals(incorrectTest.className())
                              && e.getMethodName().equals(incorrectTest.name()))
                 .findFirst()
+                .or(() -> stackTrace.stream()
+                        .filter(e -> e.getClassName().equals(incorrectTest.className()))
+                        .findFirst())
                 .map(e -> e.getLineNumber())
                 .orElseThrow(AssertionError::new);
     }
