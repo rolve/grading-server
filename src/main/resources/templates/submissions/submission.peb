@@ -104,8 +104,8 @@
                                 {% if submission.testSuiteResult.exceptionFor(test) != null %}
                                     {{ message("submission.revise-test-exception",
                                                submission.testSuiteResult.exceptionLineNumberFor(test)) }}
-                                    <div class="mt-1 p-2 bg-slate-100 rounded-md text-sm
-                                                font-mono whitespace-pre overflow-x-scroll">
+                                    <div class="mt-1 p-2 bg-slate-100 rounded-md text-sm font-mono
+                                                whitespace-pre overflow-x-scroll" style="font-variant-ligatures: none">
                                         {{- submission.testSuiteResult.exceptionFor(test).simpleClassName + ': ' -}}
                                         {{- submission.testSuiteResult.exceptionFor(test).message -}}
                                     </div>
