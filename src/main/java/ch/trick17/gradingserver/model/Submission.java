@@ -2,15 +2,12 @@ package ch.trick17.gradingserver.model;
 
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import java.io.Serializable;
+import javax.persistence.*;
 import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
 import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 public class Submission {
@@ -23,6 +20,7 @@ public class Submission {
     private String commitHash;
     private ZonedDateTime receivedDate;
     private boolean gradingStarted;
+    @Basic(fetch = LAZY)
     @Type(type = "json")
     private GradingResult result;
 
