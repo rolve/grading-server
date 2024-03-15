@@ -3,7 +3,6 @@ package ch.trick17.gradingserver.model;
 import ch.trick17.gradingserver.util.StringListConverter;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.*;
 
 import static java.util.Comparator.*;
@@ -81,14 +80,6 @@ public class Solution {
     public Submission latestSubmission() {
         return submissions.stream()
                 .max(comparingInt(Submission::getId)).orElse(null);
-    }
-
-    public GradingResult latestResult() {
-        return submissions.stream()
-                .filter(Submission::hasResult)
-                .max(comparingInt(Submission::getId))
-                .map(Submission::getResult)
-                .orElse(null);
     }
 
     public static Comparator<Solution> byResult() {
