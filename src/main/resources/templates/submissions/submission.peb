@@ -161,7 +161,7 @@
                 {% for test in implResult.allTests %}
                 {% set passed = implResult.passedTests contains test %}
                 <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
-                    <span class="overflow-hidden overflow-ellipsis {{ passed ? "" : "text-slate-400" }}">
+                    <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ passed ? "" : " text-slate-400" }}">
                         {{ test }}<span class="sr-only">:</span>
                     </span>
                     {% if passed %}

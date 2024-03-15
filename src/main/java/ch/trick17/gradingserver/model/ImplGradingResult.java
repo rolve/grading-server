@@ -2,7 +2,6 @@ package ch.trick17.gradingserver.model;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
 public record ImplGradingResult(
@@ -20,7 +19,7 @@ public record ImplGradingResult(
         } else {
             return concat(passedTests.stream(), failedTests.stream())
                     .sorted()
-                    .collect(toList());
+                    .toList();
         }
     }
 
