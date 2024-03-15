@@ -16,6 +16,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Service
 public class SubmissionService {
 
+    private static final long OUTDATED_BATCH_SIZE = 5;
+
     private static final Logger logger = getLogger(SubmissionService.class);
 
     private final SubmissionRepository repo;
@@ -50,20 +52,23 @@ public class SubmissionService {
         }
     }
 
-    @Scheduled(fixedRate = 10 * 1000, initialDelay = 5 * 1000)
+    @Scheduled(fixedRate = 2 * 60 * 1000, initialDelay = 30 * 1000)
     @Transactional
     public void updateOutdatedResults() {
         if (gradingService.isIdle()) {
-            // Enqueue outdated results one at a time, to avoid enqueuing a huge amount of
+            // Enqueue outdated results few at a time, to avoid enqueuing a huge amount of
             // submissions at once after changing the result format. The grading service would
             // prioritize sensibly anyway, but this way, the more expressive "outdated" status is
             // kept for a longer time.
             var outdated = repo.findByResultNotNullOrderByIdDesc()
                     .filter(s -> s.getStatus() == OUTDATED)
-                    .findFirst();
-            if (outdated.isPresent()) {
-                logger.info("Re-grading submission {} due to outdated result", outdated.get().getId());
-                gradingService.grade(outdated.get()); // async
+                    .limit(OUTDATED_BATCH_SIZE)
+                    .toList();
+            if (!outdated.isEmpty()) {
+                for (var submission : outdated) {
+                    logger.info("Re-queuing submission {} due to outdated result", submission.getId());
+                    gradingService.grade(submission); // async
+                }
             }
         }
     }
