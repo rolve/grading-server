@@ -88,8 +88,11 @@ public class Solution {
                     .thenComparing(Submission::getResult, nullsLast(GradingResult.betterFirst()))
                     .thenComparing(Submission::getReceivedDate)))
                 .thenComparing(Solution::getAuthors,
-                    comparing((Set<Author> authors) -> !authors.isEmpty())
-                    .thenComparing(authors -> authors.iterator().next().getDisplayName()));
+                    comparing(authors -> authors.stream()
+                            .map(a -> a.getDisplayName().toLowerCase())
+                            .sorted()
+                            .findFirst().orElse(null),
+                        nullsLast(naturalOrder())));
     }
 
     public static Comparator<Solution> byCommitHash() {
