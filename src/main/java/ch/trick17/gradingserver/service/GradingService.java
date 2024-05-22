@@ -18,13 +18,18 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
+import static java.lang.String.join;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Locale.ROOT;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.eclipse.jgit.util.FileUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -119,11 +124,19 @@ public class GradingService {
             logger.info("Finished grading Submission {}", submission.getId());
         } catch (Throwable e) {
             logger.error("Error while grading Submission " + submission.getId(), e);
-            result = new ErrorResult(e.getClass().getSimpleName() + ": " + e.getMessage());
+            result = new ErrorResult(humanFriendlyMsg(e));
         }
 
         // set result in separate, @Transactional method:
         submissionService.setResult(submission, result);
+    }
+
+    private static String humanFriendlyMsg(Throwable e) {
+        var nameParts = e.getClass().getSimpleName()
+                .replaceAll("(Exception|Error)$", "")
+                .split("(?<=[a-z])(?=[A-Z])");
+        var type = join(" ", nameParts);
+        return type.charAt(0) + type.substring(1).toLowerCase(ROOT) + ": " + e.getMessage();
     }
 
     private GradingResult tryGrade(Submission submission) throws IOException {
