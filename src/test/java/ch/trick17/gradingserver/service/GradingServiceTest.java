@@ -10,7 +10,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
@@ -58,8 +57,7 @@ class GradingServiceTest {
 
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
                 "master", null, emptyList(), emptyList());
-        var submission = new Submission(solution, "7f9225c2e7b20cb1ff51b0220687c75305341392",
-                ZonedDateTime.now());
+        var submission = new Submission(solution, "7f9225c2e7b20cb1ff51b0220687c75305341392", now());
         submissionRepo.save(submission);
 
         service.grade(submission).get();
@@ -91,8 +89,7 @@ class GradingServiceTest {
                 now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
-        var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b",
-                ZonedDateTime.now());
+        var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now());
         submissionRepo.save(submission);
 
         service.grade(submission).get();
@@ -123,8 +120,7 @@ class GradingServiceTest {
         AccessToken missingToken = null;
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", missingToken, emptyList(), emptyList());
-        var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b",
-                ZonedDateTime.now());
+        var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now());
         submissionRepo.save(submission);
 
         service.grade(submission).get();
@@ -151,7 +147,7 @@ class GradingServiceTest {
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
         var submission = new Submission(solution, "34a37583c60b20fa347f46827fa2025e630ee0d2",
-                ZonedDateTime.now());
+                now());
         submissionRepo.save(submission);
 
         service.grade(submission).get();

@@ -132,11 +132,22 @@ public class GradingService {
     }
 
     private static String humanFriendlyMsg(Throwable e) {
-        var nameParts = e.getClass().getSimpleName()
+        var className = e.getClass().getSimpleName();
+        var descriptionParts = className
                 .replaceAll("(Exception|Error)$", "")
                 .split("(?<=[a-z])(?=[A-Z])");
-        var type = join(" ", nameParts);
-        return type.charAt(0) + type.substring(1).toLowerCase(ROOT) + ": " + e.getMessage();
+        String type;
+        if (descriptionParts.length >= 3) {
+            // for descriptive exception names like NoSuchFileException,
+            // MalformedInputException, etc. use only the description
+            var joined = join(" ", descriptionParts);
+            type = joined.charAt(0) + joined.substring(1).toLowerCase(ROOT);
+        } else {
+            // for simple exception names like IOException, ArithmeticException,
+            // etc. use the full name
+            type = className;
+        }
+        return type + ": " + e.getMessage();
     }
 
     private GradingResult tryGrade(Submission submission) throws IOException {
