@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GitRepoDiffFetcherTest {
 
     static final String REPO = "https://gitlab.com/rolves-private-group/some-subgroup/rolve.git";
-    static final String TOKEN = "5jiBFYSUisc-xbpCyLAW";  // read-only token from dummy user
+    static final String TOKEN = "glpat-pzyGzruzoVgEnQQPosZB";  // read-only token from dummy user
 
     static GitRepoDiffFetcher fetcher;
 

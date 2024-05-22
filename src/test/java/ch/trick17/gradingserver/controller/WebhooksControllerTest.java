@@ -20,7 +20,7 @@ class WebhooksControllerTest {
 
     static final String HOST = "https://gitlab.com/";
     static final String GROUP = "rolves-private-group/some-subgroup";
-    static final String TOKEN = "5jiBFYSUisc-xbpCyLAW";  // read-only token from dummy user
+    static final String TOKEN = "glpat-pzyGzruzoVgEnQQPosZB";  // read-only token from dummy user
 
     @Mock
     SolutionRepository solRepo;

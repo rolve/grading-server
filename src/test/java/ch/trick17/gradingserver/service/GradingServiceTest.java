@@ -36,7 +36,7 @@ class GradingServiceTest {
 
     User user = new User("user", "password", "User");
     // read-only token from dummy user
-    AccessToken token = new AccessToken(user, "https://gitlab.com", "5jiBFYSUisc-xbpCyLAW");
+    AccessToken token = new AccessToken(user, "https://gitlab.com", "glpat-pzyGzruzoVgEnQQPosZB");
 
     @DirtiesContext
     @Test
