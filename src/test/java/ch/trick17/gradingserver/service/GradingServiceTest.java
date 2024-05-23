@@ -2,8 +2,12 @@ package ch.trick17.gradingserver.service;
 
 import ch.trick17.gradingserver.DBObjectMapperSupplier;
 import ch.trick17.gradingserver.model.*;
+import ch.trick17.gradingserver.model.GradingOptions.Compiler;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -12,13 +16,13 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
 import java.util.List;
 
-import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.MAVEN;
 import static java.time.ZonedDateTime.now;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -30,7 +34,7 @@ class GradingServiceTest {
     @Autowired UserRepository userRepo;
 
     Course course = new Course("OOPI2", new Term(2021, "FS"), "");
-    GradingOptions options = new GradingOptions(JAVAC, 7,
+    GradingOptions options = new GradingOptions(Compiler.ECLIPSE, 7,
             Duration.ofSeconds(5), Duration.ofSeconds(10), true);
 
     User user = new User("user", "password", "User");
@@ -38,8 +42,9 @@ class GradingServiceTest {
     AccessToken token = new AccessToken(user, "https://gitlab.com", "glpat-pzyGzruzoVgEnQQPosZB");
 
     @DirtiesContext
-    @Test
-    void grade() throws Exception {
+    @ParameterizedTest
+    @MethodSource
+    void grade(String projectRoot, String commitHash) throws Exception {
         var test = """
                 package gui;
                 import org.junit.jupiter.api.Test;
@@ -50,22 +55,28 @@ class GradingServiceTest {
                         assertEquals(0xFF8532, new Color(0xFF, 0x85, 0x32).toRgbInt());
                     }
                 }""";
-        var projectConfig = new ProjectConfig("", MAVEN, null, emptyList());
+        var projectConfig = new ProjectConfig(projectRoot, MAVEN, null, emptyList());
         var gradingConfig = new ImplGradingConfig(test, options);
         var problemSet = new ProblemSet(course, "Test", projectConfig, gradingConfig,
                 now(), WITH_SHORTENED_NAMES);
 
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
                 "master", null, emptyList(), emptyList());
-        var submission = new Submission(solution, "7f9225c2e7b20cb1ff51b0220687c75305341392", now());
+        var submission = new Submission(solution, commitHash, now());
         submissionRepo.save(submission);
 
         service.grade(submission).get();
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
-        assertEquals(List.of("compiled"), result.properties());
+        assertTrue(result.properties().contains("compiled"));
         assertEquals(List.of("testToRgbInt"), result.passedTests());
         assertEquals(emptyList(), result.failedTests());
+    }
+
+    static List<Arguments> grade() {
+        return List.of(
+                arguments("", "7f9225c2e7b20cb1ff51b0220687c75305341392"),
+                arguments("gui", "082bfad2c587a14c140cb1e1eba54670654d4880"));
     }
 
     @DirtiesContext
