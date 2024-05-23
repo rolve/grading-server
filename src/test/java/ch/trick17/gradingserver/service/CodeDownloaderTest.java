@@ -18,10 +18,10 @@ class CodeDownloaderTest {
 
     @Test
     void specificCommit() throws IOException {
-        var downloader = new CodeDownloader();
         var location = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
                 "6493a0fe36f3739929a981ce1440111d0071e08e");
-        downloader.downloadCode(location, dir, null, null);
+        var downloader = new CodeDownloader(location, null, null);
+        downloader.downloadCode(dir);
         var versionLine = Files.readAllLines(dir.resolve("pom.xml")).stream()
                 .filter(l -> l.contains("<version>")).findFirst().orElseThrow().strip();
         assertEquals("<version>1.4.0-SNAPSHOT</version>", versionLine);
@@ -31,10 +31,10 @@ class CodeDownloaderTest {
     void withCredentials() throws IOException {
         var username = "grading-server";
         var deployToken = "VBgo1xky7z87tKdzXacw"; // read-only deploy token
-        var downloader = new CodeDownloader();
         var location = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
                 "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
-        downloader.downloadCode(location, dir, username, deployToken);
+        var downloader = new CodeDownloader(location, username, deployToken);
+        downloader.downloadCode(dir);
         assertTrue(Files.exists(dir.resolve("src/foo/Foo.java")));
     }
 

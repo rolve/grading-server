@@ -43,7 +43,6 @@ public class GradingService {
 
     private final SubmissionRepository submissionRepo;
     private final SubmissionService submissionService;
-    private final CodeDownloader downloader;
 
     private final Grader grader;
     private final TestSuiteGrader testSuiteGrader;
@@ -51,10 +50,9 @@ public class GradingService {
 
     public GradingService(SubmissionRepository submissionRepo,
                           @Lazy SubmissionService submissionService,
-                          CodeDownloader downloader, GradingServerProperties properties) {
+                          GradingServerProperties properties) {
         this.submissionRepo = submissionRepo;
         this.submissionService = submissionService;
-        this.downloader = downloader;
 
         var args = properties.getTestRunnerVmArgs();
         var testRunner = new TestRunner(args.isEmpty() ? emptyList() : asList(args.split(" ")));
@@ -159,7 +157,8 @@ public class GradingService {
             var token = submission.getSolution().getAccessToken();
             var username = token == null ? null : "";
             var password = token == null ? null : token.getToken();
-            downloader.downloadCode(submission.getCodeLocation(), codeDir, username, password);
+            var downloader = new CodeDownloader(submission.getCodeLocation(), username, password);
+            downloader.downloadCode(codeDir);
 
             var dependencies = writeDependencies(projectConfig.getDependencies(), depsDir);
 
