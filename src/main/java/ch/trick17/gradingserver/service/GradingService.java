@@ -5,7 +5,6 @@ import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
 import ch.trick17.jtt.memcompile.Compiler;
-import ch.trick17.jtt.memcompile.InMemSource;
 import ch.trick17.jtt.sandbox.Whitelist;
 import ch.trick17.jtt.testrunner.TestRunner;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
@@ -151,22 +150,17 @@ public class GradingService {
     private GradingResult tryGrade(Submission submission) throws IOException {
         var projectConfig = submission.getSolution().getProblemSet().getProjectConfig();
 
-        var codeDir = JOBS_ROOT.resolve(submission.getId() + "-code");
         var depsDir = JOBS_ROOT.resolve(submission.getId() + "-deps");
         try {
             var token = submission.getSolution().getAccessToken();
             var username = token == null ? null : "";
             var password = token == null ? null : token.getToken();
             var downloader = new CodeDownloader(submission.getCodeLocation(), username, password);
-            downloader.downloadCode(codeDir);
 
-            var dependencies = writeDependencies(projectConfig.getDependencies(), depsDir);
-
-            // TODO: handle case when project root is missing
-            var srcDir = codeDir
-                    .resolve(projectConfig.getProjectRoot())
+            var srcDirPath = Path.of(projectConfig.getProjectRoot())
                     .resolve(projectConfig.getStructure().srcDirPath);
-            var sources = InMemSource.fromDirectory(srcDir, projectConfig.getPackageFilter());
+            var sources = downloader.downloadCode(srcDirPath, projectConfig.getPackageFilter());
+            var dependencies = writeDependencies(projectConfig.getDependencies(), depsDir);
 
             var gradingConfig = submission.getSolution().getProblemSet().getGradingConfig();
             if (gradingConfig instanceof ImplGradingConfig config) {
@@ -183,10 +177,10 @@ public class GradingService {
                 var result = grader.grade(task, sources);
                 return convert(result);
             } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
-                var testDir = codeDir
-                        .resolve(projectConfig.getProjectRoot())
-                        .resolve(projectConfig.getStructure().testDirPath);
-                var testSuite = InMemSource.fromDirectory(testDir, projectConfig.getPackageFilter());
+                var testDir = Path.of(projectConfig.getProjectRoot())
+                                      .resolve(projectConfig.getStructure().testDirPath);
+                var testSuite = downloader.downloadCode(testDir, projectConfig.getPackageFilter());
+
                 var testSuiteResult = testSuiteGrader.grade(config.task(), testSuite, dependencies);
                 if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {
                     return new TestSuiteGradingResult(testSuiteResult, null);
@@ -204,10 +198,9 @@ public class GradingService {
             }
         } finally {
             try {
-                delete(codeDir.toFile(), RECURSIVE | RETRY);
                 delete(depsDir.toFile(), RECURSIVE | RETRY);
             } catch (IOException e) {
-                logger.warn("Could not delete " + codeDir, e);
+                logger.warn("Could not delete " + depsDir, e);
             }
         }
     }
