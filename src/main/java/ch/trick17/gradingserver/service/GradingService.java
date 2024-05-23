@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -24,24 +21,20 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 import static java.lang.String.join;
-import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Locale.ROOT;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.eclipse.jgit.util.FileUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
 public class GradingService {
 
-    private static final Path JOBS_ROOT = Path.of("grading-jobs").toAbsolutePath();
-
     private static final Logger logger = getLogger(GradingService.class);
 
     private final SubmissionRepository submissionRepo;
     private final SubmissionService submissionService;
+    private final JarFileWriter jarFileWriter;
 
     private final Grader grader;
     private final TestSuiteGrader testSuiteGrader;
@@ -49,9 +42,11 @@ public class GradingService {
 
     public GradingService(SubmissionRepository submissionRepo,
                           @Lazy SubmissionService submissionService,
+                          JarFileWriter jarFileWriter,
                           GradingServerProperties properties) {
         this.submissionRepo = submissionRepo;
         this.submissionService = submissionService;
+        this.jarFileWriter = jarFileWriter;
 
         var args = properties.getTestRunnerVmArgs();
         var testRunner = new TestRunner(args.isEmpty() ? emptyList() : asList(args.split(" ")));
@@ -150,58 +145,49 @@ public class GradingService {
     private GradingResult tryGrade(Submission submission) throws IOException {
         var projectConfig = submission.getSolution().getProblemSet().getProjectConfig();
 
-        var depsDir = JOBS_ROOT.resolve(submission.getId() + "-deps");
-        try {
-            var token = submission.getSolution().getAccessToken();
-            var username = token == null ? null : "";
-            var password = token == null ? null : token.getToken();
-            var downloader = new CodeDownloader(submission.getCodeLocation(), username, password);
+        var token = submission.getSolution().getAccessToken();
+        var username = token == null ? null : "";
+        var password = token == null ? null : token.getToken();
+        var downloader = new CodeDownloader(submission.getCodeLocation(), username, password);
 
-            var sources = downloader.checkoutCode(
-                    projectConfig.getSrcDirPath(),
+        var sources = downloader.checkoutCode(
+                projectConfig.getSrcDirPath(),
+                projectConfig.getPackageFilter());
+        var dependencies = jarFileWriter.write(projectConfig.getDependencies());
+
+        var gradingConfig = submission.getSolution().getProblemSet().getGradingConfig();
+        if (gradingConfig instanceof ImplGradingConfig config) {
+            var options = config.options();
+            var task = Grader.Task.fromString(config.testClass())
+                    .compiler(Compiler.valueOf(options.compiler().name()))
+                    .repetitions(options.repetitions())
+                    .timeouts(options.repTimeout(), options.testTimeout())
+                    .permittedCalls(options.permRestrictions()
+                            ? Whitelist.DEFAULT_WHITELIST_DEF
+                            : null)
+                    .dependencies(dependencies);
+
+            var result = grader.grade(task, sources);
+            return convert(result);
+        } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
+            var testSuite = downloader.checkoutCode(
+                    projectConfig.getTestDirPath(),
                     projectConfig.getPackageFilter());
-            var dependencies = writeDependencies(projectConfig.getDependencies(), depsDir);
 
-            var gradingConfig = submission.getSolution().getProblemSet().getGradingConfig();
-            if (gradingConfig instanceof ImplGradingConfig config) {
-                var options = config.options();
-                var task = Grader.Task.fromString(config.testClass())
-                        .compiler(Compiler.valueOf(options.compiler().name()))
-                        .repetitions(options.repetitions())
-                        .timeouts(options.repTimeout(), options.testTimeout())
-                        .permittedCalls(options.permRestrictions()
-                                ? Whitelist.DEFAULT_WHITELIST_DEF
-                                : null)
-                        .dependencies(dependencies);
-
-                var result = grader.grade(task, sources);
-                return convert(result);
-            } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
-                var testSuite = downloader.checkoutCode(
-                        projectConfig.getTestDirPath(),
-                        projectConfig.getPackageFilter());
-
-                var testSuiteResult = testSuiteGrader.grade(config.task(), testSuite, dependencies);
-                if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {
-                    return new TestSuiteGradingResult(testSuiteResult, null);
-                }
-
-                var task = new Grader.Task(testSuite, emptyList())
-                        .permittedCalls(TestSuiteGrader.WHITELIST)
-                        .restrictTests(true)
-                        .dependencies(dependencies);
-                var implResult = grader.grade(task, sources);
-
-                return new TestSuiteGradingResult(testSuiteResult, convert(implResult));
-            } else {
-                throw new AssertionError("Unknown grading config type: " + gradingConfig);
+            var testSuiteResult = testSuiteGrader.grade(config.task(), testSuite, dependencies);
+            if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {
+                return new TestSuiteGradingResult(testSuiteResult, null);
             }
-        } finally {
-            try {
-                delete(depsDir.toFile(), RECURSIVE | RETRY);
-            } catch (IOException e) {
-                logger.warn("Could not delete " + depsDir, e);
-            }
+
+            var task = new Grader.Task(testSuite, emptyList())
+                    .permittedCalls(TestSuiteGrader.WHITELIST)
+                    .restrictTests(true)
+                    .dependencies(dependencies);
+            var implResult = grader.grade(task, sources);
+
+            return new TestSuiteGradingResult(testSuiteResult, convert(implResult));
+        } else {
+            throw new AssertionError("Unknown grading config type: " + gradingConfig);
         }
     }
 
@@ -211,17 +197,5 @@ public class GradingService {
                 .toList();
         return new ImplGradingResult(props, formatTestMethods(result.passedTests(), result.allTests()),
                 formatTestMethods(result.failedTests(), result.allTests()));
-    }
-
-    private List<Path> writeDependencies(List<JarFile> dependencies, Path dir)
-            throws IOException {
-        var paths = new ArrayList<Path>();
-        createDirectories(dir);
-        for (var dep : dependencies) {
-            var path = dir.resolve(dep.getFilename());
-            write(path, dep.getContent());
-            paths.add(path);
-        }
-        return paths;
     }
 }
