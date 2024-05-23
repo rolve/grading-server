@@ -157,9 +157,9 @@ public class GradingService {
             var password = token == null ? null : token.getToken();
             var downloader = new CodeDownloader(submission.getCodeLocation(), username, password);
 
-            var srcDirPath = Path.of(projectConfig.getProjectRoot())
-                    .resolve(projectConfig.getStructure().srcDirPath);
-            var sources = downloader.downloadCode(srcDirPath, projectConfig.getPackageFilter());
+            var sources = downloader.downloadCode(
+                    projectConfig.getSrcDirPath(),
+                    projectConfig.getPackageFilter());
             var dependencies = writeDependencies(projectConfig.getDependencies(), depsDir);
 
             var gradingConfig = submission.getSolution().getProblemSet().getGradingConfig();
@@ -177,9 +177,9 @@ public class GradingService {
                 var result = grader.grade(task, sources);
                 return convert(result);
             } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
-                var testDir = Path.of(projectConfig.getProjectRoot())
-                                      .resolve(projectConfig.getStructure().testDirPath);
-                var testSuite = downloader.downloadCode(testDir, projectConfig.getPackageFilter());
+                var testSuite = downloader.downloadCode(
+                        projectConfig.getTestDirPath(),
+                        projectConfig.getPackageFilter());
 
                 var testSuiteResult = testSuiteGrader.grade(config.task(), testSuite, dependencies);
                 if (testSuiteResult.emptyTestSuite() || testSuiteResult.compilationFailed()) {

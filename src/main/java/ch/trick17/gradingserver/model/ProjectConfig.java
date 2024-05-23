@@ -56,4 +56,12 @@ public class ProjectConfig {
             this.testDirPath = testDirPath;
         }
     }
+
+    public Path getSrcDirPath() {
+        return Path.of(projectRoot).resolve(structure.srcDirPath);
+    }
+
+    public Path getTestDirPath() {
+        return Path.of(projectRoot).resolve(structure.testDirPath);
+    }
 }

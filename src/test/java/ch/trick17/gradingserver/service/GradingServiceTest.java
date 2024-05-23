@@ -139,7 +139,7 @@ class GradingServiceTest {
         var result = assertInstanceOf(ErrorResult.class, submission.getResult());
         assertNotNull(result.error());
         assertTrue(result.error().toLowerCase()
-                .matches(".*ioexception.*authentication.*required.*"));
+                .matches(".*ioexception.*not.*authorized.*"));
     }
 
     @DirtiesContext
