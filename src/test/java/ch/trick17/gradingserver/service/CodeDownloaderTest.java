@@ -15,7 +15,7 @@ class CodeDownloaderTest {
         var location = new CodeLocation("https://github.com/rolve/java-teaching-tools.git",
                 "6493a0fe36f3739929a981ce1440111d0071e08e");
         var downloader = new CodeDownloader(location, null, null);
-        var sources = downloader.downloadCode(Path.of("grader/src/main/java"), "ch.trick17.jtt.grader");
+        var sources = downloader.checkoutCode(Path.of("grader/src/main/java"), "ch.trick17.jtt.grader");
         var grader = sources.stream()
                 .filter(s -> s.getPath().endsWith("Grader.java"))
                 .findFirst().orElseThrow();
@@ -30,7 +30,7 @@ class CodeDownloaderTest {
         var location = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
                 "5f5ffff42176fc05bd3947ad2971712fb409ae9b");
         var downloader = new CodeDownloader(location, username, deployToken);
-        var sources = downloader.downloadCode(Path.of("src"), "foo");
+        var sources = downloader.checkoutCode(Path.of("src"), "foo");
         var foo = sources.stream()
                 .filter(s -> s.getPath().endsWith("Foo.java"))
                 .findFirst().orElseThrow();
