@@ -23,6 +23,8 @@ public class SubmissionService {
     private final SubmissionRepository repo;
     private final GradingService gradingService;
 
+    private volatile boolean outdatedResultsLeft = true;
+
     public SubmissionService(SubmissionRepository repo, GradingService gradingService) {
         this.repo = repo;
         this.gradingService = gradingService;
@@ -55,7 +57,7 @@ public class SubmissionService {
     @Scheduled(fixedRate = 2 * 60 * 1000, initialDelay = 30 * 1000)
     @Transactional
     public void updateOutdatedResults() {
-        if (gradingService.isIdle()) {
+        if (outdatedResultsLeft && gradingService.isIdle()) {
             // Enqueue outdated results few at a time, to avoid enqueuing a huge amount of
             // submissions at once after changing the result format. The grading service would
             // prioritize sensibly anyway, but this way, the more expressive "outdated" status is
@@ -64,7 +66,9 @@ public class SubmissionService {
                     .filter(s -> s.getStatus() == OUTDATED)
                     .limit(OUTDATED_BATCH_SIZE)
                     .toList();
-            if (!outdated.isEmpty()) {
+            if (outdated.isEmpty()) {
+                outdatedResultsLeft = false;
+            } else {
                 for (var submission : outdated) {
                     logger.info("Re-queuing submission {} due to outdated result", submission.getId());
                     gradingService.grade(submission); // async
