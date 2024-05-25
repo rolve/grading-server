@@ -89,7 +89,7 @@
         <div class="sm:grid grid-flow-col gap-x-3"
              style="grid-template-rows: auto auto">
             <label for="structure" class="block mb-2">
-                    {{ message("problem-set.project-config.structure") }}
+                {{ message("problem-set.project-config.structure") }}
             </label>
             <select name="structure" id="structure" class="block w-full mb-3">
                 <option value="ECLIPSE" {{ structure == "ECLIPSE" ? "selected" : "" }}>
@@ -101,7 +101,7 @@
             </select>
 
             <label for="projectRoot" class="block mb-2">
-                    {{ message("problem-set.project-config.root") }}
+                {{ message("problem-set.project-config.root") }}
             </label>
             <input type="text" id="projectRoot" name="projectRoot"
                    class="block w-full mb-3" value="{{ projectRoot }}"
@@ -109,64 +109,106 @@
         </div>
 
         <label for="dependencies" class="block mb-2">
-                {{ message("problem-set.project-config.dependencies") }}
+            {{ message("problem-set.project-config.dependencies") }}
         </label>
         <select name="dependencies" id="dependencies" multiple size="3"
                 class="block w-full mb-2">
-                {% for d in possibleDependencies %}
+            {% for d in possibleDependencies %}
                 <option value="{{ d.id }}" {{ dependencies contains d ? "selected" : "" }}>
-                        {{ d.filename }}
+                    {{ d.filename }}
                 </option>
-                {% endfor %}
+            {% endfor %}
         </select>
         <textarea class="w-full mb-1" name="newDependencies" rows="2"
                   placeholder="{{ message("problem-set.project-config.dependencies-new") }}">
-                {{- newDependencies -}}
+            {{- newDependencies -}}
         </textarea>
         <div class="form-text mb-6">
-                {{ message("problem-set.project-config.dependencies-desc") | raw }}
+            {{ message("problem-set.project-config.dependencies-desc") | raw }}
         </div>
 
 
         <h3>{{ message("problem-set.grading-config") }}</h3>
 
-        <label for="testClassFile" class="block mb-2">
-            {{ message("problem-set.grading-config.test-class") }}
-        </label>
-        <input type="file" id="testClassFile" name="testClassFile"
-               class="block w-full mb-3" accept=".java" {{ add ? "required" : "" }}>
+        <div class="mb-3">
+            <ul class="flex flex-wrap text-center gap-3" id="grading-config-tab"
+                data-tabs-toggle="#default-tab-content" role="tablist">
+                <li role="presentation" class="whitespace-nowrap">
+                    <input type="radio" id="impl-grading-tab" name="grading-type"
+                           data-tabs-target="#impl-grading" role="tab"
+                           value="Implementation" checked>
+                    <label for="impl-grading-tab">
+                        {{ message("problem-set.grading-config.implementation") }}
+                    </label>
+                </li>
+                <li role="presentation" class="whitespace-nowrap">
+                    <input type="radio" id="test-suite-grading-tab" name="grading-type"
+                           data-tabs-target="#test-suite-grading" role="tab"
+                           value="Implementation & Test-Suite">
+                    <label for="test-suite-grading-tab">
+                        {{ message("problem-set.grading-config.test-suite") }}
+                    </label>
+                </li>
+            </ul>
+        </div>
 
-        <label for="compiler" class="block mb-2">
-            {{ message("problem-set.grading-config.compiler") }}
-        </label>
-        <select name="compiler" id="compiler" class="block w-full mb-3">
-            <option value="ECLIPSE" {{ options.compiler == "ECLIPSE" ? "selected" : "" }}>
-                {{ message("problem-set.grading-config.compiler.eclipse" )}}
-            </option>
-            <option value="JAVAC" {{ options.compiler == "JAVAC" ? "selected" : "" }}>
-                {{ message("problem-set.grading-config.compiler.javac") }}
-            </option>
-        </select>
+        <div id="grading-config-tab-content" class="mb-6">
+            <div id="impl-grading" role="tabpanel" class="hidden">
+                <label for="testClassFile" class="block mb-2">
+                    {{ message("problem-set.grading-config.test-class") }}
+                </label>
+                <input type="file" id="testClassFile" name="testClassFile"
+                       class="block w-full mb-3" accept=".java" {{ add ? "required" : "" }}>
 
-        <label for="repetitions" class="block mb-2">
-            {{ message("problem-set.grading-config.repetitions") }}
-        </label>
-        <input type="number" id="repetitions" name="repetitions" required
-               min="1" class="block w-full mb-3" value="{{ options.repetitions }}">
+                <label for="compiler" class="block mb-2">
+                    {{ message("problem-set.grading-config.compiler") }}
+                </label>
+                <select name="compiler" id="compiler" class="block w-full mb-3">
+                    <option value="ECLIPSE" {{ options.compiler == "ECLIPSE" ? "selected" : "" }}>
+                        {{ message("problem-set.grading-config.compiler.eclipse" )}}
+                    </option>
+                    <option value="JAVAC" {{ options.compiler == "JAVAC" ? "selected" : "" }}>
+                        {{ message("problem-set.grading-config.compiler.javac") }}
+                    </option>
+                </select>
 
-        <label for="repTimeoutMs" class="block mb-2">
-            {{ message("problem-set.grading-config.rep-timeout") }}
-        </label>
-        <input type="number" id="repTimeoutMs" min="100" step="100" required
-               class="block w-full mb-3"
-               name="repTimeoutMs" value="{{ options.repTimeout.toMillis }}">
+                <label for="repetitions" class="block mb-2">
+                    {{ message("problem-set.grading-config.repetitions") }}
+                </label>
+                <input type="number" id="repetitions" name="repetitions" required
+                       min="1" class="block w-full mb-3" value="{{ options.repetitions }}">
 
-        <label for="testTimeoutMs" class="block mb-2">
-            {{ message("problem-set.grading-config.test-timeout") }}
-        </label>
-        <input type="number" id="testTimeoutMs" min="100" step="100" required
-               class="block w-full mb-6"
-               name="testTimeoutMs" value="{{ options.testTimeout.toMillis }}">
+                <label for="repTimeoutMs" class="block mb-2">
+                    {{ message("problem-set.grading-config.rep-timeout") }}
+                </label>
+                <input type="number" id="repTimeoutMs" min="100" step="100" required
+                       class="block w-full mb-3"
+                       name="repTimeoutMs" value="{{ options.repTimeout.toMillis }}">
+
+                <label for="testTimeoutMs" class="block mb-2">
+                    {{ message("problem-set.grading-config.test-timeout") }}
+                </label>
+                <input type="number" id="testTimeoutMs" min="100" step="100" required
+                       class="block w-full"
+                       name="testTimeoutMs" value="{{ options.testTimeout.toMillis }}">
+            </div>
+
+            <div id="test-suite-grading" role="tabpanel" class="hidden">
+                <label for="refImplementation" class="block mb-2">
+                    {{ message("problem-set.grading-config.ref-implementation") }}
+                </label>
+                <input type="file" id="refImplementation" name="refImplementation"
+                       multiple webkitdirectory
+                       class="block w-full mb-3" {{ add ? "required" : "" }}>
+
+                <label for="refTestSuite" class="block mb-2">
+                    {{ message("problem-set.grading-config.ref-test-suite") }}
+                </label>
+                <input type="file" id="refTestSuite" name="refTestSuite"
+                       multiple webkitdirectory
+                       class="block w-full mb-3" {{ add ? "required" : "" }}>
+            </div>
+        </div>
 
         <div class="button-group-2">
             <button class="button">
