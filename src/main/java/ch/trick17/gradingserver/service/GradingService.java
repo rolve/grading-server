@@ -20,11 +20,13 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
+import static java.lang.Math.max;
+import static java.lang.Runtime.getRuntime;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Locale.ROOT;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -53,11 +55,10 @@ public class GradingService {
         grader = new Grader(testRunner);
         testSuiteGrader = new TestSuiteGrader(testRunner);
 
-        // TODO: Enable parallel grading again, after checking that the test runner is robust
-        //  enough. Then, need to make sure that the naming of the grading directories is unique or
-        //  prevent the same submission to be graded multiple times in parallel (which is useless
-        //  anyway). Or, even better: implement full in-memory checkout and grading.
-        executor = new ThreadPoolExecutor(1, 1, 0, MILLISECONDS, new PriorityBlockingQueue<>());
+        var parallelism = max(2, getRuntime().availableProcessors() - 1);
+        executor = new ThreadPoolExecutor(parallelism, parallelism, 30, SECONDS,
+                new PriorityBlockingQueue<>());
+        executor.allowCoreThreadTimeOut(true);
     }
 
     public boolean isIdle() {
