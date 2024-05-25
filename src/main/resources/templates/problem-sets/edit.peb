@@ -84,18 +84,12 @@
         </div>
 
 
-        <h3>{{ message("problem-set.config") }}</h3>
-
-        <label for="testClassFile" class="block mb-2">
-            {{ message("problem-set.config.test-class") }}
-        </label>
-        <input type="file" id="testClassFile" name="testClassFile"
-               class="block w-full mb-3" accept=".java" {{ add ? "required" : "" }}>
+        <h3>{{ message("problem-set.project-config") }}</h3>
 
         <div class="sm:grid grid-flow-col gap-x-3"
              style="grid-template-rows: auto auto">
             <label for="structure" class="block mb-2">
-                {{ message("problem-set.config.structure") }}
+                    {{ message("problem-set.project-config.structure") }}
             </label>
             <select name="structure" id="structure" class="block w-full mb-3">
                 <option value="ECLIPSE" {{ structure == "ECLIPSE" ? "selected" : "" }}>
@@ -107,59 +101,68 @@
             </select>
 
             <label for="projectRoot" class="block mb-2">
-                {{ message("problem-set.config.root") }}
+                    {{ message("problem-set.project-config.root") }}
             </label>
             <input type="text" id="projectRoot" name="projectRoot"
                    class="block w-full mb-3" value="{{ projectRoot }}"
-                   placeholder="{{ message("problem-set.config.root-example") }}">
+                   placeholder="{{ message("problem-set.project-config.root-example") }}">
         </div>
 
         <label for="dependencies" class="block mb-2">
-            {{ message("problem-set.config.dependencies") }}
+                {{ message("problem-set.project-config.dependencies") }}
         </label>
         <select name="dependencies" id="dependencies" multiple size="3"
                 class="block w-full mb-2">
-            {% for d in possibleDependencies %}
+                {% for d in possibleDependencies %}
                 <option value="{{ d.id }}" {{ dependencies contains d ? "selected" : "" }}>
-                    {{ d.filename }}
+                        {{ d.filename }}
                 </option>
-            {% endfor %}
+                {% endfor %}
         </select>
         <textarea class="w-full mb-1" name="newDependencies" rows="2"
-                  placeholder="{{ message("problem-set.config.dependencies-new") }}">
-            {{- newDependencies -}}
+                  placeholder="{{ message("problem-set.project-config.dependencies-new") }}">
+                {{- newDependencies -}}
         </textarea>
-        <div class="form-text mb-3">
-            {{ message("problem-set.config.dependencies-desc") | raw }}
+        <div class="form-text mb-6">
+                {{ message("problem-set.project-config.dependencies-desc") | raw }}
         </div>
 
+
+        <h3>{{ message("problem-set.grading-config") }}</h3>
+
+        <label for="testClassFile" class="block mb-2">
+            {{ message("problem-set.grading-config.test-class") }}
+        </label>
+        <input type="file" id="testClassFile" name="testClassFile"
+               class="block w-full mb-3" accept=".java" {{ add ? "required" : "" }}>
+
         <label for="compiler" class="block mb-2">
-            {{ message("problem-set.config.compiler") }}
+            {{ message("problem-set.grading-config.compiler") }}
         </label>
         <select name="compiler" id="compiler" class="block w-full mb-3">
             <option value="ECLIPSE" {{ options.compiler == "ECLIPSE" ? "selected" : "" }}>
-                {{ message("problem-set.config.compiler.eclipse" )}}
+                {{ message("problem-set.grading-config.compiler.eclipse" )}}
             </option>
             <option value="JAVAC" {{ options.compiler == "JAVAC" ? "selected" : "" }}>
-                {{ message("problem-set.config.compiler.javac") }}
+                {{ message("problem-set.grading-config.compiler.javac") }}
             </option>
         </select>
 
         <label for="repetitions" class="block mb-2">
-            {{ message("problem-set.config.repetitions") }}
+            {{ message("problem-set.grading-config.repetitions") }}
         </label>
         <input type="number" id="repetitions" name="repetitions" required
                min="1" class="block w-full mb-3" value="{{ options.repetitions }}">
 
         <label for="repTimeoutMs" class="block mb-2">
-            {{ message("problem-set.config.rep-timeout") }}
+            {{ message("problem-set.grading-config.rep-timeout") }}
         </label>
         <input type="number" id="repTimeoutMs" min="100" step="100" required
                class="block w-full mb-3"
                name="repTimeoutMs" value="{{ options.repTimeout.toMillis }}">
 
         <label for="testTimeoutMs" class="block mb-2">
-            {{ message("problem-set.config.test-timeout") }}
+            {{ message("problem-set.grading-config.test-timeout") }}
         </label>
         <input type="number" id="testTimeoutMs" min="100" step="100" required
                class="block w-full mb-6"
