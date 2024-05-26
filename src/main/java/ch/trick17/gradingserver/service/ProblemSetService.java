@@ -11,6 +11,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.time.ZonedDateTime.now;
 
@@ -33,6 +34,18 @@ public class ProblemSetService {
         this.tokenRepo = tokenRepo;
         this.gradingService = gradingService;
         this.txManager = txManager;
+    }
+
+    public Optional<ProblemSet> findById(int id) {
+        return repo.findById(id);
+    }
+
+    public ProblemSet save(ProblemSet problemSet) {
+        return repo.save(problemSet);
+    }
+
+    public void delete(ProblemSet problemSet) {
+        repo.delete(problemSet);
     }
 
     @Async

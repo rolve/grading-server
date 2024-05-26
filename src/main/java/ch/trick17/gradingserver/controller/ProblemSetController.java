@@ -54,26 +54,24 @@ public class ProblemSetController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProblemSetController.class);
 
-    private final ProblemSetRepository repo;
     private final CourseRepository courseRepo;
     private final AccessTokenRepository accessTokenRepo;
-    private final ProblemSetService problemSetService;
+    private final ProblemSetService service;
     private final JarFileService jarFileService;
     private final GradingService gradingService;
     private final Internationalization i18n;
 
     private final String defaultGitLabHost;
 
-    public ProblemSetController(ProblemSetRepository repo, CourseRepository courseRepo,
+    public ProblemSetController(ProblemSetService service,
+                                CourseRepository courseRepo,
                                 AccessTokenRepository accessTokenRepo,
-                                ProblemSetService problemSetService,
                                 JarFileService jarFileService, GradingService gradingService,
                                 Internationalization i18n,
                                 GradingServerProperties props) {
-        this.repo = repo;
+        this.service = service;
         this.courseRepo = courseRepo;
         this.accessTokenRepo = accessTokenRepo;
-        this.problemSetService = problemSetService;
         this.jarFileService = jarFileService;
         this.gradingService = gradingService;
         this.i18n = i18n;
@@ -95,7 +93,7 @@ public class ProblemSetController {
     }
 
     public ProblemSet findProblemSet(int courseId, int id) {
-        var problemSet = repo.findById(id)
+        var problemSet = service.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         if (problemSet.getCourse().getId() != courseId) {
             // silly, but allowing any course ID would be too
@@ -199,7 +197,7 @@ public class ProblemSetController {
         problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
 
         // Save
-        problemSet = repo.save(problemSet);
+        problemSet = service.save(problemSet);
         prevDependencies.forEach(jarFileService::deleteIfUnused);
         return "redirect:/courses/" + courseId + "/problem-sets/" + problemSet.getId() + "/";
     }
@@ -292,7 +290,7 @@ public class ProblemSetController {
         }
 
         problemSet.setRegisteringSolutions(true);
-        repo.save(problemSet);
+        service.save(problemSet);
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
                 problemSet.getProjectConfig().getProjectRoot(), tokenRecord.getToken());
@@ -303,7 +301,7 @@ public class ProblemSetController {
             supplier.setWebhookBaseUrl(serverBaseUrl);
         }
         supplier.setIgnoringAuthorless(ignoreAuthorless);
-        problemSetService.registerSolutions(problemSet.getId(), tokenRecord.getId(), supplier); // async
+        service.registerSolutions(problemSet.getId(), tokenRecord.getId(), supplier); // async
         return "redirect:./";
     }
 
@@ -324,7 +322,7 @@ public class ProblemSetController {
     @Transactional
     public String delete(@PathVariable int courseId, @PathVariable int id) {
         var problemSet = findProblemSet(courseId, id);
-        repo.delete(problemSet);
+        service.delete(problemSet);
         problemSet.getProjectConfig().getDependencies().forEach(jarFileService::deleteIfUnused);
         return "redirect:../../";
     }
@@ -333,7 +331,7 @@ public class ProblemSetController {
     public String removeSolutions(@PathVariable int courseId, @PathVariable int id) {
         var problemSet = findProblemSet(courseId, id);
         problemSet.getSolutions().clear();
-        repo.save(problemSet);
+        service.save(problemSet);
         return "redirect:./";
     }
 }
