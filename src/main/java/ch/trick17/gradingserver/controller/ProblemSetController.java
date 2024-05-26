@@ -8,6 +8,7 @@ import ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure;
 import ch.trick17.gradingserver.service.GitLabGroupSolutionSupplier;
 import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.JarFileService;
+import ch.trick17.gradingserver.service.JarFileService.JarDownloadFailedException;
 import ch.trick17.gradingserver.service.ProblemSetService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
@@ -148,11 +149,40 @@ public class ProblemSetController {
         model.addAttribute("course", course);
         model.addAttribute("add", id == null);
 
+        // Basic properties
         var problemSet = id == null
                 ? new ProblemSet(course)
                 : findProblemSet(courseId, id);
         problemSet.setName(name);
+        problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
+        problemSet.setDisplaySetting(displaySetting);
+        problemSet.setPercentageGoal(percentageGoal);
 
+        // Project config
+        var dependencyJars = new ArrayList<JarFile>();
+        if (dependencies != null) {
+            dependencyJars.addAll(jarFileService.findAllById(dependencies));
+        }
+        try {
+            if (!newDependencies.isBlank()) {
+                for (var identifier : newDependencies.split("\\s+")) {
+                    dependencyJars.add(jarFileService.downloadAndStoreJarFile(identifier));
+                }
+            }
+        } catch (JarDownloadFailedException e) {
+            populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
+                    percentageGoal, projectRoot, structure, dependencyJars,
+                    newDependencies, problemSet.getGradingConfig(), errorFor(e));
+            response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
+            return "problem-sets/edit";
+        }
+        var prevDependencies = id == null
+                ? new ArrayList<JarFile>()
+                : copyOf(problemSet.getProjectConfig().getDependencies());
+        // TODO: make package filter configurable
+        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, null, dependencyJars));
+
+        // Grading config
         String testClass;
         if (id == null || !testClassFile.isEmpty()) {
             testClass = new String(testClassFile.getBytes(), UTF_8);
@@ -164,37 +194,9 @@ public class ProblemSetController {
         }
         var options = new GradingOptions(compiler, repetitions,
                 Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true);
-
         problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
-        problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
-        problemSet.setDisplaySetting(displaySetting);
-        problemSet.setPercentageGoal(percentageGoal);
 
-        var dependencyJars = new ArrayList<JarFile>();
-        if (dependencies != null) {
-            dependencyJars.addAll(jarFileService.findAllById(dependencies));
-        }
-        try {
-            if (!newDependencies.isBlank()) {
-                for (var identifier : newDependencies.split("\\s+")) {
-                    dependencyJars.add(jarFileService.downloadAndStoreJarFile(identifier));
-                }
-            }
-        } catch (JarFileService.JarDownloadFailedException e) {
-            populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
-                    percentageGoal, projectRoot, structure, dependencyJars,
-                    newDependencies, problemSet.getGradingConfig(), errorFor(e));
-            response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
-            return "problem-sets/edit";
-        }
-
-        var prevDependencies = id == null
-                ? new ArrayList<JarFile>()
-                : copyOf(problemSet.getProjectConfig().getDependencies());
-
-        // TODO: make package filter configurable
-        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, null, dependencyJars));
-
+        // Save
         problemSet = repo.save(problemSet);
         prevDependencies.forEach(jarFileService::deleteIfUnused);
         return "redirect:/courses/" + courseId + "/problem-sets/" + problemSet.getId() + "/";
@@ -228,7 +230,7 @@ public class ProblemSetController {
         model.addAttribute("error", error);
     }
 
-    private String errorFor(JarFileService.JarDownloadFailedException e) {
+    private String errorFor(JarDownloadFailedException e) {
         return i18n.message(switch (e.getReason()) {
             case INVALID_URL -> "problem-set.invalid-url";
             case NOT_FOUND -> "problem-set.jar-not-found";
