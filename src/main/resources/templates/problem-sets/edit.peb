@@ -214,22 +214,26 @@
         </div>
 
         <script>
-            window.addEventListener("turbo:load", () => {
-                const tabs = FlowbiteInstances.getInstance("Tabs", "grading-config-tabs");
-                const tabShown = () => {
-                    const tab = tabs.getActiveTab();
-                    tab.triggerEl.querySelector("input").checked = true;
-                    for (const panel of document.querySelectorAll("#grading-config-panels > div")) {
-                        for (const input of panel.querySelectorAll("input")) {
-                            if (input.dataset.requiredIfActive !== undefined) {
-                                input.required = panel === tab.targetEl;
+            {
+                let onLoadListener = () => {
+                    const tabs = FlowbiteInstances.getInstance("Tabs", "grading-config-tabs");
+                    const tabShown = () => {
+                        const tab = tabs.getActiveTab();
+                        tab.triggerEl.querySelector("input").checked = true;
+                        for (const panel of document.querySelectorAll("#grading-config-panels > div")) {
+                            for (const input of panel.querySelectorAll("input")) {
+                                if (input.dataset.requiredIfActive !== undefined) {
+                                    input.required = panel === tab.targetEl;
+                                }
                             }
                         }
-                    }
+                    };
+                    tabShown();
+                    tabs.updateOnShow(tabShown);
                 };
-                tabShown();
-                tabs.updateOnShow(tabShown);
-            });
+                window.addEventListener("turbo:load", onLoadListener);
+                window.addEventListener("turbo:render", onLoadListener);
+            }
         </script>
 
         <div class="button-group-2">
