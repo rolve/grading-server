@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static ch.trick17.gradingserver.controller.ProblemSetController.GradingType.IMPLEMENTATION;
+import static ch.trick17.gradingserver.controller.ProblemSetController.GradingType.TEST_SUITE;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.ANONYMOUS;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
@@ -129,7 +131,7 @@ public class ProblemSetController {
         return "problem-sets/edit";
     }
 
-    private enum GradingType { IMPLEMENTATION, TEST_SUITE }
+    public enum GradingType { IMPLEMENTATION, TEST_SUITE }
 
     @PostMapping({"/add", "/{id}/edit"})
     public String addOrEdit(@PathVariable int courseId,
@@ -140,14 +142,14 @@ public class ProblemSetController {
                             String projectRoot, ProjectStructure structure,
                             @RequestParam(required = false) Set<Integer> dependencies,
                             String newDependencies,
-                            MultipartFile testClassFile,
+                            GradingType gradingType, MultipartFile testClassFile,
+                            List<MultipartFile> refTestSuite,
+                            List<MultipartFile> refImplementation,
                             GradingOptions.Compiler compiler, int repetitions,
                             int repTimeoutMs, int testTimeoutMs, Model model,
                             HttpServletResponse response) throws IOException {
         var course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
-        model.addAttribute("course", course);
-        model.addAttribute("add", id == null);
 
         // Basic properties
         var problemSet = id == null
@@ -170,6 +172,8 @@ public class ProblemSetController {
                 }
             }
         } catch (JarDownloadFailedException e) {
+            model.addAttribute("course", course);
+            model.addAttribute("add", id == null);
             populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
                     percentageGoal, projectRoot, structure, dependencyJars,
                     newDependencies, problemSet.getGradingConfig(), errorFor(e));
@@ -183,21 +187,39 @@ public class ProblemSetController {
         problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, null, dependencyJars));
 
         // Grading config
-        String testClass;
-        if (id == null || !testClassFile.isEmpty()) {
-            testClass = new String(testClassFile.getBytes(), UTF_8);
-        } else if (problemSet.getGradingConfig() instanceof ImplGradingConfig gradingConfig) {
-            testClass = gradingConfig.testClass(); // keep old one
+        if (gradingType == IMPLEMENTATION) {
+            String testClass;
+            if (testClassFile.isEmpty() && problemSet.getGradingConfig() instanceof ImplGradingConfig gradingConfig) {
+                testClass = gradingConfig.testClass(); // keep old one
+            } else {
+                testClass = new String(testClassFile.getBytes(), UTF_8);
+            }
+            var options = new GradingOptions(compiler, repetitions,
+                    Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true);
+            problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
+            problemSet = service.save(problemSet);
         } else {
-            // TODO
-            throw new AssertionError("Unexpected grading config type: " + problemSet.getGradingConfig().getClass());
+            if (problemSet.getGradingConfig() instanceof TestSuiteGradingConfig
+                && refTestSuite.get(0).isEmpty()
+                && refImplementation.get(0).isEmpty()) {
+                // keep old one
+                problemSet = service.save(problemSet);
+            } else if (!refTestSuite.get(0).isEmpty() && !refImplementation.get(0).isEmpty()) {
+                // update config
+                // TODO
+            } else {
+                // error, must provide both
+                model.addAttribute("course", course);
+                model.addAttribute("add", id == null);
+                populateEditModel(model, name, deadlineDate, deadlineTime,
+                        displaySetting, percentageGoal, projectRoot, structure,
+                        dependencyJars, newDependencies, new TestSuiteGradingConfig(null),
+                        i18n.message("problem-set.empty-test-suite-or-impl"));
+                response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
+                return "problem-sets/edit";
+            }
         }
-        var options = new GradingOptions(compiler, repetitions,
-                Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true);
-        problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
 
-        // Save
-        problemSet = service.save(problemSet);
         prevDependencies.forEach(jarFileService::deleteIfUnused);
         return "redirect:/courses/" + courseId + "/problem-sets/" + problemSet.getId() + "/";
     }
@@ -220,10 +242,10 @@ public class ProblemSetController {
         model.addAttribute("dependencies", dependencies);
         model.addAttribute("newDependencies", newDependencies);
         if (gradingConfig instanceof ImplGradingConfig impl) {
-            model.addAttribute("gradingType", GradingType.IMPLEMENTATION);
+            model.addAttribute("gradingType", IMPLEMENTATION);
             model.addAttribute("options", impl.options());
         } else if (gradingConfig instanceof TestSuiteGradingConfig) {
-            model.addAttribute("gradingType", GradingType.TEST_SUITE);
+            model.addAttribute("gradingType", TEST_SUITE);
             model.addAttribute("options", DEFAULT_GRADING_CONFIG.options());
         } else {
             throw new AssertionError("Unexpected grading config type: " + gradingConfig.getClass());
