@@ -272,7 +272,7 @@ public class ProblemSetController {
                 model.addAttribute("host", host);
                 model.addAttribute("groupPath", groupPath);
                 model.addAttribute("ignoreAuthorless", ignoreAuthorless);
-                model.addAttribute("error", "No token for host " + host + " available. Please provide one.");
+                model.addAttribute("error", i18n.message("problem-set.no-token", host));
                 response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
                 return "problem-sets/register-solutions-gitlab";
             }
