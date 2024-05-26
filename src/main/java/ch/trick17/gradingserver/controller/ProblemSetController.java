@@ -48,8 +48,8 @@ public class ProblemSetController {
 
     private static final Set<String> LOCALHOST = Set.of("localhost", "127.0.0.1", "[::1]");
 
-    private static final GradingOptions DEFAULT_OPTIONS = new GradingOptions(
-            GradingOptions.Compiler.ECLIPSE, 7, Duration.ofSeconds(1), Duration.ofSeconds(5), true);
+    private static final ImplGradingConfig DEFAULT_GRADING_CONFIG = new ImplGradingConfig(null, new GradingOptions(
+            GradingOptions.Compiler.ECLIPSE, 7, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
 
     private static final Logger logger = LoggerFactory.getLogger(ProblemSetController.class);
 
@@ -114,22 +114,18 @@ public class ProblemSetController {
         if (id == null) {
             populateEditModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
                     WITH_SHORTENED_NAMES, 80, "", ECLIPSE, emptyList(), "",
-                    DEFAULT_OPTIONS, "");
+                    DEFAULT_GRADING_CONFIG, "");
         } else {
             var problemSet = findProblemSet(courseId, id);
             var projectConfig = problemSet.getProjectConfig();
-            if (problemSet.getGradingConfig() instanceof ImplGradingConfig gradingConfig) {
-                populateEditModel(model, problemSet.getName(),
-                        problemSet.getDeadline().toLocalDate(),
-                        problemSet.getDeadline().toLocalTime(),
-                        problemSet.getDisplaySetting(),
-                        problemSet.getPercentageGoal(),
-                        projectConfig.getProjectRoot(), projectConfig.getStructure(),
-                        projectConfig.getDependencies(), "", gradingConfig.options(), "");
-            } else {
-                // TODO
-                throw new AssertionError("Unexpected grading config type: " + problemSet.getGradingConfig().getClass());
-            }
+            populateEditModel(model, problemSet.getName(),
+                    problemSet.getDeadline().toLocalDate(),
+                    problemSet.getDeadline().toLocalTime(),
+                    problemSet.getDisplaySetting(),
+                    problemSet.getPercentageGoal(),
+                    projectConfig.getProjectRoot(), projectConfig.getStructure(),
+                    projectConfig.getDependencies(), "",
+                    problemSet.getGradingConfig(), "");
         }
         return "problem-sets/edit";
     }
@@ -155,6 +151,7 @@ public class ProblemSetController {
         var problemSet = id == null
                 ? new ProblemSet(course)
                 : findProblemSet(courseId, id);
+        problemSet.setName(name);
 
         String testClass;
         if (id == null || !testClassFile.isEmpty()) {
@@ -167,6 +164,11 @@ public class ProblemSetController {
         }
         var options = new GradingOptions(compiler, repetitions,
                 Duration.ofMillis(repTimeoutMs), Duration.ofMillis(testTimeoutMs), true);
+
+        problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
+        problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
+        problemSet.setDisplaySetting(displaySetting);
+        problemSet.setPercentageGoal(percentageGoal);
 
         var dependencyJars = new ArrayList<JarFile>();
         if (dependencies != null) {
@@ -181,7 +183,7 @@ public class ProblemSetController {
         } catch (JarFileService.JarDownloadFailedException e) {
             populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
                     percentageGoal, projectRoot, structure, dependencyJars,
-                    newDependencies, options, errorFor(e));
+                    newDependencies, problemSet.getGradingConfig(), errorFor(e));
             response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
             return "problem-sets/edit";
         }
@@ -190,13 +192,8 @@ public class ProblemSetController {
                 ? new ArrayList<JarFile>()
                 : copyOf(problemSet.getProjectConfig().getDependencies());
 
-        problemSet.setName(name);
         // TODO: make package filter configurable
         problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, null, dependencyJars));
-        problemSet.setGradingConfig(new ImplGradingConfig(testClass, options));
-        problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
-        problemSet.setDisplaySetting(displaySetting);
-        problemSet.setPercentageGoal(percentageGoal);
 
         problemSet = repo.save(problemSet);
         prevDependencies.forEach(jarFileService::deleteIfUnused);
@@ -208,7 +205,7 @@ public class ProblemSetController {
                                    DisplaySetting displaySetting, int percentageGoal,
                                    String projectRoot, ProjectStructure structure,
                                    List<JarFile> dependencies, String newDependencies,
-                                   GradingOptions options, String error) {
+                                   GradingConfig gradingConfig, String error) {
         model.addAttribute("name", name);
         model.addAttribute("deadlineDate", deadlineDate);
         model.addAttribute("deadlineTime", deadlineTime);
@@ -220,7 +217,14 @@ public class ProblemSetController {
         model.addAttribute("possibleDependencies", jarFileService.findAll());
         model.addAttribute("dependencies", dependencies);
         model.addAttribute("newDependencies", newDependencies);
-        model.addAttribute("options", options);
+        if (gradingConfig instanceof ImplGradingConfig impl) {
+            model.addAttribute("gradingType", "implementation");
+            model.addAttribute("options", impl.options());
+        } else if (gradingConfig instanceof TestSuiteGradingConfig) {
+            model.addAttribute("gradingType", "testSuite");
+        } else {
+            throw new AssertionError("Unexpected grading config type: " + gradingConfig.getClass());
+        }
         model.addAttribute("error", error);
     }
 
