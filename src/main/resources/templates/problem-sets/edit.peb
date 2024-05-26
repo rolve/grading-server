@@ -197,17 +197,17 @@
             </div>
 
             <div id="test-suite-grading" role="tabpanel" class="hidden">
+                <label for="refTestSuite" class="block mb-2">
+                        {{ message("problem-set.grading-config.ref-test-suite") }}
+                </label>
+                <input type="file" id="refTestSuite" name="refTestSuite"
+                       multiple webkitdirectory class="block w-full mb-3"
+                    {{ add or gradingType == "IMPLEMENTATION" ? "data-required-if-active" : "" }}>
+
                 <label for="refImplementation" class="block mb-2">
                     {{ message("problem-set.grading-config.ref-implementation") }}
                 </label>
                 <input type="file" id="refImplementation" name="refImplementation"
-                       multiple webkitdirectory class="block w-full mb-3"
-                       {{ add or gradingType == "IMPLEMENTATION" ? "data-required-if-active" : "" }}>
-
-                <label for="refTestSuite" class="block mb-2">
-                    {{ message("problem-set.grading-config.ref-test-suite") }}
-                </label>
-                <input type="file" id="refTestSuite" name="refTestSuite"
                        multiple webkitdirectory class="block w-full mb-3"
                        {{ add or gradingType == "IMPLEMENTATION" ? "data-required-if-active" : "" }}>
             </div>
