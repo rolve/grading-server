@@ -135,16 +135,16 @@
                 data-tabs-toggle="#default-tab-content" role="tablist">
                 <li role="presentation" class="whitespace-nowrap">
                     <input type="radio" id="impl-grading-tab" name="gradingType"
-                           data-tabs-target="#impl-grading" role="tab" value="implementation"
-                           {{ gradingType == "implementation" ? "checked aria-selected='true'" : "" }}>
+                           data-tabs-target="#impl-grading" role="tab" value="IMPLEMENTATION"
+                           {{ gradingType == "IMPLEMENTATION" ? "checked aria-selected='true'" : "" }}>
                     <label for="impl-grading-tab">
                         {{ message("problem-set.grading-config.implementation") }}
                     </label>
                 </li>
                 <li role="presentation" class="whitespace-nowrap">
                     <input type="radio" id="test-suite-grading-tab" name="gradingType"
-                           data-tabs-target="#test-suite-grading" role="tab" value="testSuite"
-                           {{ gradingType == "testSuite" ? "checked aria-selected='true'" : "" }}>
+                           data-tabs-target="#test-suite-grading" role="tab" value="TEST_SUITE"
+                           {{ gradingType == "TEST_SUITE" ? "checked aria-selected='true'" : "" }}>
                     <label for="test-suite-grading-tab">
                         {{ message("problem-set.grading-config.test-suite") }}
                     </label>

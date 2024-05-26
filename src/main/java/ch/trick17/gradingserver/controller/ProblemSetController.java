@@ -131,6 +131,8 @@ public class ProblemSetController {
         return "problem-sets/edit";
     }
 
+    private enum GradingType { IMPLEMENTATION, TEST_SUITE }
+
     @PostMapping({"/add", "/{id}/edit"})
     public String addOrEdit(@PathVariable int courseId,
                             @PathVariable(required = false) Integer id,
@@ -220,10 +222,10 @@ public class ProblemSetController {
         model.addAttribute("dependencies", dependencies);
         model.addAttribute("newDependencies", newDependencies);
         if (gradingConfig instanceof ImplGradingConfig impl) {
-            model.addAttribute("gradingType", "implementation");
+            model.addAttribute("gradingType", GradingType.IMPLEMENTATION);
             model.addAttribute("options", impl.options());
         } else if (gradingConfig instanceof TestSuiteGradingConfig) {
-            model.addAttribute("gradingType", "testSuite");
+            model.addAttribute("gradingType", GradingType.TEST_SUITE);
         } else {
             throw new AssertionError("Unexpected grading config type: " + gradingConfig.getClass());
         }
