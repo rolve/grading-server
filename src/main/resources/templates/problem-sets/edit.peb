@@ -131,34 +131,37 @@
         <h3>{{ message("problem-set.grading-config") }}</h3>
 
         <div class="mb-3">
-            <ul class="flex flex-wrap text-center gap-3" id="grading-config-tab"
+            <ul class="flex flex-wrap text-center gap-6" id="grading-config-tabs"
                 data-tabs-toggle="#default-tab-content" role="tablist">
-                <li role="presentation" class="whitespace-nowrap">
-                    <input type="radio" id="impl-grading-tab" name="gradingType"
-                           data-tabs-target="#impl-grading" role="tab" value="IMPLEMENTATION"
-                           {{ gradingType == "IMPLEMENTATION" ? "checked aria-selected='true'" : "" }}>
-                    <label for="impl-grading-tab">
+                <li role="tab" class="flex gap-2 whitespace-nowrap" id="impl-grading-tab"
+                    data-tabs-target="#impl-grading"
+                    {{ gradingType == "IMPLEMENTATION" ? "aria-selected='true'" : "" }}>
+                    <input type="radio" id="impl-grading-button" name="gradingType"
+                           value="IMPLEMENTATION">
+                    <label for="impl-grading-button">
                         {{ message("problem-set.grading-config.implementation") }}
                     </label>
                 </li>
-                <li role="presentation" class="whitespace-nowrap">
-                    <input type="radio" id="test-suite-grading-tab" name="gradingType"
-                           data-tabs-target="#test-suite-grading" role="tab" value="TEST_SUITE"
-                           {{ gradingType == "TEST_SUITE" ? "checked aria-selected='true'" : "" }}>
-                    <label for="test-suite-grading-tab">
+                <li role="tab" class="flex gap-2 whitespace-nowrap" id="test-suite-grading-tab"
+                    data-tabs-target="#test-suite-grading"
+                    {{ gradingType == "TEST_SUITE" ? "aria-selected='true'" : "" }}>
+                    <input type="radio" id="test-suite-grading-button" name="gradingType"
+                            value="TEST_SUITE">
+                    <label for="test-suite-grading-button">
                         {{ message("problem-set.grading-config.test-suite") }}
                     </label>
                 </li>
             </ul>
         </div>
 
-        <div id="grading-config-tab-content" class="mb-6">
+        <div id="grading-config-panels" class="mb-6">
             <div id="impl-grading" role="tabpanel" class="hidden">
                 <label for="testClassFile" class="block mb-2">
                     {{ message("problem-set.grading-config.test-class") }}
                 </label>
                 <input type="file" id="testClassFile" name="testClassFile"
-                       class="block w-full mb-3" accept=".java" {{ add ? "required" : "" }}>
+                       class="block w-full mb-3" accept=".java"
+                       {{ add or gradingType == "TEST_SUITE" ? "data-required-if-active" : "" }}>
 
                 <label for="compiler" class="block mb-2">
                     {{ message("problem-set.grading-config.compiler") }}
@@ -198,17 +201,36 @@
                     {{ message("problem-set.grading-config.ref-implementation") }}
                 </label>
                 <input type="file" id="refImplementation" name="refImplementation"
-                       multiple webkitdirectory
-                       class="block w-full mb-3" {{ add ? "required" : "" }}>
+                       multiple webkitdirectory class="block w-full mb-3"
+                       {{ add or gradingType == "IMPLEMENTATION" ? "data-required-if-active" : "" }}>
 
                 <label for="refTestSuite" class="block mb-2">
                     {{ message("problem-set.grading-config.ref-test-suite") }}
                 </label>
                 <input type="file" id="refTestSuite" name="refTestSuite"
-                       multiple webkitdirectory
-                       class="block w-full mb-3" {{ add ? "required" : "" }}>
+                       multiple webkitdirectory class="block w-full mb-3"
+                       {{ add or gradingType == "IMPLEMENTATION" ? "data-required-if-active" : "" }}>
             </div>
         </div>
+
+        <script>
+            window.addEventListener("turbo:load", () => {
+                const tabs = FlowbiteInstances.getInstance("Tabs", "grading-config-tabs");
+                const tabShown = () => {
+                    const tab = tabs.getActiveTab();
+                    tab.triggerEl.querySelector("input").checked = true;
+                    for (const panel of document.querySelectorAll("#grading-config-panels > div")) {
+                        for (const input of panel.querySelectorAll("input")) {
+                            if (input.dataset.requiredIfActive !== undefined) {
+                                input.required = panel === tab.targetEl;
+                            }
+                        }
+                    }
+                };
+                tabShown();
+                tabs.updateOnShow(tabShown);
+            });
+        </script>
 
         <div class="button-group-2">
             <button class="button">

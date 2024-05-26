@@ -226,6 +226,7 @@ public class ProblemSetController {
             model.addAttribute("options", impl.options());
         } else if (gradingConfig instanceof TestSuiteGradingConfig) {
             model.addAttribute("gradingType", GradingType.TEST_SUITE);
+            model.addAttribute("options", DEFAULT_GRADING_CONFIG.options());
         } else {
             throw new AssertionError("Unexpected grading config type: " + gradingConfig.getClass());
         }
