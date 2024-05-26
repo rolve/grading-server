@@ -131,7 +131,7 @@ public class ProblemSetController {
         return "problem-sets/edit";
     }
 
-    public enum GradingType { IMPLEMENTATION, TEST_SUITE }
+    public enum GradingType {IMPLEMENTATION, TEST_SUITE}
 
     @PostMapping({"/add", "/{id}/edit"})
     public String addOrEdit(@PathVariable int courseId,
@@ -143,8 +143,8 @@ public class ProblemSetController {
                             @RequestParam(required = false) Set<Integer> dependencies,
                             String newDependencies,
                             GradingType gradingType, MultipartFile testClassFile,
-                            List<MultipartFile> refTestSuite,
-                            List<MultipartFile> refImplementation,
+                            List<MultipartFile> refTestSuiteFiles,
+                            List<MultipartFile> refImplementationFiles,
                             GradingOptions.Compiler compiler, int repetitions,
                             int repTimeoutMs, int testTimeoutMs, Model model,
                             HttpServletResponse response) throws IOException {
@@ -200,13 +200,15 @@ public class ProblemSetController {
             problemSet = service.save(problemSet);
         } else {
             if (problemSet.getGradingConfig() instanceof TestSuiteGradingConfig
-                && refTestSuite.get(0).isEmpty()
-                && refImplementation.get(0).isEmpty()) {
+                && refTestSuiteFiles.get(0).isEmpty()
+                && refImplementationFiles.get(0).isEmpty()) {
                 // keep old one
                 problemSet = service.save(problemSet);
-            } else if (!refTestSuite.get(0).isEmpty() && !refImplementation.get(0).isEmpty()) {
+            } else if (!refTestSuiteFiles.get(0).isEmpty() && !refImplementationFiles.get(0).isEmpty()) {
                 // update config
-                // TODO
+                var refTestSuite = getContents(refTestSuiteFiles);
+                var refImplementation = getContents(refImplementationFiles);
+                service.prepareAndSave(problemSet, refTestSuite, refImplementation);
             } else {
                 // error, must provide both
                 model.addAttribute("course", course);
@@ -222,6 +224,14 @@ public class ProblemSetController {
 
         prevDependencies.forEach(jarFileService::deleteIfUnused);
         return "redirect:/courses/" + courseId + "/problem-sets/" + problemSet.getId() + "/";
+    }
+
+    private List<String> getContents(List<MultipartFile> files) throws IOException {
+        var contents = new ArrayList<String>();
+        for (var file : files) {
+            contents.add(new String(file.getBytes(), UTF_8));
+        }
+        return contents;
     }
 
     private void populateEditModel(Model model, String name,

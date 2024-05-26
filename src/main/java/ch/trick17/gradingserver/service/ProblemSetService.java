@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,8 +46,16 @@ public class ProblemSetService {
         return repo.save(problemSet);
     }
 
-    public void delete(ProblemSet problemSet) {
-        repo.delete(problemSet);
+    public void prepareAndSave(ProblemSet problemSet, List<String> refTestSuite,
+                               List<String> refImplementation) {
+        problemSet = repo.save(problemSet);
+        gradingService.prepare(problemSet, refTestSuite, refImplementation);
+    }
+
+    @Transactional
+    public void setConfig(ProblemSet problemSet, GradingConfig config) {
+        problemSet.setGradingConfig(config);
+        repo.save(problemSet);
     }
 
     @Async
@@ -90,5 +100,9 @@ public class ProblemSetService {
                 .forEach(gradingService::grade); // async
 
         logger.info("{} solutions registered", problemSet.getSolutions().size() - prevSols);
+    }
+
+    public void delete(ProblemSet problemSet) {
+        repo.delete(problemSet);
     }
 }

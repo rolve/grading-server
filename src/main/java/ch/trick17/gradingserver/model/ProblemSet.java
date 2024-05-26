@@ -79,7 +79,7 @@ public class ProblemSet {
     }
 
     public void setGradingConfig(GradingConfig gradingConfig) {
-        this.gradingConfig = requireNonNull(gradingConfig);
+        this.gradingConfig = gradingConfig;
     }
 
     public ZonedDateTime getDeadline() {

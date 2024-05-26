@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
 import ch.trick17.jtt.memcompile.Compiler;
+import ch.trick17.jtt.memcompile.InMemSource;
 import ch.trick17.jtt.sandbox.Whitelist;
 import ch.trick17.jtt.testrunner.TestRunner;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -36,6 +38,7 @@ public class GradingService {
 
     private final SubmissionRepository submissionRepo;
     private final SubmissionService submissionService;
+    private final ProblemSetService problemSetService;
     private final JarFileWriter jarFileWriter;
 
     private final Grader grader;
@@ -44,6 +47,7 @@ public class GradingService {
 
     public GradingService(SubmissionRepository submissionRepo,
                           @Lazy SubmissionService submissionService,
+                          @Lazy ProblemSetService problemSetService,
                           JarFileWriter jarFileWriter,
                           GradingServerProperties properties) {
         this.submissionRepo = submissionRepo;
@@ -59,10 +63,68 @@ public class GradingService {
         executor = new ThreadPoolExecutor(parallelism, parallelism, 30, SECONDS,
                 new PriorityBlockingQueue<>());
         executor.allowCoreThreadTimeOut(true);
+        this.problemSetService = problemSetService;
+    }
+
+    private sealed abstract static class Task extends FutureTask<Void> implements Comparable<Task> {
+        public Task(Runnable runnable, Void result) {
+            super(runnable, result);
+        }
     }
 
     public boolean isIdle() {
         return executor.getActiveCount() == 0;
+    }
+
+    public Future<Void> prepare(ProblemSet problemSet, List<String> refTestSuite,
+                                List<String> refImplementation) {
+        problemSet.setGradingConfig(null);
+        problemSetService.save(problemSet);
+        var task = new PrepareTask(problemSet, refTestSuite, refImplementation);
+        executor.execute(task);
+        return task;
+    }
+
+    private final class PrepareTask extends Task {
+        final ProblemSet problemSet;
+
+        public PrepareTask(ProblemSet problemSet, List<String> refTestSuite,
+                           List<String> refImplementation) {
+            super(() -> doPrepare(problemSet, refTestSuite, refImplementation), null);
+            this.problemSet = problemSet;
+        }
+
+        public int compareTo(Task task) {
+            if (!(task instanceof PrepareTask other)) {
+                // prepare tasks first
+                return -1;
+            } else {
+                return Integer.compare(problemSet.getId(), other.problemSet.getId());
+            }
+        }
+    }
+
+    private void doPrepare(ProblemSet problemSet, List<String> refTestSuiteSources,
+                           List<String> refImplementationSources) {
+        logger.info("Preparing Problem Set {}", problemSet.getId());
+        try {
+            var refTestSuite = refTestSuiteSources.stream()
+                    .map(InMemSource::fromString)
+                    .toList();
+            var refImplementation = refImplementationSources.stream()
+                    .map(InMemSource::fromString)
+                    .toList();
+            var dependencies = jarFileWriter.write(problemSet.getProjectConfig().getDependencies());
+            var task = testSuiteGrader.prepareTask(List.of(refImplementation),
+                    refTestSuite, dependencies);
+            var config = new TestSuiteGradingConfig(task);
+
+            // set grading config in separate, @Transactional method:
+            problemSetService.setConfig(problemSet, config);
+            logger.info("Finished preparing Problem Set {}", problemSet.getId());
+        } catch (Throwable e) {
+            logger.error("Error while preparing Problem Set " + problemSet.getId(), e);
+        }
     }
 
     @Transactional
@@ -78,21 +140,24 @@ public class GradingService {
         var ignored2 = submission.getSolution().getSubmissions().size();
 
         // then submit
-        var task = new GradingTask(submission);
+        var task = new GradeTask(submission);
         executor.execute(task);
         return task;
     }
 
-    private class GradingTask extends FutureTask<Void> implements Comparable<GradingTask> {
+    private final class GradeTask extends Task {
         final Submission submission;
 
-        GradingTask(Submission submission) {
+        GradeTask(Submission submission) {
             super(() -> doGrade(submission), null);
             this.submission = submission;
         }
 
-        public int compareTo(GradingTask other) {
-            if (submission.isLatest() != other.submission.isLatest()) {
+        public int compareTo(Task task) {
+            if (!(task instanceof GradeTask other)) {
+                // prepare tasks first
+                return 1;
+            } else if (submission.isLatest() != other.submission.isLatest()) {
                 // latest submissions always have higher priority, allowing to re-grade older
                 // submissions without affecting latest ones
                 return submission.isLatest() ? -1 : 1;
