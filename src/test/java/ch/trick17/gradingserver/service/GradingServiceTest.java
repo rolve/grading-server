@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.DBObjectMapperSupplier;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.gradingserver.model.GradingOptions.Compiler;
+import ch.trick17.jtt.testrunner.TestMethod;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
@@ -30,6 +32,7 @@ class GradingServiceTest {
 
     @Autowired GradingService service;
     @Autowired SubmissionRepository submissionRepo;
+    @Autowired ProblemSetRepository problemSetRepo;
     @Autowired AuthorRepository authorRepo;
     @Autowired UserRepository userRepo;
 
@@ -140,6 +143,65 @@ class GradingServiceTest {
         assertNotNull(result.error());
         assertTrue(result.error().toLowerCase()
                 .matches(".*ioexception.*not.*authorized.*"));
+    }
+
+    @DirtiesContext
+    @Test
+    void prepareTestSuiteGrading() throws ExecutionException, InterruptedException {
+        var refTestSuite = List.of("""
+                package foo;
+                import org.junit.jupiter.api.Order;
+                import org.junit.jupiter.api.Test;
+                import static org.junit.jupiter.api.Assertions.assertEquals;
+                class FooTest {
+                    /**
+                     * Test that subtracting a number from itself returns 0.
+                     */
+                    @Order(1)
+                    @Test
+                    void subtractSame() {
+                        assertEquals(0, Foo.subtract(1, 1));
+                        assertEquals(0, Foo.subtract(2, 2));
+                        assertEquals(0, Foo.subtract(3, 3));
+                    }
+                
+                    /**
+                     * Test the general case.
+                     */
+                    @Order(2)
+                    @Test
+                    void subtractGeneral() {
+                        assertEquals(3, Foo.subtract(5, 2));
+                        assertEquals(1, Foo.subtract(2, 1));
+                        assertEquals(-5, Foo.subtract(0, 5));
+                    }
+                }""");
+        var refImpl = List.of("""
+                package foo;
+                class Foo {
+                    static int subtract(int a, int b) {
+                        return a - b;
+                    }
+                }
+                """);
+
+        var projectConfig = new ProjectConfig("", ECLIPSE, null, emptyList());
+        var problemSet = new ProblemSet(course, "Test", projectConfig, null,
+                now(), WITH_SHORTENED_NAMES);
+        problemSet = problemSetRepo.save(problemSet);
+
+        service.prepare(problemSet, refTestSuite, refImpl).get();
+
+        problemSet = problemSetRepo.findById(problemSet.getId()).orElseThrow();
+        var config = problemSet.getGradingConfig();
+        var task = assertInstanceOf(TestSuiteGradingConfig.class, config).task();
+        assertTrue(task.mutations().size() >= 2);
+        var descriptions = task.refTestDescriptions();
+        assertEquals(2, descriptions.size());
+        assertEquals("Test that subtracting a number from itself returns 0.",
+                descriptions.get(new TestMethod("foo.FooTest", "subtractSame")));
+        assertEquals("Test the general case.",
+                descriptions.get(new TestMethod("foo.FooTest", "subtractGeneral")));
     }
 
     @DirtiesContext
