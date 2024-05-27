@@ -82,6 +82,16 @@ public class Solution {
                 .max(comparingInt(Submission::getId)).orElse(null);
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        return o instanceof Solution && id == ((Solution) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
     public static Comparator<Solution> byResult() {
         return comparing(Solution::latestSubmission, nullsLast(
                     comparing(Submission::getStatus)
