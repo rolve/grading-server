@@ -114,7 +114,7 @@ public class ProblemSetController {
         model.addAttribute("add", id == null);
         if (id == null) {
             populateEditModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
-                    WITH_SHORTENED_NAMES, 80, "", ECLIPSE, emptyList(), "",
+                    WITH_SHORTENED_NAMES, 80, "", ECLIPSE, null, emptyList(), "",
                     DEFAULT_GRADING_CONFIG, "");
         } else {
             var problemSet = findProblemSet(courseId, id);
@@ -125,6 +125,7 @@ public class ProblemSetController {
                     problemSet.getDisplaySetting(),
                     problemSet.getPercentageGoal(),
                     projectConfig.getProjectRoot(), projectConfig.getStructure(),
+                    projectConfig.getPackageFilter(),
                     projectConfig.getDependencies(), "",
                     problemSet.getGradingConfig(), "");
         }
@@ -138,8 +139,8 @@ public class ProblemSetController {
                             @PathVariable(required = false) Integer id,
                             String name, LocalDate deadlineDate,
                             LocalTime deadlineTime, DisplaySetting displaySetting,
-                            int percentageGoal,
-                            String projectRoot, ProjectStructure structure,
+                            int percentageGoal, String projectRoot,
+                            ProjectStructure structure, String packageFilter,
                             @RequestParam(required = false) Set<Integer> dependencies,
                             String newDependencies,
                             GradingType gradingType, MultipartFile testClassFile,
@@ -175,7 +176,7 @@ public class ProblemSetController {
             model.addAttribute("course", course);
             model.addAttribute("add", id == null);
             populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
-                    percentageGoal, projectRoot, structure, dependencyJars,
+                    percentageGoal, projectRoot, structure, packageFilter, dependencyJars,
                     newDependencies, problemSet.getGradingConfig(), errorFor(e));
             response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
             return "problem-sets/edit";
@@ -183,8 +184,8 @@ public class ProblemSetController {
         var prevDependencies = id == null
                 ? new ArrayList<JarFile>()
                 : copyOf(problemSet.getProjectConfig().getDependencies());
-        // TODO: make package filter configurable
-        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure, null, dependencyJars));
+        problemSet.setProjectConfig(new ProjectConfig(projectRoot, structure,
+                packageFilter.isBlank() ? null : packageFilter, dependencyJars));
 
         // Grading config
         if (gradingType == IMPLEMENTATION) {
@@ -215,7 +216,8 @@ public class ProblemSetController {
                 model.addAttribute("add", id == null);
                 populateEditModel(model, name, deadlineDate, deadlineTime,
                         displaySetting, percentageGoal, projectRoot, structure,
-                        dependencyJars, newDependencies, new TestSuiteGradingConfig(null),
+                        packageFilter, dependencyJars, newDependencies,
+                        new TestSuiteGradingConfig(null),
                         i18n.message("problem-set.empty-test-suite-or-impl"));
                 response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
                 return "problem-sets/edit";
@@ -238,8 +240,9 @@ public class ProblemSetController {
                                    LocalDate deadlineDate, LocalTime deadlineTime,
                                    DisplaySetting displaySetting, int percentageGoal,
                                    String projectRoot, ProjectStructure structure,
-                                   List<JarFile> dependencies, String newDependencies,
-                                   GradingConfig gradingConfig, String error) {
+                                   String packageFilter, List<JarFile> dependencies,
+                                   String newDependencies, GradingConfig gradingConfig,
+                                   String error) {
         model.addAttribute("name", name);
         model.addAttribute("deadlineDate", deadlineDate);
         model.addAttribute("deadlineTime", deadlineTime);
@@ -248,6 +251,7 @@ public class ProblemSetController {
         model.addAttribute("percentageGoal", percentageGoal);
         model.addAttribute("projectRoot", projectRoot);
         model.addAttribute("structure", structure);
+        model.addAttribute("packageFilter", packageFilter);
         model.addAttribute("possibleDependencies", jarFileService.findAll());
         model.addAttribute("dependencies", dependencies);
         model.addAttribute("newDependencies", newDependencies);

@@ -20,8 +20,15 @@ public class ProjectConfig {
     protected ProjectConfig() {
     }
 
-    public ProjectConfig(String projectRoot, ProjectStructure structure, String packageFilter,
-                         List<JarFile> dependencies) {
+    /**
+     * @param packageFilter When not <code>null</code>, only classes in that
+     *                      package and subpackages be considered. For example,
+     *                      "foo.bar" will include classes in the packages
+     *                      "foo.bar", "foo.bar.baz", and "foo.bar.baz.qux" but
+     *                      not, e.g., "foo", "bar", or "foo.barista".
+     */
+    public ProjectConfig(String projectRoot, ProjectStructure structure,
+                         String packageFilter, List<JarFile> dependencies) {
         this.projectRoot = requireNonNull(projectRoot);
         this.structure = requireNonNull(structure);
         this.packageFilter = packageFilter;

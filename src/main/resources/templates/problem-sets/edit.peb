@@ -86,26 +86,33 @@
 
         <h3>{{ message("problem-set.project-config") }}</h3>
 
+        <label for="structure" class="block mb-2">
+                {{ message("problem-set.project-config.structure") }}
+        </label>
+        <select name="structure" id="structure" class="block w-full mb-3">
+            <option value="ECLIPSE" {{ structure == "ECLIPSE" ? "selected" : "" }}>
+                Eclipse (src & test)
+            </option>
+            <option value="MAVEN" {{ structure == "MAVEN" ? "selected" : "" }}>
+                Maven (src / main / java & src/test/java)
+            </option>
+        </select>
+
         <div class="sm:grid grid-flow-col gap-x-3"
              style="grid-template-rows: auto auto">
-            <label for="structure" class="block mb-2">
-                {{ message("problem-set.project-config.structure") }}
-            </label>
-            <select name="structure" id="structure" class="block w-full mb-3">
-                <option value="ECLIPSE" {{ structure == "ECLIPSE" ? "selected" : "" }}>
-                    Eclipse (src)
-                </option>
-                <option value="MAVEN" {{ structure == "MAVEN" ? "selected" : "" }}>
-                    Maven (src / main / java)
-                </option>
-            </select>
-
             <label for="projectRoot" class="block mb-2">
                 {{ message("problem-set.project-config.root") }}
             </label>
             <input type="text" id="projectRoot" name="projectRoot"
                    class="block w-full mb-3" value="{{ projectRoot }}"
                    placeholder="{{ message("problem-set.project-config.root-example") }}">
+
+            <label for="packageFilter" class="block mb-2">
+                {{ message("problem-set.project-config.package-filter") }}
+            </label>
+            <input type="text" id="packageFilter" name="packageFilter"
+                   class="block w-full mb-3" value="{{ packageFilter }}"
+                   placeholder="{{ message("problem-set.project-config.package-filter-example") }}">
         </div>
 
         <label for="dependencies" class="block mb-2">
