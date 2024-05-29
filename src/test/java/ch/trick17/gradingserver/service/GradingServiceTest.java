@@ -1,10 +1,8 @@
 package ch.trick17.gradingserver.service;
 
-import ch.trick17.gradingserver.DBObjectMapperSupplier;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.gradingserver.model.GradingOptions.Compiler;
 import ch.trick17.jtt.testrunner.TestMethod;
-import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
