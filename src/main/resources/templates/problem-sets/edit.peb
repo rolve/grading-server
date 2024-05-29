@@ -112,6 +112,7 @@
             </label>
             <input type="text" id="packageFilter" name="packageFilter"
                    class="block w-full mb-3" value="{{ packageFilter }}"
+                   pattern="[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*"
                    placeholder="{{ message("problem-set.project-config.package-filter-example") }}">
         </div>
 

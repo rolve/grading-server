@@ -11,6 +11,8 @@ import static java.util.Objects.requireNonNull;
 @Embeddable
 public class ProjectConfig {
 
+    private static final String PACKAGE_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*";
+
     private String projectRoot;
     private ProjectStructure structure;
     private String packageFilter;       // null means no filter
@@ -29,6 +31,9 @@ public class ProjectConfig {
      */
     public ProjectConfig(String projectRoot, ProjectStructure structure,
                          String packageFilter, List<JarFile> dependencies) {
+        if (packageFilter != null && !packageFilter.matches(PACKAGE_PATTERN)) {
+            throw new IllegalArgumentException("Invalid package filter: " + packageFilter);
+        }
         this.projectRoot = requireNonNull(projectRoot);
         this.structure = requireNonNull(structure);
         this.packageFilter = packageFilter;
