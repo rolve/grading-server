@@ -132,7 +132,7 @@ public class GradingService {
         // remove previous result
         submission.clearResult();
         submission.setGradingStarted(false);
-        submissionRepo.save(submission);
+        submission = submissionRepo.save(submission);
 
         // initialize lazy collections needed for grading, in this thread
         var ignored1 = submission.getSolution().getProblemSet()
