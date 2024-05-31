@@ -93,7 +93,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             var projects = api.getGroupApi().getProjects(groupPath);
             var authors = getProjectMembers(api, projects);
 
-            var ignoredPushers = api.getGroupApi().getMembers(groupPath).stream()
+            var ignoredPushers = api.getGroupApi().getAllMembers(groupPath).stream()
                     .map(Member::getUsername)
                     .collect(toCollection(HashSet::new));
             if (ignoringCommonMembers) {
