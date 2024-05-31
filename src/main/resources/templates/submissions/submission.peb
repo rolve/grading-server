@@ -1,5 +1,5 @@
 {# @pebvariable name="submission" type="ch.trick17.gradingserver.model.Submission" #}
-{# @pebvariable name="suggestions" type="java.util.List<java.lang.String>" #}
+{# @pebvariable name="suggestions" type="java.util.List<ch.trick17.gradingserver.service.TestSuiteResultService.Suggestion>" #}
 {# @pebvariable name="allSubmissions" type="java.util.List<ch.trick17.gradingserver.model.Submission>" #}
 
 {% extends "layout" %}
@@ -122,8 +122,14 @@
                                 {% endif %}
                             </li>
                         {% endfor %}
-                        {% for suggestion in suggestions %}
-                            <li class="py-1">{{ suggestion | raw }}</li>
+                        {% for s in suggestions %}
+                            <li class="py-1">
+                                {{ s.description | raw }}
+                                {% if s.mutantsKilled > 0 %}
+                                    {{ message("submission.suggestion-partially-implemented",
+                                               s.mutantsKilled, s.mutantsTotal) }}
+                                {% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
