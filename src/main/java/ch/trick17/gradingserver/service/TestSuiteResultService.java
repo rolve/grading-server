@@ -36,10 +36,10 @@ public class TestSuiteResultService {
         // (earlier in the map of test descriptions)
         var tests = new ArrayList<>(config.task().refTestDescriptions().keySet());
         for (int i = 0; i < tests.size(); i++) {
-            var killed = killedMutants.get(tests.get(i));
+            var killed = killedMutants.getOrDefault(tests.get(i), emptySet());
             var total = totalMutants.get(tests.get(i));
             for (int j = i + 1; j < tests.size(); j++) {
-                killedMutants.getOrDefault(tests.get(j), emptySet()).removeAll(killed);
+                killedMutants.getOrDefault(tests.get(j), new HashSet<>()).removeAll(killed);
                 totalMutants.get(tests.get(j)).removeAll(total);
             }
         }
