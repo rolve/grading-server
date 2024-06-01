@@ -63,10 +63,10 @@ class GradingServiceTest {
 
         var solution = new Solution(problemSet, "https://github.com/rolve/gui.git",
                 "master", null, emptyList(), emptyList());
-        var submission = new Submission(solution, commitHash, now());
-        submissionRepo.save(submission);
+        var submission = submissionRepo.save(new Submission(solution, commitHash, now()));
 
         service.grade(submission).get();
+        submission = submissionRepo.findById(submission.getId()).orElseThrow();
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
         assertTrue(result.properties().contains("compiled"));
@@ -99,11 +99,12 @@ class GradingServiceTest {
                 now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
-        var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now());
         userRepo.save(user);
-        submissionRepo.save(submission);
+        var submission = submissionRepo.save(
+                new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now()));
 
         service.grade(submission).get();
+        submission = submissionRepo.findById(submission.getId()).orElseThrow();
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
         assertEquals(List.of("compiled"), result.properties());
@@ -131,10 +132,11 @@ class GradingServiceTest {
         AccessToken missingToken = null;
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", missingToken, emptyList(), emptyList());
-        var submission = new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now());
-        submissionRepo.save(submission);
+        var submission = submissionRepo.save(
+                new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now()));
 
         service.grade(submission).get();
+        submission = submissionRepo.findById(submission.getId()).orElseThrow();
 
         var result = assertInstanceOf(ErrorResult.class, submission.getResult());
         assertNotNull(result.error());
@@ -186,9 +188,9 @@ class GradingServiceTest {
                 now(), WITH_SHORTENED_NAMES);
         var solution = new Solution(problemSet, "https://gitlab.com/rolve/some-private-repo.git",
                 "master", token, emptyList(), emptyList());
-        var submission = new Submission(solution, "58889314d0b75616cfa83f7ef89a51ecc5479654", now());
         userRepo.save(user);
-        submissionRepo.save(submission);
+        var submission = submissionRepo.save(
+                new Submission(solution, "58889314d0b75616cfa83f7ef89a51ecc5479654", now()));
 
         service.prepare(problemSet, refTestSuite, refImpl).get();
 
@@ -204,6 +206,7 @@ class GradingServiceTest {
                 descriptions.get(new TestMethod("foo.FooTest", "subtractGeneral")));
 
         service.grade(submission).get();
+        submission = submissionRepo.findById(submission.getId()).orElseThrow();
 
         var result = assertInstanceOf(TestSuiteGradingResult.class, submission.getResult());
         assertFalse(result.testSuiteResult().emptyTestSuite());
