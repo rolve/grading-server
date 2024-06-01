@@ -329,7 +329,7 @@ public class ProblemSetController {
         service.save(problemSet);
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
-                problemSet.getProjectConfig().getProjectRoot(), tokenRecord.getToken());
+                tokenRecord.getToken(), problemSet.getProjectConfig());
         if (LOCALHOST.contains(req.getServerName())) {
             logger.warn("Cannot determine server name (access via localhost), will not add webhooks");
         } else {

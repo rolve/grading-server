@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.service;
 
 import ch.trick17.gradingserver.controller.WebhooksController;
+import ch.trick17.gradingserver.model.ProjectConfig;
 import ch.trick17.gradingserver.model.Solution;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApi;
@@ -25,7 +26,7 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
 
     private final String hostUrl;
     private final String groupPath;
-    private final String projectRoot;
+    private final ProjectConfig projectConfig;
     private final String token;
 
     private AccessLevel minAccessLevel = DEVELOPER;
@@ -34,10 +35,10 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
     private String webhookBaseUrl = null;
 
     public GitLabGroupSolutionSupplier(String hostUrl, String groupPath,
-                                       String projectRoot, String token) {
+                                       String token, ProjectConfig projectConfig) {
         this.hostUrl = requireNonNull(hostUrl);
         this.groupPath = requireNonNull(groupPath);
-        this.projectRoot = requireNonNull(projectRoot);
+        this.projectConfig = requireNonNull(projectConfig);
         this.token = requireNonNull(token);
     }
 
@@ -128,15 +129,20 @@ public class GitLabGroupSolutionSupplier implements SolutionSupplier<GitLabApiEx
             for (int i = 0; i < projects.size(); i++) {
                 var repoUrl = projects.get(i).getHttpUrlToRepo();
                 var branch = projects.get(i).getDefaultBranch();
+                var srcPath = projectConfig.getSrcPackageDir().toString()
+                        .replace('\\', '/'); // in case we are on Windows...
+                var testPath = projectConfig.getTestPackageDir().toString()
+                        .replace('\\', '/');
+                var pushEvents = api.getEventsApi().getProjectEvents(projects.get(i), PUSHED,
+                        null, null, null, DESC);
                 try (var fetcher = new GitRepoDiffFetcher(repoUrl, branch, "", token)) {
-                    var pushEvents = api.getEventsApi().getProjectEvents(projects.get(i), PUSHED,
-                            null, null, null, DESC);
                     var latestCommit = pushEvents.stream()
                             .filter(e -> !ignoredPushers.contains(e.getAuthorUsername()))
                             .map(Event::getPushData)
                             .filter(p -> p.getRef().equals(branch))
                             .filter(p -> fetcher.affectedPaths(p.getCommitFrom(), p.getCommitTo())
-                                    .stream().anyMatch(path -> path.startsWith(projectRoot)))
+                                    .stream().anyMatch(path -> path.startsWith(srcPath) ||
+                                                               path.startsWith(testPath)))
                             .map(PushData::getCommitTo)
                             .findFirst().orElse(null);
                     sols.add(new NewSolution(repoUrl, branch, authors.get(i),

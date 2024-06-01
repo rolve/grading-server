@@ -55,15 +55,17 @@ public class WebhooksController {
                 ignoredUser++;
                 continue;
             }
-            var projectRoot = sol.getProblemSet().getProjectConfig().getProjectRoot();
-            if (!projectRoot.isEmpty()) {
-                var token = sol.getAccessToken().getToken();
-                try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), sol.getBranch(), "", token)) {
-                    var paths = fetcher.affectedPaths(event.beforeCommit(), event.afterCommit());
-                    if (paths.stream().noneMatch(p -> p.startsWith(projectRoot))) {
-                        ignoredPath++;
-                        continue;
-                    }
+            var srcPath = sol.getProblemSet().getProjectConfig().getSrcPackageDir().toString()
+                    .replace('\\', '/'); // in case we are on Windows...
+            var testPath = sol.getProblemSet().getProjectConfig().getTestPackageDir().toString()
+                    .replace('\\', '/');
+            var token = sol.getAccessToken().getToken();
+            try (var fetcher = new GitRepoDiffFetcher(sol.getRepoUrl(), sol.getBranch(), "", token)) {
+                var paths = fetcher.affectedPaths(event.beforeCommit(), event.afterCommit());
+                if (paths.stream().noneMatch(p -> p.startsWith(srcPath) ||
+                                                  p.startsWith(testPath))) {
+                    ignoredPath++;
+                    continue;
                 }
             }
             var submission = new Submission(sol, event.afterCommit(), now());

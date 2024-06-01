@@ -217,7 +217,7 @@ public class GradingService {
         var downloader = new CodeDownloader(submission.getCodeLocation(), username, password);
 
         var sources = downloader.checkoutCode(
-                projectConfig.getSrcDirPath(),
+                projectConfig.getSrcRoot(),
                 projectConfig.getPackageFilter());
         var dependencies = jarFileWriter.write(projectConfig.getDependencies());
 
@@ -237,7 +237,7 @@ public class GradingService {
             return convert(result);
         } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
             var testSuite = downloader.checkoutCode(
-                    projectConfig.getTestDirPath(),
+                    projectConfig.getTestRoot(),
                     projectConfig.getPackageFilter());
 
             var testSuiteResult = testSuiteGrader.grade(config.task(), testSuite, dependencies);

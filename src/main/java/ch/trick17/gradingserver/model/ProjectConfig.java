@@ -69,11 +69,21 @@ public class ProjectConfig {
         }
     }
 
-    public Path getSrcDirPath() {
+    public Path getSrcRoot() {
         return Path.of(projectRoot).resolve(structure.srcDirPath);
     }
 
-    public Path getTestDirPath() {
+    public Path getSrcPackageDir() {
+        return getSrcRoot()
+                .resolve(packageFilter == null ? "" : packageFilter.replace('.', '/'));
+    }
+
+    public Path getTestRoot() {
         return Path.of(projectRoot).resolve(structure.testDirPath);
+    }
+
+    public Path getTestPackageDir() {
+        return Path.of(projectRoot).resolve(structure.testDirPath)
+                .resolve(packageFilter == null ? "" : packageFilter.replace('.', '/'));
     }
 }
