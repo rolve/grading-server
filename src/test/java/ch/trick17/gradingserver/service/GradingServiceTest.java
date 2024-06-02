@@ -3,6 +3,7 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.gradingserver.model.GradingOptions.Compiler;
 import ch.trick17.jtt.testrunner.TestMethod;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Duration;
 import java.util.List;
@@ -23,6 +25,7 @@ import static java.time.ZonedDateTime.now;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.transaction.TransactionDefinition.withDefaults;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -33,6 +36,7 @@ class GradingServiceTest {
     @Autowired ProblemSetRepository problemSetRepo;
     @Autowired AuthorRepository authorRepo;
     @Autowired UserRepository userRepo;
+    @Autowired PlatformTransactionManager txManager;
 
     Course course = new Course("OOPI2", new Term(2021, "FS"), "");
     GradingOptions options = new GradingOptions(Compiler.ECLIPSE, 7,
@@ -66,7 +70,11 @@ class GradingServiceTest {
         var submission = submissionRepo.save(new Submission(solution, commitHash, now()));
 
         service.grade(submission).get();
+
+        var tx = txManager.getTransaction(withDefaults());
         submission = submissionRepo.findById(submission.getId()).orElseThrow();
+        Hibernate.initialize(submission.getResult());
+        txManager.commit(tx);
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
         assertTrue(result.properties().contains("compiled"));
@@ -104,7 +112,11 @@ class GradingServiceTest {
                 new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now()));
 
         service.grade(submission).get();
+
+        var tx = txManager.getTransaction(withDefaults());
         submission = submissionRepo.findById(submission.getId()).orElseThrow();
+        Hibernate.initialize(submission.getResult());
+        txManager.commit(tx);
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
         assertEquals(List.of("compiled"), result.properties());
@@ -136,7 +148,11 @@ class GradingServiceTest {
                 new Submission(solution, "5f5ffff42176fc05bd3947ad2971712fb409ae9b", now()));
 
         service.grade(submission).get();
+
+        var tx = txManager.getTransaction(withDefaults());
         submission = submissionRepo.findById(submission.getId()).orElseThrow();
+        Hibernate.initialize(submission.getResult());
+        txManager.commit(tx);
 
         var result = assertInstanceOf(ErrorResult.class, submission.getResult());
         assertNotNull(result.error());
@@ -192,9 +208,13 @@ class GradingServiceTest {
         var submission = submissionRepo.save(
                 new Submission(solution, "58889314d0b75616cfa83f7ef89a51ecc5479654", now()));
 
+        var tx = txManager.getTransaction(withDefaults());
+        problemSet = problemSetRepo.findById(problemSet.getId()).orElseThrow();
+        Hibernate.initialize(problemSet.getProjectConfig().getDependencies());
+        txManager.commit(tx);
+
         service.prepare(problemSet, refTestSuite, refImpl).get();
 
-        problemSet = problemSetRepo.findById(problemSet.getId()).orElseThrow();
         var config = problemSet.getGradingConfig();
         var task = assertInstanceOf(TestSuiteGradingConfig.class, config).task();
         assertTrue(task.mutations().size() >= 2);
@@ -206,7 +226,11 @@ class GradingServiceTest {
                 descriptions.get(new TestMethod("foo.FooTest", "subtractGeneral")));
 
         service.grade(submission).get();
+
+        tx = txManager.getTransaction(withDefaults());
         submission = submissionRepo.findById(submission.getId()).orElseThrow();
+        Hibernate.initialize(submission.getResult());
+        txManager.commit(tx);
 
         var result = assertInstanceOf(TestSuiteGradingResult.class, submission.getResult());
         assertFalse(result.testSuiteResult().emptyTestSuite());
