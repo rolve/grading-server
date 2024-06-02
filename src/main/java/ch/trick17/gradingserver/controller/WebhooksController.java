@@ -68,6 +68,7 @@ public class WebhooksController {
                     continue;
                 }
             }
+
             var submission = new Submission(sol, event.afterCommit(), now());
             submission = submissionRepo.save(submission);
             gradingService.grade(submission); // async
@@ -79,7 +80,7 @@ public class WebhooksController {
             logger.info("Ignored push from user {} for {} solutions", event.username(), ignoredUser);
         }
         if (ignoredPath > 0) {
-            logger.info("Ignored push affecting only paths outside project root for {} solutions", ignoredPath);
+            logger.info("Ignored push affecting only paths outside project directories for {} solutions", ignoredPath);
         }
         return ResponseEntity.noContent().build();
     }
