@@ -9,6 +9,10 @@ import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -67,7 +71,9 @@ public class CodeDownloader {
                 .replace('.', '/');
         var fullPath = srcDirPath.resolve(packagePath).toString()
                 .replace('\\', '/');
-        treeWalk.setFilter(createFromStrings(fullPath));
+        treeWalk.setFilter(AndTreeFilter.create(
+                PathFilterGroup.createFromStrings(fullPath),
+                PathSuffixFilter.create(".java")));
         var result = new ArrayList<InMemSource>();
         while (treeWalk.next()) {
             var path = srcDirPath.relativize(Path.of(treeWalk.getPathString()))

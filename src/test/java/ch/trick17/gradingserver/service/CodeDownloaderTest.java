@@ -37,4 +37,16 @@ class CodeDownloaderTest {
         var firstLine = foo.getContent().lines().findFirst().orElseThrow();
         assertEquals("package foo;", firstLine);
     }
+
+    @Test
+    void nonJavaFiles() throws IOException {
+        var username = "grading-server";
+        var deployToken = "VBgo1xky7z87tKdzXacw"; // read-only deploy token
+        var location = new CodeLocation("https://gitlab.com/rolve/some-private-repo.git",
+                "ef9341e0fe57dd3737f5187ef29318d15942796a");
+        var downloader = new CodeDownloader(location, username, deployToken);
+        var sources = downloader.checkoutCode(Path.of("src"), "foo");
+        assertEquals(1, sources.size());
+        assertEquals("foo/Foo.java", sources.get(0).getPath());
+    }
 }
