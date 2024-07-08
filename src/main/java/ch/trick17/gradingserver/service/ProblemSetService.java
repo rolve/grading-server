@@ -66,6 +66,7 @@ public class ProblemSetService {
         logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
 
         var newSubmissions = new ArrayList<Submission>();
+        var newSolCount = 0;
         try {
             var token = tokenRepo.findById(tokenId).orElseThrow();
             var existingSolutions = problemSet.getSolutions();
@@ -87,6 +88,7 @@ public class ProblemSetService {
                     sol.getSubmissions().add(subm);
                     newSubmissions.add(subm);
                 }
+                newSolCount++;
             }
         } finally {
             problemSet.setRegisteringSolutions(false);
@@ -96,7 +98,7 @@ public class ProblemSetService {
 
         newSubmissions.forEach(gradingService::grade); // async
 
-        logger.info("{} new solutions registered", newSubmissions.size());
+        logger.info("{} new solutions registered", newSolCount);
     }
 
     public void delete(ProblemSet problemSet) {
