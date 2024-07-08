@@ -12,7 +12,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.time.ZonedDateTime.now;
@@ -64,12 +63,14 @@ public class ProblemSetService {
             throws E, GitAPIException {
         var tx = txManager.getTransaction(new DefaultTransactionDefinition());
         var problemSet = repo.findById(problemSetId).orElseThrow();
-        var token = tokenRepo.findById(tokenId).orElseThrow();
-        var prevSols = problemSet.getSolutions().size();
         logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
+
+        var newSubmissions = new ArrayList<Submission>();
         try {
-            var existingSols = problemSet.getSolutions();
-            for (var newSol : supplier.get(existingSols)) {
+            var token = tokenRepo.findById(tokenId).orElseThrow();
+            var existingSolutions = problemSet.getSolutions();
+            var newSolutions = supplier.get(existingSolutions);
+            for (var newSol : newSolutions) {
                 var authors = new ArrayList<Author>();
                 for (var name : newSol.authorNames()) {
                     var existing = authorRepo.findByUsername(name);
@@ -79,27 +80,23 @@ public class ProblemSetService {
                         authors.add(new Author(name));
                     }
                 }
-                var sol = new Solution(problemSet, newSol.repoUrl(), newSol.branch(), token, authors, newSol.ignoredPushers());
+                var sol = new Solution(problemSet, newSol.repoUrl(), newSol.branch(),
+                        token, authors, newSol.ignoredPushers());
                 if (newSol.latestCommitHash() != null) {
                     var subm = new Submission(sol, newSol.latestCommitHash(), now());
                     sol.getSubmissions().add(subm);
+                    newSubmissions.add(subm);
                 }
             }
-            // make sure submissions are loaded before transaction commits,
-            // otherwise 'latestSubmission' below fails (LazyInitializationException)
-            existingSols.forEach(Solution::latestSubmission);
         } finally {
             problemSet.setRegisteringSolutions(false);
             repo.save(problemSet);
             txManager.commit(tx); // need to commit the new solutions before starting to grade
         }
 
-        problemSet.getSolutions().stream()
-                .map(Solution::latestSubmission)
-                .filter(Objects::nonNull)
-                .forEach(gradingService::grade); // async
+        newSubmissions.forEach(gradingService::grade); // async
 
-        logger.info("{} solutions registered", problemSet.getSolutions().size() - prevSols);
+        logger.info("{} new solutions registered", newSubmissions.size());
     }
 
     public void delete(ProblemSet problemSet) {
