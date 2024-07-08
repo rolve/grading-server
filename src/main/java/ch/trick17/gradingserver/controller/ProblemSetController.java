@@ -325,9 +325,6 @@ public class ProblemSetController {
             }
         }
 
-        problemSet.setRegisteringSolutions(true);
-        service.save(problemSet);
-
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
                 tokenRecord.getToken(), problemSet.getProjectConfig());
         if (LOCALHOST.contains(req.getServerName())) {
@@ -337,6 +334,9 @@ public class ProblemSetController {
             supplier.setWebhookBaseUrl(serverBaseUrl);
         }
         supplier.setIgnoringAuthorless(ignoreAuthorless);
+
+        problemSet.setRegisteringSolutions(true);
+        service.save(problemSet);
         service.registerSolutions(problemSet.getId(), tokenRecord.getId(), supplier); // async
         return "redirect:./";
     }
