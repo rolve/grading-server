@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.model;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
+
 import java.util.Objects;
 
 @Embeddable

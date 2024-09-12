@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-alpine
+FROM eclipse-temurin:21-alpine
 WORKDIR app
 RUN mkdir db backup
 RUN addgroup -S spring && adduser -S spring -G spring

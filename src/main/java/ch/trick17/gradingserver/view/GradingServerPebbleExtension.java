@@ -5,10 +5,10 @@ import ch.trick17.gradingserver.model.Author;
 import ch.trick17.gradingserver.model.ProblemSet;
 import ch.trick17.gradingserver.model.Solution;
 import ch.trick17.gradingserver.service.AccessController;
-import com.mitchellbosecke.pebble.extension.AbstractExtension;
-import com.mitchellbosecke.pebble.extension.Filter;
-import com.mitchellbosecke.pebble.template.EvaluationContext;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
+import io.pebbletemplates.pebble.extension.AbstractExtension;
+import io.pebbletemplates.pebble.extension.Filter;
+import io.pebbletemplates.pebble.template.EvaluationContext;
+import io.pebbletemplates.pebble.template.PebbleTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;

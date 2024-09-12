@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver.model;
 
-import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

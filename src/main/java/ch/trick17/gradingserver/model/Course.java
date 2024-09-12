@@ -1,10 +1,11 @@
 package ch.trick17.gradingserver.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
 import java.util.*;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.CascadeType.ALL;
 
 @Entity
 public class Course {

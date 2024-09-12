@@ -1,8 +1,8 @@
 package ch.trick17.gradingserver.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

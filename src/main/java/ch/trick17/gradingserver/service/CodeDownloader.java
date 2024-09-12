@@ -12,7 +12,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
-import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,7 +21,6 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNullElse;
 import static org.eclipse.jgit.lib.ObjectId.fromString;
-import static org.eclipse.jgit.treewalk.filter.PathFilterGroup.createFromStrings;
 
 public class CodeDownloader {
 

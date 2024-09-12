@@ -1,13 +1,13 @@
 package ch.trick17.gradingserver.model;
 
 import ch.trick17.gradingserver.util.StringListConverter;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.util.*;
 
+import static jakarta.persistence.CascadeType.*;
 import static java.util.Comparator.*;
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.CascadeType.*;
 
 @Entity
 public class Solution {

@@ -1,13 +1,14 @@
 package ch.trick17.gradingserver.model;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
 import java.time.ZonedDateTime;
 
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.FetchType.LAZY;
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.CascadeType.PERSIST;
-import static javax.persistence.FetchType.LAZY;
 
 @Entity
 public class Submission {
@@ -21,7 +22,7 @@ public class Submission {
     private ZonedDateTime receivedDate;
     private boolean gradingStarted;
     @Basic(fetch = LAZY)
-    @Type(type = "json")
+    @Type(JsonType.class)
     private GradingResult result;
 
     protected Submission() {}

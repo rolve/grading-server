@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS;
-import static java.lang.Boolean.compare;
 import static java.util.Comparator.comparingInt;
 
 @JsonTypeInfo(use = CLASS, property = "@class")

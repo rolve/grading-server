@@ -1,10 +1,14 @@
 package ch.trick17.gradingserver.service;
 
 import ch.trick17.gradingserver.model.*;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static java.lang.Integer.parseInt;
 import static java.util.Locale.ROOT;
 
 @Service("access")
@@ -53,5 +57,16 @@ public class AccessController {
 
     private static Object currentPrincipal() {
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    public AuthorizationManager<RequestAuthorizationContext> newAuthorizationManager() {
+        return (authentication, context) -> {
+            var courseId = context.getVariables().get("courseId");
+            try {
+                return new AuthorizationDecision(check(parseInt(courseId)));
+            } catch (NumberFormatException e) {
+                return new AuthorizationDecision(false);
+            }
+        };
     }
 }

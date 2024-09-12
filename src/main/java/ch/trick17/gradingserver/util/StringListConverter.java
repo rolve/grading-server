@@ -1,7 +1,8 @@
 package ch.trick17.gradingserver.util;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
 import java.util.List;
 
 import static java.lang.String.join;

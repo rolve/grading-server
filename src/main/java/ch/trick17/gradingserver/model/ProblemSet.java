@@ -1,15 +1,16 @@
 package ch.trick17.gradingserver.model;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.CascadeType.ALL;
 
 @Entity
 public class ProblemSet {
@@ -21,9 +22,10 @@ public class ProblemSet {
     private Course course;
     private String name;
     private ProjectConfig projectConfig;
-    @Type(type = "json")
+    @Type(JsonType.class)
     private GradingConfig gradingConfig;
     private ZonedDateTime deadline;
+    @Column(columnDefinition = "integer")
     private DisplaySetting displaySetting;
     private int percentageGoal;
 

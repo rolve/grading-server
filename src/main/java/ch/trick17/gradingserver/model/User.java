@@ -1,15 +1,15 @@
 package ch.trick17.gradingserver.model;
 
+import jakarta.persistence.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static jakarta.persistence.FetchType.EAGER;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
-import static javax.persistence.FetchType.EAGER;
 
 @Entity
 public class User implements UserDetails {
@@ -25,6 +25,7 @@ public class User implements UserDetails {
     private String displayName;
 
     @ElementCollection(fetch = EAGER)
+    @Column(columnDefinition = "integer")
     private final Set<Role> roles = new HashSet<>();
 
     protected User() {}

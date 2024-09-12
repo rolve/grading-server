@@ -1,8 +1,8 @@
 package ch.trick17.gradingserver.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.persistence.Embeddable;
 
-import javax.persistence.Embeddable;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;

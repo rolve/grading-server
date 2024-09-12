@@ -10,6 +10,8 @@ import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.JarFileService;
 import ch.trick17.gradingserver.service.JarFileService.JarDownloadFailedException;
 import ch.trick17.gradingserver.service.ProblemSetService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gitlab4j.api.GitLabApiException;
 import org.slf4j.Logger;
@@ -23,8 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.*;
 import java.util.ArrayList;
