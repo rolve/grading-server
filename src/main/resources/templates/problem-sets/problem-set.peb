@@ -91,7 +91,7 @@
                 {% if latest != null %}
                     <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
                        class="group px-4 py-3 flex flex-col gap-1
-                              sm:col-span-full sm:grid sm:grid-cols-subgrid">
+                              sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-center">
                         <div class="flex gap-2 justify-between
                                     sm:col-span-2 sm:grid sm:grid-cols-subgrid">
                             <span class="flex-grow min-w-0 overflow-hidden overflow-ellipsis
@@ -107,7 +107,7 @@
                         </div>
                     </a>
                 {% else %}
-                    <div class="px-4 pt-5 pb-6 flex gap-2 items-center justify-between
+                    <div class="px-4 py-6 flex gap-2 items-center justify-between
                                 sm:py-3 sm:col-span-full sm:grid sm:grid-cols-subgrid">
                         <span class="overflow-hidden overflow-ellipsis">
                             {{ sol | authors }}
