@@ -91,9 +91,9 @@
                 {% if latest != null %}
                     <a href="solutions/{{ sol.id }}/submissions/{{ latest.id }}/"
                        class="group px-4 py-3 flex flex-col gap-1
-                              sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-center">
+                              sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-center sm:gap-x-5">
                         <div class="flex gap-2 justify-between
-                                    sm:col-span-2 sm:grid sm:grid-cols-subgrid">
+                                    sm:col-span-2 sm:grid sm:grid-cols-subgrid sm:gap-x-5">
                             <span class="flex-grow min-w-0 overflow-hidden overflow-ellipsis
                                          link group-hover:link-hover">
                                 {{ sol | authors }}
@@ -108,7 +108,7 @@
                     </a>
                 {% else %}
                     <div class="px-4 py-6 flex gap-2 items-center justify-between
-                                sm:py-3 sm:col-span-full sm:grid sm:grid-cols-subgrid">
+                                sm:py-3 sm:col-span-full sm:grid sm:grid-cols-subgrid sm:gap-x-5">
                         <span class="overflow-hidden overflow-ellipsis">
                             {{ sol | authors }}
                         </span>
