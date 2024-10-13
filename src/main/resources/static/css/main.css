@@ -46,7 +46,7 @@
 
 @layer components {
     .card {
-        @apply block my-3 px-3 py-2 bg-white rounded-lg shadow-lg
+        @apply block px-3 py-2 bg-white rounded-lg shadow-lg
             shadow-slate-200 transition;
     }
 

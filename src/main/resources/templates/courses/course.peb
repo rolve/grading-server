@@ -68,12 +68,12 @@
     {% endblock %}
     {% endembed %}
 {% else %}
-    <ul>
+    <ul class="sm:grid sm:gap-x-5 sm:gap-y-3" style="grid-template-columns: repeat(3, auto)">
         {% for problemSet in problemSets %}
-            <li>
+            <li class="sm:col-span-3 sm:grid sm:grid-cols-subgrid">
                 <a href="{{ "problem-sets/" + problemSet.id + "/" }}"
-                   class="card group sm:flex items-center">
-                    <div class="sm:w-2/3 flex gap-3 justify-between items-center">
+                   class="card my-3 sm:my-0 group items-center sm:grid sm:col-span-3 sm:grid-cols-subgrid">
+                    <div class="flex gap-3 items-center">
                             <span class="link text-lg whitespace-nowrap overflow-hidden overflow-ellipsis">
                                 {{ problemSet.name }}
                             </span>
@@ -82,7 +82,8 @@
                                title="{{ message("problem-set.display.hidden") }}"></i>
                         {% endif %}
                     </div>
-                    <div class="flex-grow flex justify-between text-sm py-1">
+                    <div class="flex-grow flex justify-between text-sm py-1
+                                sm:col-span-2 sm:grid sm:grid-cols-subgrid">
                             <span title="{{ problemSet.deadline | date }}">
                                 {{ problemSet.deadline | pretty }}
                             </span>

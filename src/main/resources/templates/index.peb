@@ -24,7 +24,7 @@
         {% for course in courses %}
             <li>
                 <a href="{{ href("/courses/" + course.id + "/" ) }}"
-                   class="card group flex gap-3 items-center">
+                   class="card my-3 group flex gap-3 items-center">
                     <span class="grow text-xl link">
                         {{ course.name }}
                     </span>
