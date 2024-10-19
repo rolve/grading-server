@@ -34,7 +34,6 @@ class GradingServiceTest {
     @Autowired GradingService service;
     @Autowired SubmissionRepository submissionRepo;
     @Autowired ProblemSetRepository problemSetRepo;
-    @Autowired AuthorRepository authorRepo;
     @Autowired UserRepository userRepo;
     @Autowired PlatformTransactionManager txManager;
 
