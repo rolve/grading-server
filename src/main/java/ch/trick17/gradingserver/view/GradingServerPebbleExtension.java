@@ -89,7 +89,7 @@ public class GradingServerPebbleExtension extends AbstractExtension {
                             int lineNumber) {
             var solution = (Solution) input;
             if (solution.getProblemSet().getDisplaySetting() == ANONYMOUS &&
-                !access.check(solution.getProblemSet())) {
+                !access.checkWriteAccess(solution.getProblemSet())) {
                 return i18n.message("problem-set.anonymous");
             } else {
                 return solution.getAuthors().stream()
@@ -100,7 +100,7 @@ public class GradingServerPebbleExtension extends AbstractExtension {
         }
 
         private String formatAuthor(Author author, ProblemSet problemSet) {
-            return problemSet.getDisplaySetting() == WITH_FULL_NAMES || access.check(problemSet)
+            return problemSet.getDisplaySetting() == WITH_FULL_NAMES || access.checkWriteAccess(problemSet)
                     ? author.getDisplayName()
                     : author.getShortenedDisplayName();
         }

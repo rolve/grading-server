@@ -56,7 +56,7 @@ public class WebSecurityConfig {
                                 "/courses/{courseId}/problem-sets/*/delete",
                                 "/courses/{courseId}/problem-sets/*/remove-solutions",
                                 "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/re-grade")
-                        .access(access.newAuthorizationManager())
+                        .access(access.writeAccessChecker())
                         .anyRequest().hasRole(ADMIN.name()))
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/webhooks/**"))

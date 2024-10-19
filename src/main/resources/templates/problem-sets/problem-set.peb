@@ -13,7 +13,7 @@
 </a>
 <h2 class="flex flex-wrap items-center gap-3">
     {{ problemSet.name }}
-    {% if beans.access.check(problemSet) %}
+    {% if beans.access.checkWriteAccess(problemSet) %}
         <span class="flex-grow flex gap-2 justify-end">
             <a href="register-solutions-gitlab" class="title-button">
                 <i class="fab fa-fw fa-gitlab"></i>

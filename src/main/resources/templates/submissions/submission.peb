@@ -23,7 +23,7 @@
           title="{{ submission.receivedDate | date }}">
         {{ submission.receivedDate | pretty }}
     </span>
-    {% if beans.access.check(submission) %}
+    {% if beans.access.checkWriteAccess(submission) %}
         <button form="re-grade" class="title-button">
             <i class="fas fa-fw fa-rotate-right"></i>
             <span class="sr-only">{{ message("submission.re-grade") }}</span>

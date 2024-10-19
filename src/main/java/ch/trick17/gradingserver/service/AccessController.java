@@ -8,6 +8,7 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static ch.trick17.gradingserver.model.Role.ADMIN;
 import static java.lang.Integer.parseInt;
 import static java.util.Locale.ROOT;
 
@@ -21,9 +22,9 @@ public class AccessController {
     }
 
     @Transactional(readOnly = true)
-    public boolean check(Course course) {
+    public boolean checkWriteAccess(Course course) {
         if (currentPrincipal() instanceof User user) {
-            return user.getRoles().contains(Role.ADMIN) ||
+            return user.getRoles().contains(ADMIN) ||
                    course.getLecturers().contains(user);
         } else {
             return false;
@@ -31,18 +32,18 @@ public class AccessController {
     }
 
     @Transactional(readOnly = true)
-    public boolean check(int courseId) {
-        return courseRepo.findById(courseId).map(this::check).orElse(false);
+    public boolean checkWriteAccess(int courseId) {
+        return courseRepo.findById(courseId).map(this::checkWriteAccess).orElse(false);
     }
 
     @Transactional(readOnly = true)
-    public boolean check(ProblemSet problemSet) {
-        return check(problemSet.getCourse());
+    public boolean checkWriteAccess(ProblemSet problemSet) {
+        return checkWriteAccess(problemSet.getCourse());
     }
 
     @Transactional(readOnly = true)
-    public boolean check(Submission submission) {
-        return check(submission.getSolution().getProblemSet());
+    public boolean checkWriteAccess(Submission submission) {
+        return checkWriteAccess(submission.getSolution().getProblemSet());
     }
 
     @Transactional(readOnly = true)
@@ -59,11 +60,11 @@ public class AccessController {
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public AuthorizationManager<RequestAuthorizationContext> newAuthorizationManager() {
+    public AuthorizationManager<RequestAuthorizationContext> writeAccessChecker() {
         return (authentication, context) -> {
             var courseId = context.getVariables().get("courseId");
             try {
-                return new AuthorizationDecision(check(parseInt(courseId)));
+                return new AuthorizationDecision(checkWriteAccess(parseInt(courseId)));
             } catch (NumberFormatException e) {
                 return new AuthorizationDecision(false);
             }

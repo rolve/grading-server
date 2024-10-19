@@ -37,7 +37,7 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         model.addAttribute("course", course);
         var problemSets = course.getProblemSets().stream()
-                .filter(ps -> ps.getDisplaySetting() != HIDDEN || access.check(ps))
+                .filter(ps -> ps.getDisplaySetting() != HIDDEN || access.checkWriteAccess(ps))
                 .toList();
         model.addAttribute("problemSets", problemSets);
         return "courses/course";

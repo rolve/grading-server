@@ -25,7 +25,7 @@ public class HomeController {
                 by("term.year", "term.kind").descending().and(
                 by("name", "qualifier").ascending()));
         var courses = allCourses.stream()
-                .filter(course -> !course.isHidden() || access.check(course))
+                .filter(course -> !course.isHidden() || access.checkWriteAccess(course))
                 .toList();
         model.addAttribute("courses", courses);
         return "index";

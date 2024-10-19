@@ -15,7 +15,7 @@
     <span class="text-slate-400 text-lg font-normal not-italic">
         {{ course.term }} {{ course.qualifier }}
     </span>
-    {% if beans.access.check(course) %}
+    {% if beans.access.checkWriteAccess(course) %}
         <span class="flex-grow flex gap-2 justify-end">
             <a href="problem-sets/add" class="title-button button-primary">
                 <i class="fas fa-fw fa-file-circle-plus ms-1"></i>
