@@ -9,9 +9,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Duration;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.transaction.TransactionDefinition.withDefaults;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@AutoConfigureTestDatabase
 class GradingServiceTest {
 
     @Autowired GradingService service;
