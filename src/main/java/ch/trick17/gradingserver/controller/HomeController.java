@@ -1,9 +1,7 @@
 package ch.trick17.gradingserver.controller;
 
 import ch.trick17.gradingserver.model.CourseRepository;
-import ch.trick17.gradingserver.model.User;
 import ch.trick17.gradingserver.service.AccessController;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +20,7 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model, @AuthenticationPrincipal User user) {
+    public String home(Model model) {
         var allCourses = courseRepo.findAll(
                 by("term.year", "term.kind").descending().and(
                 by("name", "qualifier").ascending()));
