@@ -22,6 +22,11 @@ public class AccessController {
     }
 
     @Transactional(readOnly = true)
+    public boolean checkReadAccess(Course course) {
+        return !course.isHidden() || checkWriteAccess(course);
+    }
+
+    @Transactional(readOnly = true)
     public boolean checkWriteAccess(Course course) {
         if (currentPrincipal() instanceof User user) {
             return user.getRoles().contains(ADMIN) ||
@@ -29,6 +34,11 @@ public class AccessController {
         } else {
             return false;
         }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkReadAccess(int courseId) {
+        return courseRepo.findById(courseId).map(this::checkReadAccess).orElse(false);
     }
 
     @Transactional(readOnly = true)
@@ -58,6 +68,17 @@ public class AccessController {
 
     private static Object currentPrincipal() {
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    public AuthorizationManager<RequestAuthorizationContext> readAccessChecker() {
+        return (authentication, context) -> {
+            var courseId = context.getVariables().get("courseId");
+            try {
+                return new AuthorizationDecision(checkReadAccess(parseInt(courseId)));
+            } catch (NumberFormatException e) {
+                return new AuthorizationDecision(false);
+            }
+        };
     }
 
     public AuthorizationManager<RequestAuthorizationContext> writeAccessChecker() {

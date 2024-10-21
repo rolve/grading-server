@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import static ch.trick17.gradingserver.model.Role.ADMIN;
 import static ch.trick17.gradingserver.model.Role.LECTURER;
 import static java.util.Objects.requireNonNullElse;
-import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
 @Configuration
 public class WebSecurityConfig {
@@ -34,18 +33,14 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        var query = "(\\?.*)?"; // regex that matches arbitrary (optional) query strings
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                regexMatcher("/css/.*"),
-                                regexMatcher("/favicon/.*"),
-                                regexMatcher("/" + query),
-                                regexMatcher("/login" + query),
-                                regexMatcher("/courses/\\d+/" + query),
-                                regexMatcher("/courses/\\d+/problem-sets/\\d+/" + query),
-                                regexMatcher("/courses/\\d+/problem-sets/\\d+/solutions/\\d+/submissions/\\d+/" + query),
-                                regexMatcher("/webhooks/.*")).permitAll()
+                                "/css/**",
+                                "/favicon/**",
+                                "/",
+                                "/login",
+                                "/webhooks/**").permitAll()
                         .requestMatchers("/courses/create").hasRole(LECTURER.name())
                         .requestMatchers(
                                 "/courses/{courseId}/edit",
@@ -57,6 +52,11 @@ public class WebSecurityConfig {
                                 "/courses/{courseId}/problem-sets/*/remove-solutions",
                                 "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/re-grade")
                         .access(access.writeAccessChecker())
+                        .requestMatchers(
+                                "/courses/{courseId}/",
+                                "/courses/{courseId}/problem-sets/*/",
+                                "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/")
+                        .access(access.readAccessChecker())
                         .anyRequest().hasRole(ADMIN.name()))
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/webhooks/**"))
