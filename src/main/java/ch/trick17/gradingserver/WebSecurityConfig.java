@@ -8,13 +8,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+
+import java.util.function.Supplier;
 
 import static ch.trick17.gradingserver.model.Role.ADMIN;
 import static ch.trick17.gradingserver.model.Role.LECTURER;
+import static java.lang.Integer.parseInt;
 import static java.util.Objects.requireNonNullElse;
 
 @Configuration
@@ -51,12 +57,12 @@ public class WebSecurityConfig {
                                 "/courses/{courseId}/problem-sets/*/delete",
                                 "/courses/{courseId}/problem-sets/*/remove-solutions",
                                 "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/re-grade")
-                        .access(access.writeAccessChecker())
+                        .access(this::checkWriteAccess)
                         .requestMatchers(
                                 "/courses/{courseId}/",
                                 "/courses/{courseId}/problem-sets/*/",
                                 "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/")
-                        .access(access.readAccessChecker())
+                        .access(this::checkReadAccess)
                         .anyRequest().hasRole(ADMIN.name()))
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/webhooks/**"))
@@ -79,6 +85,26 @@ public class WebSecurityConfig {
                         })
                         .permitAll())
                 .build();
+    }
+
+    private AuthorizationDecision checkReadAccess(Supplier<Authentication> authentication,
+                                                  RequestAuthorizationContext context) {
+        try {
+            var courseId = parseInt(context.getVariables().get("courseId"));
+            return new AuthorizationDecision(access.checkReadAccess(courseId));
+        } catch (NumberFormatException e) {
+            return new AuthorizationDecision(false);
+        }
+    }
+
+    private AuthorizationDecision checkWriteAccess(Supplier<Authentication> authentication,
+                                                   RequestAuthorizationContext context) {
+        try {
+            var courseId = parseInt(context.getVariables().get("courseId"));
+            return new AuthorizationDecision(access.checkWriteAccess(courseId));
+        } catch (NumberFormatException e) {
+            return new AuthorizationDecision(false);
+        }
     }
 
     @Bean
