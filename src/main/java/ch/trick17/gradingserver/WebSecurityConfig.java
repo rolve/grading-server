@@ -60,8 +60,8 @@ public class WebSecurityConfig {
                         .access(this::checkWriteAccess)
                         .requestMatchers(
                                 "/courses/{courseId}/",
-                                "/courses/{courseId}/problem-sets/*/",
-                                "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/")
+                                "/courses/{courseId}/problem-sets/{problemSetId}/",
+                                "/courses/{courseId}/problem-sets/{problemSetId}/solutions/*/submissions/*/")
                         .access(this::checkReadAccess)
                         .anyRequest().hasRole(ADMIN.name()))
                 .csrf(csrf -> csrf
@@ -89,9 +89,15 @@ public class WebSecurityConfig {
 
     private AuthorizationDecision checkReadAccess(Supplier<Authentication> authentication,
                                                   RequestAuthorizationContext context) {
+        var vars = context.getVariables();
         try {
-            var courseId = parseInt(context.getVariables().get("courseId"));
-            return new AuthorizationDecision(access.checkReadAccess(courseId));
+            if (vars.containsKey("problemSetId")) {
+                var problemSetId = parseInt(vars.get("problemSetId"));
+                return new AuthorizationDecision(access.checkReadAccessProblemSet(problemSetId));
+            } else {
+                var courseId = parseInt(vars.get("courseId"));
+                return new AuthorizationDecision(access.checkReadAccessCourse(courseId));
+            }
         } catch (NumberFormatException e) {
             return new AuthorizationDecision(false);
         }
@@ -99,9 +105,11 @@ public class WebSecurityConfig {
 
     private AuthorizationDecision checkWriteAccess(Supplier<Authentication> authentication,
                                                    RequestAuthorizationContext context) {
+        // this check can be simpler than the read check because the write
+        // access rules for problem sets are entirely determined by the course
         try {
             var courseId = parseInt(context.getVariables().get("courseId"));
-            return new AuthorizationDecision(access.checkWriteAccess(courseId));
+            return new AuthorizationDecision(access.checkWriteAccessCourse(courseId));
         } catch (NumberFormatException e) {
             return new AuthorizationDecision(false);
         }

@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.HIDDEN;
 import static ch.trick17.gradingserver.model.Role.ADMIN;
 import static java.util.Locale.ROOT;
 
@@ -12,9 +13,12 @@ import static java.util.Locale.ROOT;
 public class AccessController {
 
     private final CourseRepository courseRepo;
+    private final ProblemSetRepository problemSetRepo;
 
-    public AccessController(CourseRepository courseRepo) {
+    public AccessController(CourseRepository courseRepo,
+                            ProblemSetRepository problemSetRepo) {
         this.courseRepo = courseRepo;
+        this.problemSetRepo = problemSetRepo;
     }
 
     @Transactional(readOnly = true)
@@ -33,18 +37,29 @@ public class AccessController {
     }
 
     @Transactional(readOnly = true)
-    public boolean checkReadAccess(int courseId) {
+    public boolean checkReadAccessCourse(int courseId) {
         return courseRepo.findById(courseId).map(this::checkReadAccess).orElse(false);
     }
 
     @Transactional(readOnly = true)
-    public boolean checkWriteAccess(int courseId) {
+    public boolean checkWriteAccessCourse(int courseId) {
         return courseRepo.findById(courseId).map(this::checkWriteAccess).orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkReadAccess(ProblemSet problemSet) {
+        return checkReadAccess(problemSet.getCourse()) &&
+               (problemSet.getDisplaySetting() != HIDDEN || checkWriteAccess(problemSet));
     }
 
     @Transactional(readOnly = true)
     public boolean checkWriteAccess(ProblemSet problemSet) {
         return checkWriteAccess(problemSet.getCourse());
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkReadAccessProblemSet(int problemSetId) {
+        return problemSetRepo.findById(problemSetId).map(this::checkReadAccess).orElse(false);
     }
 
     @Transactional(readOnly = true)

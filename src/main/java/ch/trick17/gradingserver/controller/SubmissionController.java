@@ -5,7 +5,6 @@ import ch.trick17.gradingserver.model.SubmissionRepository;
 import ch.trick17.gradingserver.model.TestSuiteGradingResult;
 import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.TestSuiteResultService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +37,6 @@ public class SubmissionController {
     }
 
     @GetMapping("/{id}/")
-    @PreAuthorize("this.findSubmission(#courseId, #probId, #solId, #id).solution.problemSet.displaySetting.name != 'HIDDEN' || hasRole('LECTURER')")
     public String submissionPage(@PathVariable int courseId, @PathVariable int probId,
                                  @PathVariable int solId, @PathVariable int id,
                                  Model model) {
