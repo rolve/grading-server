@@ -56,6 +56,7 @@ public class WebSecurityConfig {
                                 "/courses/{courseId}/problem-sets/*/edit",
                                 "/courses/{courseId}/problem-sets/*/delete",
                                 "/courses/{courseId}/problem-sets/*/remove-solutions",
+                                "/courses/{courseId}/problem-sets/*/solutions/*/delete",
                                 "/courses/{courseId}/problem-sets/*/solutions/*/submissions/*/re-grade")
                         .access(this::checkWriteAccess)
                         .requestMatchers(
