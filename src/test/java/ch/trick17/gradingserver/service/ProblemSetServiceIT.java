@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DataJpaTest
-public class ProblemSetServiceTest {
+public class ProblemSetServiceIT {
 
     static final String HOST = "https://example.com/";
 

@@ -10,7 +10,7 @@ cache:
 
 test:
   script:
-    - mvn install -B -Dmaven.repo.local=$MVN_REPO
+    - mvn verify -B -Dmaven.repo.local=$MVN_REPO
   artifacts:
     paths:
       - "*/target/dependency/*.jar"

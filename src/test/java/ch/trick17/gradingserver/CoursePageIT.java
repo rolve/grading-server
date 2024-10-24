@@ -1,4 +1,4 @@
-package ch.trick17.gradingserver.controller;
+package ch.trick17.gradingserver;
 
 import ch.trick17.gradingserver.model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-class CourseControllerTest {
+class CoursePageIT {
 
     @Autowired
     CourseRepository repo;

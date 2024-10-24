@@ -29,7 +29,7 @@ import static org.springframework.transaction.TransactionDefinition.withDefaults
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-class GradingServiceTest {
+class GradingServiceIT {
 
     @Autowired GradingService service;
     @Autowired SubmissionRepository submissionRepo;

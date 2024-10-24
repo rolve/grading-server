@@ -14,7 +14,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class GradingResultMigrationTest {
+public class GradingResultMigrationIT {
 
     @Autowired
     SubmissionRepository submissionRepo;
