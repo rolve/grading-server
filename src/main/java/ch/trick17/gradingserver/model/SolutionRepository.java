@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SolutionRepository extends JpaRepository<Solution, Integer> {
     List<Solution> findByRepoUrl(String repoUrl);
+    int countByAuthorsContains(Author author);
 }
