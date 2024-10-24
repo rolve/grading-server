@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.HIDDEN;
 import static java.time.LocalDate.now;
 import static java.util.function.Predicate.not;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -37,7 +36,7 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
         model.addAttribute("course", course);
         var problemSets = course.getProblemSets().stream()
-                .filter(ps -> ps.getDisplaySetting() != HIDDEN || access.checkWriteAccess(ps))
+                .filter(access::checkReadAccess)
                 .toList();
         model.addAttribute("problemSets", problemSets);
         return "courses/course";
