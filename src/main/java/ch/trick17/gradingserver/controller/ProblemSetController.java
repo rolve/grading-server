@@ -10,6 +10,7 @@ import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.JarFileService;
 import ch.trick17.gradingserver.service.JarFileService.JarDownloadFailedException;
 import ch.trick17.gradingserver.service.ProblemSetService;
+import ch.trick17.gradingserver.view.SolutionView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -90,6 +91,8 @@ public class ProblemSetController {
                 .sorted(problemSet.getDisplaySetting() == ANONYMOUS
                         ? Solution.byCommitHash()
                         : Solution.byResult())
+                .map(sol -> new SolutionView(sol.getId(), sol.getProblemSet(),
+                        Set.copyOf(sol.getAuthors()), sol.latestSubmission()))
                 .toList();
         model.addAttribute("solutions", solutions);
         return "problem-sets/problem-set";

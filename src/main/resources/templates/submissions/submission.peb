@@ -1,4 +1,5 @@
 {# @pebvariable name="submission" type="ch.trick17.gradingserver.model.Submission" #}
+{# @pebvariable name="sol" type="ch.trick17.gradingserver.view.SolutionView" #}
 {# @pebvariable name="suggestions" type="java.util.List<ch.trick17.gradingserver.service.TestSuiteResultService.Suggestion>" #}
 {# @pebvariable name="allSubmissions" type="java.util.List<ch.trick17.gradingserver.model.Submission>" #}
 
@@ -8,7 +9,6 @@
 {% block title %}{{ message("submission") }} {{ submission.shortCommitHash }}{% endblock %}
 
 {% block content %}
-{% set sol = submission.solution %}
 {% set problemSet = sol.problemSet %}
 
 <a href="../../../.." class="block mb-3 link group">

@@ -5,6 +5,7 @@ import ch.trick17.gradingserver.model.SubmissionRepository;
 import ch.trick17.gradingserver.model.TestSuiteGradingResult;
 import ch.trick17.gradingserver.service.GradingService;
 import ch.trick17.gradingserver.service.TestSuiteResultService;
+import ch.trick17.gradingserver.view.SolutionView;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
+import static java.util.Set.copyOf;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -45,6 +47,9 @@ public class SubmissionController {
                 .sorted(comparing(Submission::getReceivedTime, reverseOrder()))
                 .collect(Collectors.toList());
         model.addAttribute("submission", submission);
+        var sol = submission.getSolution();
+        model.addAttribute("sol", new SolutionView(sol.getId(), sol.getProblemSet(),
+                copyOf(sol.getAuthors()), sol.latestSubmission()));
         if (submission.getResult() instanceof TestSuiteGradingResult result) {
             var suggestions = testSuiteResultService.getSuggestions(submission, result);
             model.addAttribute("suggestions", suggestions);

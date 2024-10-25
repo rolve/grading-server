@@ -66,13 +66,13 @@ public class GradingServerPebbleExtension extends AbstractExtension {
         public String apply(Object input, Map<String, Object> args,
                             PebbleTemplate self, EvaluationContext context,
                             int lineNumber) {
-            var solution = (Solution) input;
-            if (solution.getProblemSet().getDisplaySetting() == ANONYMOUS &&
-                !access.checkWriteAccess(solution.getProblemSet())) {
+            var solution = (SolutionView) input;
+            if (solution.problemSet().getDisplaySetting() == ANONYMOUS &&
+                !access.checkWriteAccess(solution.problemSet())) {
                 return i18n.message("problem-set.anonymous");
             } else {
-                return solution.getAuthors().stream()
-                        .map(a -> formatAuthor(a, solution.getProblemSet()))
+                return solution.authors().stream()
+                        .map(a -> formatAuthor(a, solution.problemSet()))
                         .map(s -> s.replace(' ', ' '))
                         .collect(joining(", "));
             }

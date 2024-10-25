@@ -1,5 +1,5 @@
 {# @pebvariable name="problemSet" type="ch.trick17.gradingserver.model.ProblemSet" #}
-{# @pebvariable name="solutions" type="java.util.List<ch.trick17.gradingserver.model.Solution>" #}
+{# @pebvariable name="solutions" type="java.util.List<ch.trick17.gradingserver.view.SolutionView>" #}
 
 {% extends "layout" %}
 {% import "macros" %}
@@ -70,7 +70,7 @@
     </p>
 {% endif %}
 
-{% if problemSet.solutions is empty %}
+{% if solutions is empty %}
     {% embed "fragments/alert" with { "icon": "info-circle" } %}
     {% block content %}
         {{ message(problemSet.registeringSolutions
