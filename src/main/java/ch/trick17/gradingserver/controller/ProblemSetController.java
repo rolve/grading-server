@@ -25,7 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.*;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +40,7 @@ import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLI
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDate.now;
+import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.List.copyOf;
@@ -118,8 +121,8 @@ public class ProblemSetController {
             var problemSet = findProblemSet(courseId, id);
             var projectConfig = problemSet.getProjectConfig();
             populateEditModel(model, problemSet.getName(),
-                    problemSet.getDeadline().toLocalDate(),
-                    problemSet.getDeadline().toLocalTime(),
+                    problemSet.getDeadline().atOffset(UTC).toLocalDate(),
+                    problemSet.getDeadline().atOffset(UTC).toLocalTime(),
                     problemSet.getDisplaySetting(),
                     problemSet.getPercentageGoal(),
                     projectConfig.getProjectRoot(), projectConfig.getStructure(),
@@ -155,7 +158,7 @@ public class ProblemSetController {
                 ? new ProblemSet(course)
                 : findProblemSet(courseId, id);
         problemSet.setName(name);
-        problemSet.setDeadline(ZonedDateTime.of(deadlineDate, deadlineTime, ZoneId.systemDefault()));
+        problemSet.setDeadline(deadlineDate.atTime(deadlineTime).toInstant(UTC));
         problemSet.setDisplaySetting(displaySetting);
         problemSet.setPercentageGoal(percentageGoal);
 

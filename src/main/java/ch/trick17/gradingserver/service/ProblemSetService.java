@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.time.ZonedDateTime.now;
+import static java.time.Instant.now;
 
 @Service
 public class ProblemSetService {

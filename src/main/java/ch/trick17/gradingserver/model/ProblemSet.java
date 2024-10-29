@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class ProblemSet {
     private ProjectConfig projectConfig;
     @Type(JsonType.class)
     private GradingConfig gradingConfig;
-    private ZonedDateTime deadline;
+    private Instant deadline;
     @Column(columnDefinition = "integer")
     private DisplaySetting displaySetting;
     private int percentageGoal;
@@ -53,7 +53,7 @@ public class ProblemSet {
     }
 
     public ProblemSet(Course course, String name, ProjectConfig projectConfig,
-                      GradingConfig gradingConfig, ZonedDateTime deadline,
+                      GradingConfig gradingConfig, Instant deadline,
                       DisplaySetting displaySetting) {
         this(course);
         this.name = requireNonNull(name);
@@ -95,11 +95,11 @@ public class ProblemSet {
         this.gradingConfig = gradingConfig;
     }
 
-    public ZonedDateTime getDeadline() {
+    public Instant getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(ZonedDateTime deadline) {
+    public void setDeadline(Instant deadline) {
         this.deadline = requireNonNull(deadline);
     }
 

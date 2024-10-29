@@ -20,8 +20,8 @@
         {{ submission.shortCommitHash }}
     </span>
     <span class="grow text-slate-400 text-lg font-normal"
-          title="{{ submission.receivedDate | date }}">
-        {{ submission.receivedDate | pretty }}
+          title="{{ submission.receivedTime | date }}">
+        {{ submission.receivedTime | pretty }}
     </span>
     {% if beans.access.checkWriteAccess(submission) %}
         <button form="re-grade" class="title-button">
@@ -200,8 +200,8 @@
                         {{- s.shortCommitHash -}}
                     </span>
                     <span class="text-sm sm:text-base"
-                          title="{{ s.receivedDate | date }}">
-                        {{ s.receivedDate | pretty }}
+                          title="{{ s.receivedTime | date }}">
+                        {{ s.receivedTime | pretty }}
                     </span>
                     {{ status(s, false) }}
                 </a>

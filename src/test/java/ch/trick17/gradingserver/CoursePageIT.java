@@ -57,14 +57,14 @@ class CoursePageIT {
         var gradingConfig = new ImplGradingConfig("class Foo {}",
                 new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
         new ProblemSet(course, "Regular Problem Set", projectConfig, gradingConfig,
-                ZonedDateTime.of(LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")),
+                ZonedDateTime.of(LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")).toInstant(),
                 WITH_SHORTENED_NAMES);
 
         projectConfig = new ProjectConfig("", ECLIPSE, null, emptyList());
         gradingConfig = new ImplGradingConfig("class Foo {}",
                 new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
         new ProblemSet(course, "Hidden Problem Set", projectConfig, gradingConfig,
-                ZonedDateTime.of(LocalDateTime.of(2022, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")),
+                ZonedDateTime.of(LocalDateTime.of(2022, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")).toInstant(),
                 HIDDEN);
 
         repo.save(course);

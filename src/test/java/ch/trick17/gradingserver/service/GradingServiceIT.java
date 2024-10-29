@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.MAVEN;
-import static java.time.ZonedDateTime.now;
+import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;

@@ -20,7 +20,7 @@ import java.util.Set;
 import static ch.trick17.gradingserver.model.GradingOptions.Compiler.ECLIPSE;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHORTENED_NAMES;
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.MAVEN;
-import static java.time.ZonedDateTime.now;
+import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.*;

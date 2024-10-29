@@ -4,7 +4,7 @@ import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.FetchType.LAZY;
@@ -19,7 +19,7 @@ public class Submission {
     @ManyToOne(cascade = PERSIST)
     private Solution solution;
     private String commitHash;
-    private ZonedDateTime receivedDate;
+    private Instant receivedTime;
     private boolean gradingStarted;
     @Basic(fetch = LAZY)
     @Type(JsonType.class)
@@ -27,10 +27,10 @@ public class Submission {
 
     protected Submission() {}
 
-    public Submission(Solution solution, String commitHash, ZonedDateTime receivedDate) {
+    public Submission(Solution solution, String commitHash, Instant receivedTime) {
         this.solution = requireNonNull(solution);
         this.commitHash = requireNonNull(commitHash);
-        this.receivedDate = requireNonNull(receivedDate);
+        this.receivedTime = requireNonNull(receivedTime);
     }
 
     public int getId() {
@@ -49,8 +49,8 @@ public class Submission {
         return commitHash.substring(0, 8);
     }
 
-    public ZonedDateTime getReceivedDate() {
-        return receivedDate;
+    public Instant getReceivedTime() {
+        return receivedTime;
     }
 
     public CodeLocation getCodeLocation() {

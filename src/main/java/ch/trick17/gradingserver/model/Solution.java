@@ -106,7 +106,7 @@ public class Solution {
         return comparing(Solution::latestSubmission, nullsLast(
                     comparing(Submission::getStatus)
                     .thenComparing(Submission::getResult, nullsLast(GradingResult.betterFirst()))
-                    .thenComparing(Submission::getReceivedDate)))
+                    .thenComparing(Submission::getReceivedTime)))
                 .thenComparing(Solution::getAuthors,
                     comparing(authors -> authors.stream()
                             .map(a -> a.getDisplayName().toLowerCase())

@@ -42,7 +42,7 @@ public class SubmissionController {
                                  Model model) {
         var submission = findSubmission(courseId, probId, solId, id);
         var allSubmissions = submission.getSolution().getSubmissions().stream()
-                .sorted(comparing(Submission::getReceivedDate, reverseOrder()))
+                .sorted(comparing(Submission::getReceivedTime, reverseOrder()))
                 .collect(Collectors.toList());
         model.addAttribute("submission", submission);
         if (submission.getResult() instanceof TestSuiteGradingResult result) {

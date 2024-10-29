@@ -10,10 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 
 import static ch.trick17.gradingserver.model.GradingOptions.Compiler.JAVAC;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.HIDDEN;
@@ -143,7 +140,7 @@ class ProblemSetPageIT {
                 new GradingOptions(JAVAC, 3, Duration.ofSeconds(1), Duration.ofSeconds(5), true));
     }
 
-    private static ZonedDateTime deadline() {
-        return ZonedDateTime.of(LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich"));
+    private static Instant deadline() {
+        return ZonedDateTime.of(LocalDateTime.of(2021, 3, 1, 23, 59), ZoneId.of("Europe/Zurich")).toInstant();
     }
 }

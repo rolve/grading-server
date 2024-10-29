@@ -3,7 +3,6 @@ package ch.trick17.gradingserver.view;
 import ch.trick17.gradingserver.Internationalization;
 import ch.trick17.gradingserver.model.Author;
 import ch.trick17.gradingserver.model.ProblemSet;
-import ch.trick17.gradingserver.model.Solution;
 import ch.trick17.gradingserver.service.AccessController;
 import io.pebbletemplates.pebble.extension.AbstractExtension;
 import io.pebbletemplates.pebble.extension.Filter;
@@ -11,7 +10,7 @@ import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import java.util.Optional;
 
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.ANONYMOUS;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_FULL_NAMES;
+import static java.time.ZoneOffset.UTC;
 import static java.time.format.FormatStyle.MEDIUM;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -57,7 +57,7 @@ public class GradingServerPebbleExtension extends AbstractExtension {
             var style = Optional.ofNullable((String) args.get("style"))
                     .map(FormatStyle::valueOf)
                     .orElse(MEDIUM);
-            return i18n.dateTimeFormatter(style).format((ZonedDateTime) input);
+            return i18n.dateTimeFormatter(style).format(((Instant) input).atZone(UTC));
         }
     }
 
@@ -72,7 +72,7 @@ public class GradingServerPebbleExtension extends AbstractExtension {
         public String apply(Object input, Map<String, Object> args,
                             PebbleTemplate self, EvaluationContext context,
                             int lineNumber) {
-            return i18n.prettyTime().format((ZonedDateTime) input);
+            return i18n.prettyTime().format(((Instant) input).atZone(UTC));
         }
     }
 
