@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.model;
 
 import ch.trick17.gradingserver.util.StringListConverter;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JoinFormula;
 
 import java.util.*;
 
@@ -31,7 +32,17 @@ public class Solution {
     @OneToMany(mappedBy = "solution", cascade = ALL, orphanRemoval = true)
     private final List<Submission> submissions = new ArrayList<>();
 
-    protected Solution() {}
+    @ManyToOne
+    @JoinFormula("""
+            (SELECT s.id
+            FROM submission s
+            WHERE s.solution_id = id
+            ORDER BY s.received_time DESC
+            LIMIT 1)""")
+    private Submission latestSubmission;
+
+    protected Solution() {
+    }
 
     public Solution(ProblemSet problemSet, String repoUrl, String branch,
                     AccessToken accessToken, Collection<Author> authors,
@@ -78,8 +89,7 @@ public class Solution {
     }
 
     public Submission latestSubmission() {
-        return submissions.stream()
-                .max(comparingInt(Submission::getId)).orElse(null);
+        return latestSubmission;
     }
 
     @Override

@@ -2,12 +2,12 @@ package ch.trick17.gradingserver.model;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static java.util.Objects.requireNonNull;
@@ -28,10 +28,21 @@ public class ProblemSet {
     @Column(columnDefinition = "integer")
     private DisplaySetting displaySetting;
     private int percentageGoal;
+    private boolean registeringSolutions = false;
 
     @OneToMany(mappedBy = "problemSet", cascade = ALL, orphanRemoval = true)
-    private List<Solution> solutions = new ArrayList<>();
-    private boolean registeringSolutions = false;
+    private final List<Solution> solutions = new ArrayList<>();
+
+    @Formula("""
+            (SELECT COUNT(*)
+            FROM solution sol
+            WHERE sol.problem_set_id = id AND EXISTS (
+                SELECT 1
+                FROM submission sub
+                WHERE sub.solution_id = sol.id
+            ))
+            """)
+    private int solutionsWithSubmissions;
 
     protected ProblemSet() {
     }
@@ -113,10 +124,7 @@ public class ProblemSet {
     }
 
     public int solutionsWithSubmissions() {
-        return (int) solutions.stream()
-                .map(Solution::latestSubmission)
-                .filter(Objects::nonNull)
-                .count();
+        return solutionsWithSubmissions;
     }
 
     public boolean isRegisteringSolutions() {

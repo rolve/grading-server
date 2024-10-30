@@ -9,7 +9,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.time.Duration;
 import java.util.List;
@@ -23,6 +25,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 
 @DataJpaTest
 public class ProblemSetServiceIT {
@@ -51,6 +54,7 @@ public class ProblemSetServiceIT {
 
     @BeforeEach
     void setUp() {
+        var tx = txManager.getTransaction(new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW));
         service = new ProblemSetService(repo, authorRepo, tokenRepo,
                 gradingService, txManager);
 
@@ -65,9 +69,11 @@ public class ProblemSetServiceIT {
         var problemSet = new ProblemSet(course, "Test", projectConfig,
                 gradingConfig, now(), WITH_SHORTENED_NAMES);
         problemSetId = repo.save(problemSet).getId();
+        txManager.commit(tx);
     }
 
     @Test
+    @DirtiesContext
     void registerSolutionsAllNew() throws GitAPIException {
         when(supplier.get(emptyList())).thenReturn(List.of(
                 new NewSolution(HOST + "/repo0.git", "branch0",
@@ -75,7 +81,12 @@ public class ProblemSetServiceIT {
                 new NewSolution(HOST + "/repo1.git", "branch1",
                         Set.of("author1"), emptySet(), "hash1")));
 
-        service.registerSolutions(problemSetId, tokenId, supplier);
+        var tx = txManager.getTransaction(new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW));
+        service.registerSolutions(problemSetId, tokenId, supplier); // not async, since instantiated directly
+
+        // because latestSubmission() uses Hibernate @Formula, we need to commit
+        // the changes to the database before loading the problem set
+        txManager.commit(tx);
 
         var problemSet = repo.findById(problemSetId).orElseThrow();
         var solutions = problemSet.getSolutions();
@@ -103,7 +114,9 @@ public class ProblemSetServiceIT {
     }
 
     @Test
+    @DirtiesContext
     void registerSolutionsWithExisting() throws GitAPIException {
+        var tx = txManager.getTransaction(new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW));
         var problemSet = repo.findById(problemSetId).orElseThrow();
         var token = tokenRepo.findById(tokenId).orElseThrow();
 
@@ -115,18 +128,21 @@ public class ProblemSetServiceIT {
         submission.setResult(new OutdatedResult("easiest way to have a result"));
         existingSol.getSubmissions().add(submission);
         problemSet = repo.save(problemSet);
-        var existingSolId = problemSet.getSolutions().get(0).getId();
+        var existingSolId = problemSet.getSolutions().getFirst().getId();
 
         when(supplier.get(any())).thenReturn(List.of(
                 new NewSolution(HOST + "/new.git", "new-branch",
                         Set.of("new-author"), emptySet(), "new-hash")));
 
-        service.registerSolutions(problemSetId, tokenId, supplier);
+        service.registerSolutions(problemSetId, tokenId, supplier); // not async, since instantiated directly
+
+        // see above
+        txManager.commit(tx);
 
         problemSet = repo.findById(problemSetId).orElseThrow();
         var solutions = problemSet.getSolutions();
         assertEquals(2, solutions.size());
-        existingSol = solutions.get(0);
+        existingSol = solutions.getFirst();
         assertEquals(existingSolId, existingSol.getId());
         assertTrue(existingSol.latestSubmission().isGradingStarted());
         assertTrue(existingSol.latestSubmission().hasResult());
