@@ -3,12 +3,15 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.model.Submission;
 import ch.trick17.gradingserver.model.SubmissionRepository;
+import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static ch.trick17.gradingserver.model.SubmissionState.OUTDATED;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -22,12 +25,15 @@ public class SubmissionService {
 
     private final SubmissionRepository repo;
     private final GradingService gradingService;
+    private final EntityManager entityManager;
 
     private volatile boolean outdatedResultsLeft = true;
 
-    public SubmissionService(SubmissionRepository repo, GradingService gradingService) {
+    public SubmissionService(SubmissionRepository repo, GradingService gradingService,
+                             EntityManager entityManager) {
         this.repo = repo;
         this.gradingService = gradingService;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -58,14 +64,7 @@ public class SubmissionService {
     @Transactional
     public void updateOutdatedResults() {
         if (outdatedResultsLeft && gradingService.isIdle()) {
-            // Enqueue outdated results few at a time, to avoid enqueuing a huge amount of
-            // submissions at once after changing the result format. The grading service would
-            // prioritize sensibly anyway, but this way, the more expressive "outdated" status is
-            // kept for a longer time.
-            var outdated = repo.findByResultNotNullOrderByIdDesc()
-                    .filter(s -> s.getStatus() == OUTDATED)
-                    .limit(OUTDATED_BATCH_SIZE)
-                    .toList();
+            var outdated = findNextOutdatedSubmissions();
             if (outdated.isEmpty()) {
                 outdatedResultsLeft = false;
             } else {
@@ -74,6 +73,25 @@ public class SubmissionService {
                     gradingService.grade(submission); // async
                 }
             }
+        }
+    }
+
+    private List<Submission> findNextOutdatedSubmissions() {
+        // Enqueue outdated results few at a time, to avoid enqueuing a huge amount of
+        // submissions at once after changing the result format. The grading service would
+        // prioritize sensibly anyway, but this way, the more expressive "outdated" status is
+        // kept for a longer time.
+        try (var submissions = repo.findByResultNotNullOrderByIdDesc()) {
+            return submissions
+                        .filter(s -> {
+                            var outdated = s.getStatus() == OUTDATED;
+                            if (!outdated) {
+                                entityManager.detach(s); // avoid out of memory
+                            }
+                            return outdated;
+                        })
+                        .limit(OUTDATED_BATCH_SIZE)
+                        .toList();
         }
     }
 }
