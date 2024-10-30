@@ -43,6 +43,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/css/**",
+                                "/js/**",
                                 "/favicon/**",
                                 "/",
                                 "/login",

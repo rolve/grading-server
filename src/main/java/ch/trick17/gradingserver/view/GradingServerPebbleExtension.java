@@ -11,10 +11,8 @@ import io.pebbletemplates.pebble.template.PebbleTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.ANONYMOUS;
 import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_FULL_NAMES;
@@ -38,30 +36,11 @@ public class GradingServerPebbleExtension extends AbstractExtension {
     @Override
     public Map<String, Filter> getFilters() {
         return Map.of(
-                "date", new DateFilter(),
-                "pretty", new PrettyFilter(),
+                "i18n_date", new DateFilter(),
                 "authors", new AuthorsFilter());
     }
 
     public class DateFilter implements Filter {
-
-        @Override
-        public List<String> getArgumentNames() {
-            return List.of("style");
-        }
-
-        @Override
-        public String apply(Object input, Map<String, Object> args,
-                            PebbleTemplate self, EvaluationContext context,
-                            int lineNumber) {
-            var style = Optional.ofNullable((String) args.get("style"))
-                    .map(FormatStyle::valueOf)
-                    .orElse(MEDIUM);
-            return i18n.dateTimeFormatter(style).format(((Instant) input).atZone(UTC));
-        }
-    }
-
-    public class PrettyFilter implements Filter {
 
         @Override
         public List<String> getArgumentNames() {
@@ -72,7 +51,7 @@ public class GradingServerPebbleExtension extends AbstractExtension {
         public String apply(Object input, Map<String, Object> args,
                             PebbleTemplate self, EvaluationContext context,
                             int lineNumber) {
-            return i18n.prettyTime().format(((Instant) input).atZone(UTC));
+            return i18n.dateTimeFormatter(MEDIUM).format(((Instant) input).atZone(UTC));
         }
     }
 

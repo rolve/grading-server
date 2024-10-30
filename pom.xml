@@ -58,11 +58,6 @@
             <version>7.0.0.202409031743-r</version>
         </dependency>
         <dependency>
-            <groupId>org.ocpsoft.prettytime</groupId>
-            <artifactId>prettytime</artifactId>
-            <version>5.0.9.Final</version>
-        </dependency>
-        <dependency>
             <groupId>io.hypersistence</groupId>
             <artifactId>hypersistence-utils-hibernate-62</artifactId>
             <version>3.8.2</version>

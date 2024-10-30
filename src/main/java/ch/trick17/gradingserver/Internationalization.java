@@ -1,6 +1,5 @@
 package ch.trick17.gradingserver;
 
-import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,10 +54,6 @@ public class Internationalization implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
-    }
-
-    public PrettyTime prettyTime() {
-        return new PrettyTime(supportedLocale());
     }
 
     public DateTimeFormatter dateTimeFormatter(FormatStyle style) {

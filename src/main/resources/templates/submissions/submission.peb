@@ -19,10 +19,7 @@
     <span class="font-mono">
         {{ submission.shortCommitHash }}
     </span>
-    <span class="grow text-slate-400 text-lg font-normal"
-          title="{{ submission.receivedTime | date }}">
-        {{ submission.receivedTime | pretty }}
-    </span>
+    {{ zonedDateTime(submission.receivedTime, "grow text-slate-400 text-lg font-normal") }}
     {% if beans.access.checkWriteAccess(submission) %}
         <button form="re-grade" class="title-button">
             <i class="fas fa-fw fa-rotate-right"></i>
@@ -199,10 +196,7 @@
                     <span class="font-mono {{ s == submission ? "" : "link group-hover:link-hover" }}">
                         {{- s.shortCommitHash -}}
                     </span>
-                    <span class="text-sm sm:text-base"
-                          title="{{ s.receivedTime | date }}">
-                        {{ s.receivedTime | pretty }}
-                    </span>
+                    {{ zonedDateTime(s.receivedTime, "text-sm sm:text-base") }}
                     {{ status(s, false) }}
                 </a>
             </li>
