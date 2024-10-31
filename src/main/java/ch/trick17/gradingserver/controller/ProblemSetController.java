@@ -26,9 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -40,8 +38,6 @@ import static ch.trick17.gradingserver.model.ProblemSet.DisplaySetting.WITH_SHOR
 import static ch.trick17.gradingserver.model.ProjectConfig.ProjectStructure.ECLIPSE;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.time.LocalDate.now;
-import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.List.copyOf;
@@ -117,15 +113,14 @@ public class ProblemSetController {
         model.addAttribute("course", course);
         model.addAttribute("add", id == null);
         if (id == null) {
-            populateEditModel(model, "", now().plusDays(7), LocalTime.of(23, 59),
+            populateEditModel(model, "", null,
                     WITH_SHORTENED_NAMES, 80, "", ECLIPSE, null, emptyList(), "",
                     DEFAULT_GRADING_CONFIG, "");
         } else {
             var problemSet = findProblemSet(courseId, id);
             var projectConfig = problemSet.getProjectConfig();
             populateEditModel(model, problemSet.getName(),
-                    problemSet.getDeadline().atOffset(UTC).toLocalDate(),
-                    problemSet.getDeadline().atOffset(UTC).toLocalTime(),
+                    problemSet.getDeadline(),
                     problemSet.getDisplaySetting(),
                     problemSet.getPercentageGoal(),
                     projectConfig.getProjectRoot(), projectConfig.getStructure(),
@@ -142,7 +137,8 @@ public class ProblemSetController {
     public String addOrEdit(@PathVariable int courseId,
                             @PathVariable(required = false) Integer id,
                             String name, LocalDate deadlineDate,
-                            LocalTime deadlineTime, DisplaySetting displaySetting,
+                            LocalTime deadlineTime, int deadlineTimeZoneOffset, // minutes
+                            DisplaySetting displaySetting,
                             int percentageGoal, String projectRoot,
                             ProjectStructure structure, String packageFilter,
                             @RequestParam(required = false) Set<Integer> dependencies,
@@ -161,7 +157,9 @@ public class ProblemSetController {
                 ? new ProblemSet(course)
                 : findProblemSet(courseId, id);
         problemSet.setName(name);
-        problemSet.setDeadline(deadlineDate.atTime(deadlineTime).toInstant(UTC));
+        var offset = ZoneOffset.ofTotalSeconds(deadlineTimeZoneOffset * 60);
+        var deadline = deadlineDate.atTime(deadlineTime).toInstant(offset);
+        problemSet.setDeadline(deadline);
         problemSet.setDisplaySetting(displaySetting);
         problemSet.setPercentageGoal(percentageGoal);
 
@@ -179,7 +177,7 @@ public class ProblemSetController {
         } catch (JarDownloadFailedException e) {
             model.addAttribute("course", course);
             model.addAttribute("add", id == null);
-            populateEditModel(model, name, deadlineDate, deadlineTime, displaySetting,
+            populateEditModel(model, name, deadline, displaySetting,
                     percentageGoal, projectRoot, structure, packageFilter, dependencyJars,
                     newDependencies, problemSet.getGradingConfig(), errorFor(e));
             response.setStatus(UNPROCESSABLE_ENTITY.value()); // required for Turbo
@@ -205,11 +203,11 @@ public class ProblemSetController {
             problemSet = service.save(problemSet);
         } else {
             if (problemSet.getGradingConfig() instanceof TestSuiteGradingConfig
-                && refTestSuiteFiles.get(0).isEmpty()
-                && refImplementationFiles.get(0).isEmpty()) {
+                && refTestSuiteFiles.getFirst().isEmpty()
+                && refImplementationFiles.getFirst().isEmpty()) {
                 // keep old one
                 problemSet = service.save(problemSet);
-            } else if (!refTestSuiteFiles.get(0).isEmpty() && !refImplementationFiles.get(0).isEmpty()) {
+            } else if (!refTestSuiteFiles.getFirst().isEmpty() && !refImplementationFiles.getFirst().isEmpty()) {
                 // update config
                 var refTestSuite = getContents(refTestSuiteFiles);
                 var refImplementation = getContents(refImplementationFiles);
@@ -218,7 +216,7 @@ public class ProblemSetController {
                 // error, must provide both
                 model.addAttribute("course", course);
                 model.addAttribute("add", id == null);
-                populateEditModel(model, name, deadlineDate, deadlineTime,
+                populateEditModel(model, name, deadline,
                         displaySetting, percentageGoal, projectRoot, structure,
                         packageFilter, dependencyJars, newDependencies,
                         new TestSuiteGradingConfig(null),
@@ -240,16 +238,14 @@ public class ProblemSetController {
         return contents;
     }
 
-    private void populateEditModel(Model model, String name,
-                                   LocalDate deadlineDate, LocalTime deadlineTime,
+    private void populateEditModel(Model model, String name, Instant deadline,
                                    DisplaySetting displaySetting, int percentageGoal,
                                    String projectRoot, ProjectStructure structure,
                                    String packageFilter, List<JarFile> dependencies,
                                    String newDependencies, GradingConfig gradingConfig,
                                    String error) {
         model.addAttribute("name", name);
-        model.addAttribute("deadlineDate", deadlineDate);
-        model.addAttribute("deadlineTime", deadlineTime);
+        model.addAttribute("deadline", deadline);
         model.addAttribute("displaySetting", displaySetting);
         model.addAttribute("displaySettings", DisplaySetting.values());
         model.addAttribute("percentageGoal", percentageGoal);

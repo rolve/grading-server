@@ -1,4 +1,5 @@
 {# @pebvariable name="course" type="ch.trick17.gradingserver.model.Course" #}
+{# @pebvariable name="deadline" type="java.time.Instant" #}
 {# @pebvariable name="displaySettings" type="java.util.List<ch.trick17.gradingserver.model.ProblemSet.DisplaySetting>" #}
 {# @pebvariable name="possibleDependencies" type="java.util.List<ch.trick17.gradingserver.model.JarFile>" #}
 {# @pebvariable name="dependencies" type="java.util.List<ch.trick17.gradingserver.model.JarFile>" #}
@@ -35,11 +36,56 @@
         <label for="deadlineDate" class="block mb-2">
             {{ message("problem-set.deadline") }}
         </label>
-        <div class="flex gap-3 mb-3">
-            <input type="date" id="deadlineDate" name="deadlineDate"
-                   class="grow" value="{{ deadlineDate }}" required>
-            <input type="time" id="deadlineTime" name="deadlineTime"
-                   class="grow" value="{{ deadlineTime }}" required>
+        <div class="flex gap-3 items-center mb-3">
+            <input type="date" id="deadlineDate" name="deadlineDate" class="grow" required>
+            <input type="time" id="deadlineTime" name="deadlineTime" class="grow" required>
+            <input type="hidden" id="deadlineTimeZoneOffset" name="deadlineTimeZoneOffset" value="0">
+            <span id="deadlineTimeZoneLabel">(UTC)</span>
+            <script>
+                {
+                    // convert UTC deadline to local time
+                    let deadlineRaw = "{{ deadline | default("") }}";
+                    let deadline;
+                    if (deadlineRaw) {
+                        deadline = new Date(deadlineRaw);
+                    } else {
+                        deadline = new Date();
+                        deadline.setDate(deadline.getDate() + 7);
+                        deadline.setHours(23, 59, 0, 0);
+                    }
+                    let dateElem = document.getElementById("deadlineDate");
+                    let timeElem = document.getElementById("deadlineTime");
+                    dateElem.value = deadline.getFullYear() + "-" +
+                            (deadline.getMonth() + 1).toString().padStart(2, "0") + "-" +
+                            deadline.getDate().toString().padStart(2, "0");
+                    timeElem.value = deadline.getHours().toString().padStart(2, "0") + ":" +
+                            deadline.getMinutes().toString().padStart(2, "0");
+
+                    // update time zone based on deadline
+                    let lang = document.documentElement.lang;
+                    let timeZoneField = document.getElementById("deadlineTimeZoneOffset");
+                    let timeZoneLabel = document.getElementById("deadlineTimeZoneLabel");
+
+                    function formatTimeZone(date, style) {
+                        let dtf = Intl.DateTimeFormat(lang, {
+                            timeZoneName: style
+                        });
+                        let parts = dtf.formatToParts(date);
+                        return parts.find(p => p.type === "timeZoneName").value;
+                    }
+
+                    function updateTimeZone() {
+                        let newDeadline = new Date(dateElem.value + "T" + timeElem.value);
+                        timeZoneField.value = -newDeadline.getTimezoneOffset(); // minutes
+                        timeZoneLabel.textContent = "(" + formatTimeZone(newDeadline, "short") + ")";
+                        timeZoneLabel.title = formatTimeZone(newDeadline, "long");
+                    }
+
+                    updateTimeZone();
+                    dateElem.addEventListener("input", updateTimeZone);
+                    timeElem.addEventListener("input", updateTimeZone);
+                }
+            </script>
         </div>
 
         <div class="mb-2">
