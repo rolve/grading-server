@@ -23,8 +23,8 @@ function absoluteTime(time, lang) {
     let dtf = new Intl.DateTimeFormat(lang, {
         weekday: "long",
         year: "numeric",
-        month: "long",
-        day: "numeric",
+        month: "numeric",
+        day: "2-digit",
         hour: "numeric",
         minute: "numeric",
         timeZoneName: "short"
@@ -38,7 +38,8 @@ function onLoadListener() {
     for (let timeElem of times) {
         let time = new Date(timeElem.getAttribute("datetime"));
         timeElem.textContent = relativeTime(time, lang);
-        timeElem.title = absoluteTime(time, lang);
+        let tooltipElem = timeElem.nextElementSibling;
+        tooltipElem.textContent = absoluteTime(time, lang);
     }
 }
 

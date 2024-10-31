@@ -78,9 +78,15 @@
     </div>
 {% endmacro %}
 
-{% macro zonedDateTime(dateTime, class) %}
-    <time data-zoned-date-time class="{{ class }}"
+{% macro zonedDateTime(dateTime, id, class) %}
+    <time data-zoned-date-time class="{{ class }}" data-tooltip-target="date-tooltip-{{ id }}"
           datetime="{{ dateTime | date(timeZone="UTC") | replace({"[UTC]": ""}) }}">
         {{ dateTime | i18n_date }} (UTC)
     </time>
+    <span id="date-tooltip-{{ id }}" role="tooltip"
+          class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white
+                 transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0
+                 tooltip dark:bg-gray-700">
+        {{ dateTime | i18n_date }} (UTC)
+    </span>
 {% endmacro %}

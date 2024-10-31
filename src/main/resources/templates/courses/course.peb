@@ -85,7 +85,7 @@
                     </div>
                     <div class="flex-grow flex justify-between text-sm py-1
                                 sm:col-span-2 sm:grid sm:grid-cols-subgrid">
-                        {{ zonedDateTime(problemSet.deadline) }}
+                        {{ zonedDateTime(problemSet.deadline, problemSet.id) }}
                         <span class="text-slate-400">
                             {{ problemSet.solutionsWithSubmissions }}
                             {{ message("submissions") }}
