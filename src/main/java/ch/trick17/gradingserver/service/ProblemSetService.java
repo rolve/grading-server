@@ -85,7 +85,6 @@ public class ProblemSetService {
                         token, authors, newSol.ignoredPushers());
                 if (newSol.latestCommitHash() != null) {
                     var subm = new Submission(sol, newSol.latestCommitHash(), now());
-                    sol.getSubmissions().add(subm);
                     newSubmissions.add(subm);
                 }
                 newSolCount++;

@@ -31,6 +31,7 @@ public class Submission {
         this.solution = requireNonNull(solution);
         this.commitHash = requireNonNull(commitHash);
         this.receivedTime = requireNonNull(receivedTime);
+        solution.getSubmissions().add(this);
     }
 
     public int getId() {
