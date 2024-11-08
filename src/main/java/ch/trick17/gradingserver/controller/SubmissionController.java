@@ -62,7 +62,7 @@ public class SubmissionController {
     public String reGrade(@PathVariable int courseId, @PathVariable int probId,
                           @PathVariable int solId, @PathVariable int id) {
         var submission = findSubmission(courseId, probId, solId, id);
-        gradingService.grade(submission); // async
+        gradingService.grade(submission);
         return "redirect:./";
     }
 

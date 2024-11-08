@@ -56,7 +56,7 @@ public class SubmissionService {
             logger.info("Found {} ungraded submissions", ungraded.size());
         }
         for (var submission : ungraded) {
-            gradingService.grade(submission); // async
+            gradingService.grade(submission);
         }
     }
 
@@ -70,7 +70,7 @@ public class SubmissionService {
             } else {
                 for (var submission : outdated) {
                     logger.info("Re-queuing submission {} due to outdated result", submission.getId());
-                    gradingService.grade(submission); // async
+                    gradingService.grade(submission);
                 }
             }
         }

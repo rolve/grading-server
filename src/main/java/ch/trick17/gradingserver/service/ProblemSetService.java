@@ -96,7 +96,7 @@ public class ProblemSetService {
             txManager.commit(tx); // need to commit the new solutions before starting to grade
         }
 
-        newSubmissions.forEach(gradingService::grade); // async
+        newSubmissions.forEach(gradingService::grade);
 
         logger.info("{} new solutions registered", newSolCount);
     }

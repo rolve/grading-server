@@ -71,7 +71,7 @@ public class WebhooksController {
 
             var submission = new Submission(sol, event.afterCommit(), now());
             submission = submissionRepo.save(submission);
-            gradingService.grade(submission); // async
+            gradingService.grade(submission);
         }
         if (ignoredRefs > 0) {
             logger.info("Ignored push to ref {} for {} solutions", event.ref(), ignoredRefs);
