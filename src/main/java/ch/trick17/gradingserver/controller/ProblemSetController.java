@@ -317,12 +317,8 @@ public class ProblemSetController {
             var existing = existingTokens.stream()
                     .filter(t -> t.getToken().equals(token))
                     .findFirst();
-            if (existing.isPresent()) {
-                tokenRecord = existing.get();
-            } else {
-                tokenRecord = new AccessToken(user, host, token);
-                accessTokenRepo.save(tokenRecord);
-            }
+            tokenRecord = existing.orElseGet(() ->
+                    accessTokenRepo.save(new AccessToken(user, host, token)));
         }
 
         var supplier = new GitLabGroupSolutionSupplier("https://" + host, groupPath,
