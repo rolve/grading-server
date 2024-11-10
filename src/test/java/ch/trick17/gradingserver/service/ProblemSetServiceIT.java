@@ -40,6 +40,8 @@ public class ProblemSetServiceIT {
     UserRepository userRepo;
     @Autowired
     AccessTokenRepository tokenRepo;
+    @Autowired
+    SubmissionRepository submissionRepo;
     @Mock
     GradingService gradingService;
     @Autowired
@@ -56,7 +58,7 @@ public class ProblemSetServiceIT {
     void setUp() {
         var tx = txManager.getTransaction(new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW));
         service = new ProblemSetService(repo, authorRepo, tokenRepo,
-                gradingService, txManager);
+                submissionRepo, gradingService, txManager);
 
         var user = userRepo.save(new User("user", "password", "User"));
         var token = tokenRepo.save(new AccessToken(user, HOST, "token"));

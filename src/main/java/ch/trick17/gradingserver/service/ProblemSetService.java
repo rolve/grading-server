@@ -24,15 +24,20 @@ public class ProblemSetService {
     private final ProblemSetRepository repo;
     private final AuthorRepository authorRepo;
     private final AccessTokenRepository tokenRepo;
+    private final SubmissionRepository submissionRepo;
     private final GradingService gradingService;
     private final PlatformTransactionManager txManager;
 
-    public ProblemSetService(ProblemSetRepository repo, AuthorRepository authorRepo,
-                             AccessTokenRepository tokenRepo, GradingService gradingService,
+    public ProblemSetService(ProblemSetRepository repo,
+                             AuthorRepository authorRepo,
+                             AccessTokenRepository tokenRepo,
+                             SubmissionRepository submissionRepo,
+                             GradingService gradingService,
                              PlatformTransactionManager txManager) {
         this.repo = repo;
         this.authorRepo = authorRepo;
         this.tokenRepo = tokenRepo;
+        this.submissionRepo = submissionRepo;
         this.gradingService = gradingService;
         this.txManager = txManager;
     }
@@ -85,7 +90,7 @@ public class ProblemSetService {
                         token, authors, newSol.ignoredPushers());
                 if (newSol.latestCommitHash() != null) {
                     var subm = new Submission(sol, newSol.latestCommitHash(), now());
-                    newSubmissions.add(subm);
+                    newSubmissions.add(submissionRepo.save(subm));
                 }
                 newSolCount++;
             }
