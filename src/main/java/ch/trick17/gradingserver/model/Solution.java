@@ -25,7 +25,7 @@ public class Solution {
     @ManyToMany(cascade = {PERSIST, MERGE})
     private final Set<Author> authors = new HashSet<>();
     // TODO: Convert the following to JSON
-    @Lob
+    @Column(columnDefinition = "VARCHAR")
     @Convert(converter = StringListConverter.class)
     private final List<String> ignoredPushers = new ArrayList<>();
 

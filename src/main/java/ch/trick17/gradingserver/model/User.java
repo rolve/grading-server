@@ -1,6 +1,8 @@
 package ch.trick17.gradingserver.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -12,6 +14,7 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
 @Entity
+@Table(name = "\"user\"")
 public class User implements UserDetails {
 
     @Id
@@ -25,7 +28,8 @@ public class User implements UserDetails {
     private String displayName;
 
     @ElementCollection(fetch = EAGER)
-    @Column(columnDefinition = "integer")
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private final Set<Role> roles = new HashSet<>();
 
     protected User() {}

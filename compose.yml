@@ -1,11 +1,6 @@
-version: "3.8"
-
 services:
   web-app:
     build: .
-    volumes:
-      - "db:/app/db"
-      - "${BACKUP_DIR}:/app/backup"
     hostname: grading-server
     ports:
       - "${PORT}:8080"
@@ -17,5 +12,7 @@ services:
       JAVA_TOOL_OPTIONS: ${VM_ARGS}
       GRADING_SERVER_TEST_RUNNER_VM_ARGS: ${TEST_RUNNER_VM_ARGS}
 
-volumes:
-  db:
+  postgres:
+    extends:
+      file: compose-postgres.yaml
+      service: postgres

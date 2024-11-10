@@ -4,7 +4,9 @@ import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,7 +30,8 @@ public class ProblemSet {
     @Type(JsonType.class)
     private GradingConfig gradingConfig;
     private Instant deadline;
-    @Column(columnDefinition = "integer")
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private DisplaySetting displaySetting;
     private int percentageGoal;
     private boolean registeringSolutions = false;

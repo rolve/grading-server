@@ -1,8 +1,10 @@
 package ch.trick17.gradingserver.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToMany;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,7 +18,8 @@ public class ProjectConfig {
     private static final String PACKAGE_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*";
 
     private String projectRoot;
-    @Column(columnDefinition = "integer")
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private ProjectStructure structure;
     private String packageFilter;       // null means no filter
     @ManyToMany

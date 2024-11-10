@@ -25,9 +25,8 @@ public class JarFile {
     @GeneratedValue
     private Integer id;
     private String filename;
-    @Lob
     private byte[] content;
-    @Column(columnDefinition = "BINARY(32)", unique = true)
+    @Column(unique = true)
     private byte[] hash;
 
     protected JarFile() {}
