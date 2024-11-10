@@ -8,13 +8,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static java.time.Instant.now;
+import static org.springframework.transaction.TransactionDefinition.withDefaults;
 
 @Service
 public class ProblemSetService {
@@ -61,7 +61,7 @@ public class ProblemSetService {
     public <E extends Exception> void registerSolutions(int problemSetId, int tokenId,
                                                         SolutionSupplier<E> supplier)
             throws E, GitAPIException {
-        var tx = txManager.getTransaction(new DefaultTransactionDefinition());
+        var tx = txManager.getTransaction(withDefaults());
         var problemSet = repo.findById(problemSetId).orElseThrow();
         logger.info("Registering solutions for {} from {}", problemSet.getName(), supplier);
 
