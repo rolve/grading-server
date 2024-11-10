@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.model;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 
@@ -13,6 +14,7 @@ import static jakarta.persistence.CascadeType.ALL;
 import static java.util.Objects.requireNonNull;
 
 @Entity
+@DynamicUpdate // avoid re-inserting large JSON columns on small updates like registeringSolutions
 public class ProblemSet {
 
     @Id
