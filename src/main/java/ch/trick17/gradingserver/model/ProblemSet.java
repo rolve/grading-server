@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.CascadeType.PERSIST;
 import static java.util.Objects.requireNonNull;
 
 @Entity
@@ -20,7 +21,7 @@ public class ProblemSet {
     @Id
     @GeneratedValue
     private int id;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = PERSIST)
     private Course course;
     private String name;
     private ProjectConfig projectConfig;
