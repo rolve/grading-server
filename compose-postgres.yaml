@@ -9,5 +9,15 @@ services:
     ports:
       - '5432:5432'
 
+  postgres-backup:
+    build:
+      context: postgres-backup
+    environment:
+      - 'PGHOST=postgres'
+      - 'PGUSER=grading-server'
+      - 'PGPASSWORD=${POSTGRES_PASSWORD}'
+    volumes:
+      - "${BACKUP_DIR}:/backup"
+
 volumes:
   postgres-data:
