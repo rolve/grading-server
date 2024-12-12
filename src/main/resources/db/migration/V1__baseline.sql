@@ -25,15 +25,15 @@ CREATE TYPE project_structure AS ENUM ('ECLIPSE', 'MAVEN');
 CREATE TABLE problem_set
 (
     id                         INTEGER NOT NULL,
-    course_id                  INTEGER,
-    name                       VARCHAR(255),
-    grading_config             JSONB,
     deadline                   TIMESTAMP WITH TIME ZONE,
-    display_setting            display_setting,
-    percentage_goal            INTEGER NOT NULL,
-    registering_solutions      BOOLEAN NOT NULL,
     project_root               VARCHAR(255),
     structure                  project_structure,
+    name                       VARCHAR(255),
+    registering_solutions      BOOLEAN NOT NULL,
+    course_id                  INTEGER,
+    percentage_goal            INTEGER NOT NULL,
+    display_setting            display_setting,
+    grading_config             JSONB,
     package_filter             VARCHAR(255),
     CONSTRAINT pk_problemset PRIMARY KEY (id)
 );
@@ -41,18 +41,18 @@ CREATE TABLE problem_set
 CREATE TABLE "user"
 (
     id           INTEGER NOT NULL,
-    username     VARCHAR(255),
-    password     VARCHAR(255),
     display_name VARCHAR(255),
+    password     VARCHAR(255),
+    username     VARCHAR(255),
     CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
 CREATE TABLE access_token
 (
     id       INTEGER NOT NULL,
-    owner_id INTEGER,
     host     VARCHAR(255),
     token    VARCHAR(255),
+    owner_id INTEGER,
     CONSTRAINT pk_accesstoken PRIMARY KEY (id)
 );
 
@@ -66,11 +66,11 @@ CREATE TABLE course_lecturers
 CREATE TABLE solution
 (
     id                   INTEGER NOT NULL,
-    problem_set_id       INTEGER,
-    repo_url             VARCHAR(255),
-    branch               VARCHAR(255),
-    access_token_id      INTEGER,
     ignored_pushers      VARCHAR,
+    repo_url             VARCHAR(255),
+    access_token_id      INTEGER,
+    problem_set_id       INTEGER,
+    branch               VARCHAR(255),
     CONSTRAINT pk_solution PRIMARY KEY (id)
 );
 
@@ -84,10 +84,10 @@ CREATE TABLE solution_authors
 CREATE TABLE submission
 (
     id              INTEGER NOT NULL,
-    solution_id     INTEGER,
     commit_hash     VARCHAR(255),
-    received_time   TIMESTAMP WITH TIME ZONE,
     grading_started BOOLEAN NOT NULL,
+    received_time   TIMESTAMP WITH TIME ZONE,
+    solution_id     INTEGER,
     result          JSONB,
     CONSTRAINT pk_submission PRIMARY KEY (id)
 );
