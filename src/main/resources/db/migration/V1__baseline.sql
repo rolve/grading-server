@@ -12,9 +12,9 @@ CREATE TABLE course
     id        INTEGER NOT NULL,
     name      VARCHAR(255),
     qualifier VARCHAR(255),
-    hidden    BOOLEAN NOT NULL,
-    year      INTEGER NOT NULL,
     kind      VARCHAR(255),
+    year      INTEGER NOT NULL,
+    hidden    BOOLEAN NOT NULL,
     CONSTRAINT pk_course PRIMARY KEY (id)
 );
 
