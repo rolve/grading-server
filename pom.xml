@@ -19,6 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson-bom.version>2.16.0</jackson-bom.version>
         <flyway.version>10.21.0</flyway.version>
+        <grader.version>3.1.5-SNAPSHOT</grader.version>
     </properties>
 
     <dependencies>
@@ -76,12 +77,12 @@
         <dependency>
             <groupId>ch.trick17.jtt</groupId>
             <artifactId>grader</artifactId>
-            <version>3.1.5-SNAPSHOT</version>
+            <version>${grader.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.trick17.jtt</groupId>
             <artifactId>test-suite-grader</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>${grader.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
