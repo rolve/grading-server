@@ -234,7 +234,7 @@ public class GradingService {
                     .dependencies(dependencies);
 
             var result = grader.grade(task, sources);
-            return convert(result);
+            return new ImplGradingResult(result);
         } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
             var testSuite = downloader.checkoutCode(
                     projectConfig.getTestRoot(),
@@ -251,17 +251,9 @@ public class GradingService {
                     .dependencies(dependencies);
             var implResult = grader.grade(task, sources);
 
-            return new TestSuiteGradingResult(testSuiteResult, convert(implResult));
+            return new TestSuiteGradingResult(testSuiteResult, new ImplGradingResult(implResult));
         } else {
             throw new AssertionError("Unknown grading config type: " + gradingConfig);
         }
-    }
-
-    private ImplGradingResult convert(Grader.Result result) {
-        var props = result.properties().stream()
-                .map(Property::prettyName)
-                .toList();
-        return new ImplGradingResult(props, formatTestMethods(result.passedTests(), result.allTests()),
-                formatTestMethods(result.failedTests(), result.allTests()));
     }
 }

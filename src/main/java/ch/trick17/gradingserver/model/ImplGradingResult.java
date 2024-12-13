@@ -1,38 +1,41 @@
 package ch.trick17.gradingserver.model;
 
+import ch.trick17.jtt.grader.Grader;
+import ch.trick17.jtt.grader.Property;
+
 import java.util.List;
 
-import static java.util.stream.Stream.concat;
+import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 
 public record ImplGradingResult(
-        List<String> properties,
-        List<String> passedTests,
-        List<String> failedTests) implements GradingResult, Comparable<ImplGradingResult> {
+        Grader.Result result) implements GradingResult, Comparable<ImplGradingResult> {
+
+    @Override
+    public List<String> properties() {
+        return result.properties().stream()
+                .map(Property::prettyName)
+                .toList();
+    }
 
     public boolean compiled() {
-        return properties != null && properties.contains("compiled");
+        return properties().contains("compiled");
     }
 
     public List<String> allTests() {
-        if (passedTests == null || failedTests == null) {
-            return null;
-        } else {
-            return concat(passedTests.stream(), failedTests.stream())
-                    .sorted()
-                    .toList();
-        }
+        return formatTestMethods(result.allTests(), result.allTests());
     }
 
-    public int totalTests() {
-        if (passedTests == null || failedTests == null) {
-            return 0;
-        } else {
-            return passedTests.size() + failedTests.size();
-        }
+    public List<String> passedTests() {
+        return formatTestMethods(result.passedTests(), result.allTests());
+    }
+
+    public List<String> failedTests() {
+        return formatTestMethods(result.failedTests(), result.allTests());
     }
 
     public double passedTestsRatio() {
-        return passedTests.size() / (double) totalTests();
+        double totalTests = result.allTests().size();
+        return totalTests > 0 ? result.passedTests().size() / totalTests : 0;
     }
 
     public int passedTestsPercent() {
