@@ -1,5 +1,5 @@
 package ch.trick17.gradingserver.model;
 
 public enum SubmissionState {
-    GRADED, ERROR, OUTDATED, GRADING, QUEUED
+    GRADED, ERROR, GRADING, QUEUED, OUTDATED
 }
