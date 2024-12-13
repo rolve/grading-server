@@ -1,11 +1,6 @@
-version: "3.8"
-
 services:
   web-app:
     build: .
-    volumes:
-      - "db:/app/db"
-      - "${BACKUP_DIR}:/app/backup"
     hostname: grading-server
     ports:
       - "${PORT}:8080"
@@ -14,8 +9,19 @@ services:
       - "127.0.0.1:6001:6001" # JMX test runner VM
     environment:
       SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JAVA_TOOL_OPTIONS: ${VM_ARGS}
       GRADING_SERVER_TEST_RUNNER_VM_ARGS: ${TEST_RUNNER_VM_ARGS}
 
+  postgres:
+    extends:
+      file: compose-postgres.yaml
+      service: postgres
+
+  postgres-backup:
+    extends:
+      file: compose-postgres.yaml
+      service: postgres-backup
+
 volumes:
-  db:
+  postgres-data:

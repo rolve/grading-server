@@ -1,125 +1,161 @@
-create sequence HIBERNATE_SEQUENCE;
+CREATE SEQUENCE hibernate_sequence START WITH 1 INCREMENT BY 1;
 
-create table AUTHOR
+CREATE TABLE author
 (
-    ID   INTEGER not null
-        primary key,
-    NAME VARCHAR(255)
-        constraint UK_OR6K6JMYWERXBME223C988BMG
-            unique
+    id       INTEGER NOT NULL,
+    username VARCHAR(255),
+    CONSTRAINT pk_author PRIMARY KEY (id)
 );
 
-create table COURSE
+CREATE TABLE course
 (
-    ID        INTEGER not null
-        primary key,
-    NAME      VARCHAR(255),
-    QUALIFIER VARCHAR(255),
-    KIND      VARCHAR(255),
-    YEAR      INTEGER not null
+    id        INTEGER NOT NULL,
+    name      VARCHAR(255),
+    qualifier VARCHAR(255),
+    kind      VARCHAR(255),
+    year      INTEGER NOT NULL,
+    hidden    BOOLEAN NOT NULL,
+    CONSTRAINT pk_course PRIMARY KEY (id)
 );
 
-create table PROBLEM_SET
+CREATE TYPE display_setting AS ENUM ('WITH_FULL_NAMES', 'WITH_SHORTENED_NAMES', 'ANONYMOUS', 'HIDDEN');
+
+CREATE TYPE project_structure AS ENUM ('ECLIPSE', 'MAVEN');
+
+CREATE TABLE problem_set
 (
-    ID                    INTEGER not null
-        primary key,
-    ANONYMOUS             BOOLEAN not null,
-    DEADLINE              TIMESTAMP,
-    COMPILER              INTEGER,
-    PERM_RESTRICTIONS     BOOLEAN not null,
-    REP_TIMEOUT_MILLIS    BIGINT  not null,
-    REPETITIONS           INTEGER not null,
-    TEST_TIMEOUT_MILLIS   BIGINT  not null,
-    PROJECT_ROOT          VARCHAR(255),
-    STRUCTURE             INTEGER,
-    TEST_CLASS            CLOB,
-    HIDDEN                BOOLEAN not null,
-    NAME                  VARCHAR(255),
-    REGISTERING_SOLUTIONS BOOLEAN not null,
-    COURSE_ID             INTEGER,
-    constraint FKHJA1FO3KD9HEP5P2TDJ4BCTA6
-        foreign key (COURSE_ID) references COURSE
+    id                         INTEGER NOT NULL,
+    deadline                   TIMESTAMP WITH TIME ZONE,
+    project_root               VARCHAR(255),
+    structure                  project_structure,
+    name                       VARCHAR(255),
+    registering_solutions      BOOLEAN NOT NULL,
+    course_id                  INTEGER,
+    percentage_goal            INTEGER NOT NULL,
+    display_setting            display_setting,
+    grading_config             JSONB,
+    package_filter             VARCHAR(255),
+    CONSTRAINT pk_problemset PRIMARY KEY (id)
 );
 
-create table USER
+CREATE TABLE "user"
 (
-    ID           INTEGER not null
-        primary key,
-    DISPLAY_NAME VARCHAR(255),
-    PASSWORD     VARCHAR(255),
-    USERNAME     VARCHAR(255)
-        constraint UK_SB8BBOUER5WAK8VYIIY4PF2BX
-            unique
+    id           INTEGER NOT NULL,
+    display_name VARCHAR(255),
+    password     VARCHAR(255),
+    username     VARCHAR(255),
+    CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
-create table ACCESS_TOKEN
+CREATE TABLE access_token
 (
-    ID       INTEGER not null
-        primary key,
-    HOST     VARCHAR(255),
-    TOKEN    VARCHAR(255),
-    OWNER_ID INTEGER,
-    constraint FKKBQ86BAT8UUS42FW8PSMGECGD
-        foreign key (OWNER_ID) references USER
+    id       INTEGER NOT NULL,
+    host     VARCHAR(255),
+    token    VARCHAR(255),
+    owner_id INTEGER,
+    CONSTRAINT pk_accesstoken PRIMARY KEY (id)
 );
 
-create table COURSE_LECTURERS
+CREATE TABLE course_lecturers
 (
-    COURSE_ID    INTEGER not null,
-    LECTURERS_ID INTEGER not null,
-    primary key (COURSE_ID, LECTURERS_ID),
-    constraint FK8L2VYR4LKTHGEUTSEKC3ICKO7
-        foreign key (COURSE_ID) references COURSE,
-    constraint FKEQHCNSUVQSKR19CW60P94DNNW
-        foreign key (LECTURERS_ID) references USER
+    course_id    INTEGER NOT NULL,
+    lecturers_id INTEGER NOT NULL,
+    CONSTRAINT pk_course_lecturers PRIMARY KEY (course_id, lecturers_id)
 );
 
-create table SOLUTION
+CREATE TABLE solution
 (
-    ID              INTEGER not null
-        primary key,
-    IGNORED_PUSHERS CLOB,
-    REPO_URL        VARCHAR(255),
-    ACCESS_TOKEN_ID INTEGER,
-    PROBLEM_SET_ID  INTEGER,
-    constraint FKD2APC1UJH8V9T7ON93NLSS0W1
-        foreign key (PROBLEM_SET_ID) references PROBLEM_SET,
-    constraint FKMQ6GASK9LGJUR09CVPE3V7SQY
-        foreign key (ACCESS_TOKEN_ID) references ACCESS_TOKEN
+    id                   INTEGER NOT NULL,
+    ignored_pushers      VARCHAR,
+    repo_url             VARCHAR(255),
+    access_token_id      INTEGER,
+    problem_set_id       INTEGER,
+    branch               VARCHAR(255),
+    CONSTRAINT pk_solution PRIMARY KEY (id)
 );
 
-create table SOLUTION_AUTHORS
+CREATE TABLE solution_authors
 (
-    SOLUTION_ID INTEGER not null,
-    AUTHORS_ID  INTEGER not null,
-    primary key (SOLUTION_ID, AUTHORS_ID),
-    constraint FK8IP6MQ7VI1LXF40FSXLUYMEDU
-        foreign key (AUTHORS_ID) references AUTHOR,
-    constraint FKLQRWU81G5U02GOU55FD761PMW
-        foreign key (SOLUTION_ID) references SOLUTION
+    solution_id INTEGER NOT NULL,
+    authors_id  INTEGER NOT NULL,
+    CONSTRAINT pk_solution_authors PRIMARY KEY (solution_id, authors_id)
 );
 
-create table SUBMISSION
+CREATE TABLE submission
 (
-    ID              INTEGER not null
-        primary key,
-    COMMIT_HASH     VARCHAR(255),
-    GRADING_STARTED BOOLEAN not null,
-    RECEIVED_DATE   TIMESTAMP,
-    DETAILS         CLOB,
-    ERROR           CLOB,
-    FAILED_TESTS    CLOB,
-    PASSED_TESTS    CLOB,
-    PROPERTIES      VARCHAR(255),
-    SOLUTION_ID     INTEGER,
-    constraint FK8Q2SHNVT2H73Y8ESDC86KOHRQ
-        foreign key (SOLUTION_ID) references SOLUTION
+    id              INTEGER NOT NULL,
+    commit_hash     VARCHAR(255),
+    grading_started BOOLEAN NOT NULL,
+    received_time   TIMESTAMP WITH TIME ZONE,
+    solution_id     INTEGER,
+    result          JSONB,
+    CONSTRAINT pk_submission PRIMARY KEY (id)
 );
 
-create table USER_ROLES
+CREATE TYPE role AS ENUM ('LECTURER', 'ADMIN');
+
+CREATE TABLE user_roles
 (
-    USER_ID INTEGER not null,
-    ROLES   INTEGER,
-    constraint FK55ITPPKW3I07DO3H7QOCLQD4K
-        foreign key (USER_ID) references USER
+    user_id INTEGER NOT NULL,
+    roles   role
 );
+
+CREATE TABLE jar_file
+(
+    id       INTEGER NOT NULL,
+    filename VARCHAR(255),
+    content  BYTEA,
+    hash     BYTEA,
+    CONSTRAINT pk_jarfile PRIMARY KEY (id)
+);
+
+CREATE TABLE problem_set_dependencies
+(
+    problem_set_id  INTEGER NOT NULL,
+    dependencies_id INTEGER NOT NULL
+);
+
+ALTER TABLE author
+    ADD CONSTRAINT uc_author_username UNIQUE (username);
+
+ALTER TABLE jar_file
+    ADD CONSTRAINT uc_jarfile_hash UNIQUE (hash);
+
+ALTER TABLE "user"
+    ADD CONSTRAINT uc_user_username UNIQUE (username);
+
+ALTER TABLE access_token
+    ADD CONSTRAINT FK_ACCESSTOKEN_ON_OWNER FOREIGN KEY (owner_id) REFERENCES "user" (id);
+
+ALTER TABLE problem_set
+    ADD CONSTRAINT FK_PROBLEMSET_ON_COURSE FOREIGN KEY (course_id) REFERENCES course (id);
+
+ALTER TABLE solution
+    ADD CONSTRAINT FK_SOLUTION_ON_ACCESSTOKEN FOREIGN KEY (access_token_id) REFERENCES access_token (id);
+
+ALTER TABLE solution
+    ADD CONSTRAINT FK_SOLUTION_ON_PROBLEMSET FOREIGN KEY (problem_set_id) REFERENCES problem_set (id);
+
+ALTER TABLE submission
+    ADD CONSTRAINT FK_SUBMISSION_ON_SOLUTION FOREIGN KEY (solution_id) REFERENCES solution (id);
+
+ALTER TABLE course_lecturers
+    ADD CONSTRAINT fk_coulec_on_course FOREIGN KEY (course_id) REFERENCES course (id);
+
+ALTER TABLE course_lecturers
+    ADD CONSTRAINT fk_coulec_on_user FOREIGN KEY (lecturers_id) REFERENCES "user" (id);
+
+ALTER TABLE problem_set_dependencies
+    ADD CONSTRAINT fk_prosetdep_on_jar_file FOREIGN KEY (dependencies_id) REFERENCES jar_file (id);
+
+ALTER TABLE problem_set_dependencies
+    ADD CONSTRAINT fk_prosetdep_on_problem_set FOREIGN KEY (problem_set_id) REFERENCES problem_set (id);
+
+ALTER TABLE solution_authors
+    ADD CONSTRAINT fk_solaut_on_author FOREIGN KEY (authors_id) REFERENCES author (id);
+
+ALTER TABLE solution_authors
+    ADD CONSTRAINT fk_solaut_on_solution FOREIGN KEY (solution_id) REFERENCES solution (id);
+
+ALTER TABLE user_roles
+    ADD CONSTRAINT fk_user_roles_on_user FOREIGN KEY (user_id) REFERENCES "user" (id);

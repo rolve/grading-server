@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: 'postgres:17.0'
+    environment:
+      - 'POSTGRES_USER=grading-server'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+    ports:
+      - '5432:5432'
+
+  postgres-backup:
+    build:
+      context: postgres-backup
+    environment:
+      - 'PGHOST=postgres'
+      - 'PGUSER=grading-server'
+      - 'PGPASSWORD=${POSTGRES_PASSWORD}'
+    volumes:
+      - "${BACKUP_DIR}:/backup"
+
+volumes:
+  postgres-data:
