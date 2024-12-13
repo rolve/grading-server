@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
+import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
 
 public record TestSuiteGradingResult(
@@ -32,6 +33,11 @@ public record TestSuiteGradingResult(
             properties.add("incorrect tests");
         }
         return properties;
+    }
+
+    @Override
+    public List<String> detailsFor(String property) {
+        return implResult.detailsFor(property);
     }
 
     public int percentFinished() {

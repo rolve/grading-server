@@ -70,6 +70,16 @@
             {% embed "fragments/alert" with { "icon": entry.value } %}
             {% block content %}
                 {{ message("submission.warnings." + entry.key.replace(" ", "-")) }}
+                {% if beans.access.checkWriteAccess(submission) %}
+                    {% set details = submission.result.detailsFor(entry.key) %}
+                    {% if details != null %}
+                        <ul class="list-disc ml-5 mt-2">
+                            {% for detail in details %}
+                                <li class="font-mono mb-1">{{ detail }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
             {% endblock %}
             {% endembed %}
         {% endif %}

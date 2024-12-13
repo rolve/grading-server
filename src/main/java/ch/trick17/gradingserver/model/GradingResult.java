@@ -15,6 +15,7 @@ public sealed interface GradingResult
         permits ErrorResult, OutdatedResult, ImplGradingResult, TestSuiteGradingResult {
 
     List<String> properties();
+    List<String> detailsFor(String property);
 
     /**
      * Does not support comparing different types of grading results; these have to be handled

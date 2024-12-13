@@ -9,4 +9,9 @@ public record ErrorResult(String error) implements GradingResult {
     public List<String> properties() {
         return emptyList();
     }
+
+    @Override
+    public List<String> detailsFor(String property) {
+        return null;
+    }
 }

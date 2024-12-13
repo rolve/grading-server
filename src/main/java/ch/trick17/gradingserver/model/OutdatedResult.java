@@ -14,4 +14,9 @@ public record OutdatedResult(
     public List<String> properties() {
         return List.of("outdated result");
     }
+
+    @Override
+    public List<String> detailsFor(String property) {
+        return null;
+    }
 }
