@@ -47,7 +47,7 @@ echo 'DELETE FROM user_roles;' | psql
 echo 'DELETE FROM "user";' | psql
 
 
-# import data
+# import table data
 
 grep <dump-converted.sql 'INSERT INTO USER ' |
     sed 's/INSERT INTO USER /INSERT INTO "user" /' |        # quotes are necessary here
@@ -84,3 +84,11 @@ grep <dump-converted.sql 'INSERT INTO AUTHOR ' | psql
 grep <dump-converted.sql 'INSERT INTO SOLUTION_AUTHORS ' | psql
 
 grep <dump-converted.sql 'INSERT INTO SUBMISSION ' | psql
+
+
+# restart sequence
+
+grep <dump-converted.sql 'CREATE SEQUENCE ' |
+    sed 's/CREATE/ALTER/' |
+    sed 's/START/RESTART/' |
+    psql
