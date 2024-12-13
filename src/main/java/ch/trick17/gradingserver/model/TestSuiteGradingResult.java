@@ -63,7 +63,10 @@ public record TestSuiteGradingResult(
     }
 
     public List<TestMethod> incorrectTests() {
-        return testSuiteResult.incorrectTests().stream().sorted().toList();
+        return testSuiteResult.incorrectTests().stream()
+                .sorted(comparing(TestMethod::className)
+                        .thenComparing(TestMethod::name))
+                .toList();
     }
 
     public String format(TestMethod test) {
