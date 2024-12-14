@@ -19,7 +19,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Service
 public class SubmissionService {
 
-    private static final long OUTDATED_BATCH_SIZE = 5;
+    private static final long OUTDATED_BATCH_SIZE = 25;
 
     private static final Logger logger = getLogger(SubmissionService.class);
 
