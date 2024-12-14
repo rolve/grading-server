@@ -8,10 +8,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.time.LocalDate.now;
+import static java.util.Comparator.comparing;
 import static java.util.function.Predicate.not;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -37,6 +39,7 @@ public class CourseController {
         model.addAttribute("course", course);
         var problemSets = course.getProblemSets().stream()
                 .filter(access::checkReadAccess)
+                .sorted(comparing(ProblemSet::getId))
                 .toList();
         model.addAttribute("problemSets", problemSets);
         return "courses/course";
