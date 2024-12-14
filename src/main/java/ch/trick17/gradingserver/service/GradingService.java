@@ -3,10 +3,11 @@ package ch.trick17.gradingserver.service;
 import ch.trick17.gradingserver.GradingServerProperties;
 import ch.trick17.gradingserver.model.*;
 import ch.trick17.jtt.grader.Grader;
-import ch.trick17.jtt.grader.Property;
 import ch.trick17.jtt.memcompile.Compiler;
 import ch.trick17.jtt.memcompile.InMemSource;
 import ch.trick17.jtt.sandbox.Whitelist;
+import ch.trick17.jtt.testrunner.ExceptionDescription;
+import ch.trick17.jtt.testrunner.TestResult;
 import ch.trick17.jtt.testrunner.TestRunner;
 import ch.trick17.jtt.testsuitegrader.TestSuiteGrader;
 import org.slf4j.Logger;
@@ -21,7 +22,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static ch.trick17.gradingserver.model.GradingResult.formatTestMethods;
 import static java.lang.Math.max;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.String.join;
@@ -234,7 +234,7 @@ public class GradingService {
                     .dependencies(dependencies);
 
             var result = grader.grade(task, sources);
-            return new ImplGradingResult(result);
+            return new ImplGradingResult(compress(result));
         } else if (gradingConfig instanceof TestSuiteGradingConfig config) {
             var testSuite = downloader.checkoutCode(
                     projectConfig.getTestRoot(),
@@ -251,9 +251,58 @@ public class GradingService {
                     .dependencies(dependencies);
             var implResult = grader.grade(task, sources);
 
-            return new TestSuiteGradingResult(testSuiteResult, new ImplGradingResult(implResult));
+            return new TestSuiteGradingResult(compress(testSuiteResult),
+                    new ImplGradingResult(compress(implResult)));
         } else {
             throw new AssertionError("Unknown grading config type: " + gradingConfig);
         }
+    }
+
+    private Grader.Result compress(Grader.Result result) {
+        return result.with(result.testResults().stream()
+                .map(r -> compress(r))
+                .toList());
+    }
+
+    private TestSuiteGrader.Result compress(TestSuiteGrader.Result result) {
+        return result.with(result.refImplementationResults().stream()
+                .map(r -> compress(r))
+                .toList());
+    }
+
+    /**
+     * Removes irrelevant or redundant information from the result: details for
+     * exceptions thrown due to compilation errors and stack trace elements
+     * corresponding to framework code.
+     */
+    private TestResult compress(TestResult r) {
+        return r.with(r.exceptions().stream()
+                .map(e -> reduceCompileErrorDetails(e))
+                .map(e -> pruneStackTraces(e))
+                .toList());
+    }
+
+    private ExceptionDescription reduceCompileErrorDetails(ExceptionDescription e) {
+        if (e.className().equals("java.lang.Error") &&
+            e.message().startsWith("Unresolved compilation problem")) {
+            return e.with("Unresolved compilation problem", e.cause(),
+                    List.of(e.stackTrace().getFirst()));
+        }
+        return e.with(e.message(), e.cause(), e.stackTrace());
+    }
+
+    private ExceptionDescription pruneStackTraces(ExceptionDescription e) {
+        var pruned = e.stackTrace().stream()
+                .dropWhile(s -> s.getClassName().startsWith("org.junit."))
+                .toList()
+                .reversed().stream()
+                .dropWhile(s -> s.getClassName().startsWith("java.") ||
+                                s.getClassName().startsWith("jdk.") ||
+                                s.getClassName().startsWith("org.junit.") ||
+                                s.getClassName().startsWith("ch.trick17.jtt."))
+                .toList()
+                .reversed();
+        var cause = e.cause() == null ? null : pruneStackTraces(e.cause());
+        return e.with(e.message(), cause, pruned);
     }
 }
