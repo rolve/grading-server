@@ -23,7 +23,7 @@ function absoluteTime(time, lang) {
     let dtf = new Intl.DateTimeFormat(lang, {
         weekday: "long",
         year: "numeric",
-        month: "numeric",
+        month: "2-digit",
         day: "2-digit",
         hour: "numeric",
         minute: "numeric",
