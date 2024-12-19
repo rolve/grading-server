@@ -3,6 +3,7 @@ package ch.trick17.gradingserver;
 import ch.trick17.gradingserver.model.GradingResult;
 import ch.trick17.gradingserver.model.OutdatedResult;
 import ch.trick17.jtt.testsuitegrader.TaskJacksonModule;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.hypersistence.utils.hibernate.type.util.ObjectMapperSupplier;
 
 import java.io.IOException;
@@ -20,7 +22,20 @@ public class DBObjectMapperSupplier implements ObjectMapperSupplier {
                 .findAndRegisterModules()
                 .registerModule(new TaskJacksonModule())
                 .registerModule(new SimpleModule()
+                        .addSerializer(String.class, new NullCharReplacerSerializer())
                         .setDeserializerModifier(new GradingResultDeserializerModifier()));
+    }
+
+    private static class NullCharReplacerSerializer extends StdSerializer<String> {
+        protected NullCharReplacerSerializer() {
+            super(String.class);
+        }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen,
+                              SerializerProvider provider) throws IOException {
+            gen.writeString(value.replace("\0", "␀"));
+        }
     }
 
     private static class GradingResultDeserializerModifier extends BeanDeserializerModifier {
