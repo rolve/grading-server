@@ -167,26 +167,27 @@
                     {{ percent }} % {{ message("submission.complete") }}
                 </span>
                 <span class="text-slate-400">
-                    {{ implResult.passedTests.size }} / {{ implResult.totalTests }}
+                    {{ implResult.passedTestsCount }} / {{ implResult.allTestsCount }}
                     {{ message("submission.tests") }}
                 </span>
             </div>
 
             <ul>
+                {% set passedTests = implResult.passedTests %}
                 {% for test in implResult.allTests %}
-                {% set passed = implResult.passedTests contains test %}
-                <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
-                    <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ passed ? "" : " text-slate-400" }}">
-                        {{ test }}<span class="sr-only">:</span>
-                    </span>
-                    {% if passed %}
-                        <i class="fas fa-circle-check text-emerald-600"></i>
-                        <span class="sr-only">{{ message("submission.test-passed") }}</span>
-                        {% else %}
-                        <i class="fas fa-circle-xmark text-slate-400"></i>
-                        <span class="sr-only">{{ message("submission.test-failed") }}</span>
-                    {% endif %}
-                </li>
+                    {% set passed = passedTests contains test %}
+                    <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
+                        <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ passed ? "" : " text-slate-400" }}">
+                            {{ test }}<span class="sr-only">:</span>
+                        </span>
+                        {% if passed %}
+                            <i class="fas fa-circle-check text-emerald-600"></i>
+                            <span class="sr-only">{{ message("submission.test-passed") }}</span>
+                            {% else %}
+                            <i class="fas fa-circle-xmark text-slate-400"></i>
+                            <span class="sr-only">{{ message("submission.test-failed") }}</span>
+                        {% endif %}
+                    </li>
                 {% endfor %}
             </ul>
         {% endif %}

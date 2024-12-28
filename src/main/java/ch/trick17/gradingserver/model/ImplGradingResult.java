@@ -28,21 +28,29 @@ public record ImplGradingResult(
         return formatTestMethods(result.allTests(), result.allTests());
     }
 
+    public int allTestsCount() {
+        return result.allTests().size();
+    }
+
     public List<String> passedTests() {
         return formatTestMethods(result.passedTests(), result.allTests());
     }
 
-    public List<String> failedTests() {
-        return formatTestMethods(result.failedTests(), result.allTests());
+    public int passedTestsCount() {
+        return result.passedTests().size();
     }
 
     public double passedTestsRatio() {
-        double totalTests = result.allTests().size();
-        return totalTests > 0 ? result.passedTests().size() / totalTests : 0;
+        double allTests = allTestsCount();
+        return allTests > 0 ? result.passedTests().size() / allTests : 0;
     }
 
     public int passedTestsPercent() {
         return (int) Math.floor(passedTestsRatio() * 100);
+    }
+
+    public List<String> failedTests() {
+        return formatTestMethods(result.failedTests(), result.allTests());
     }
 
     public List<String> detailsFor(String property) {
