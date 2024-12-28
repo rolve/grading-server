@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.trick17.gradingserver.model.SubmissionState.OUTDATED;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -19,7 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Service
 public class SubmissionService {
 
-    private static final long OUTDATED_BATCH_SIZE = 25;
+    private static final int OUTDATED_BATCH_SIZE = 25;
 
     private static final Logger logger = getLogger(SubmissionService.class);
 
@@ -27,7 +28,7 @@ public class SubmissionService {
     private final GradingService gradingService;
     private final EntityManager entityManager;
 
-    private volatile boolean outdatedResultsLeft = true;
+    private volatile int minCheckedId = Integer.MAX_VALUE;
 
     public SubmissionService(SubmissionRepository repo, GradingService gradingService,
                              EntityManager entityManager) {
@@ -63,10 +64,11 @@ public class SubmissionService {
     @Scheduled(fixedRate = 2 * 60 * 1000, initialDelay = 30 * 1000)
     @Transactional
     public void updateOutdatedResults() {
-        if (outdatedResultsLeft && gradingService.isIdle()) {
-            var outdated = findNextOutdatedSubmissions();
+        if (minCheckedId > 0 && gradingService.isIdle()) {
+            var outdated = findNextOutdatedResults();
             if (outdated.isEmpty()) {
-                outdatedResultsLeft = false;
+                logger.info("All results up to date");
+                minCheckedId = 0;
             } else {
                 for (var submission : outdated) {
                     logger.info("Re-queuing submission {} due to outdated result", submission.getId());
@@ -76,13 +78,21 @@ public class SubmissionService {
         }
     }
 
-    private List<Submission> findNextOutdatedSubmissions() {
+    private List<Submission> findNextOutdatedResults() {
         // Enqueue outdated results few at a time, to avoid enqueuing a huge amount of
         // submissions at once after changing the result format. The grading service would
         // prioritize sensibly anyway, but this way, the more expressive "outdated" status is
         // kept for a longer time.
-        try (var submissions = repo.findByResultNotNullOrderByIdDesc()) {
+        var leftToCheck = new AtomicInteger(repo.countByIdLessThan(minCheckedId));
+        try (var submissions = repo.findByIdLessThanOrderByIdDesc(minCheckedId)) {
             return submissions
+                        .peek(s -> {
+                            var left = leftToCheck.decrementAndGet();
+                            if (left % 100 == 0) {
+                                logger.info("Finding outdated results ({} left to check)", left);
+                            }
+                            minCheckedId = s.getId();
+                        })
                         .filter(s -> {
                             var outdated = s.getStatus() == OUTDATED;
                             if (!outdated) {

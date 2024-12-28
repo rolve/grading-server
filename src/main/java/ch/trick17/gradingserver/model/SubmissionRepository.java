@@ -1,6 +1,7 @@
 package ch.trick17.gradingserver.model;
 
 import jakarta.persistence.QueryHint;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.QueryHints;
 
@@ -12,8 +13,12 @@ import static org.hibernate.jpa.HibernateHints.HINT_FETCH_SIZE;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Integer> {
     List<Submission> findByResultIsNull();
+
+    int countByIdLessThan(int maxId);
+
+    @EntityGraph(attributePaths = "result")
     @QueryHints({
             @QueryHint(name = HINT_FETCH_SIZE, value = "25"),
             @QueryHint(name = HINT_CACHEABLE, value = "false")})
-    Stream<Submission> findByResultNotNullOrderByIdDesc();
+    Stream<Submission> findByIdLessThanOrderByIdDesc(int maxId);
 }
