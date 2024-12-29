@@ -35,6 +35,11 @@ public sealed interface GradingResult
         };
     }
 
+    /**
+     * Formats the given test methods as strings, using the simplest possible
+     * format that still distinguishes them, based on the given list of all
+     * test methods.
+     */
     static List<String> formatTestMethods(Collection<TestMethod> tests, List<TestMethod> allTests) {
         var classes = allTests.stream()
                 .map(TestMethod::className)

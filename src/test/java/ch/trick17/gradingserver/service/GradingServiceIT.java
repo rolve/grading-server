@@ -78,8 +78,9 @@ class GradingServiceIT {
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
         assertTrue(result.properties().contains("compiled"));
-        assertEquals(List.of("testToRgbInt"), result.passedTests());
-        assertEquals(emptyList(), result.failedTests());
+        assertEquals(1, result.testResults().size());
+        assertEquals("testToRgbInt", result.testResults().getFirst().method().name());
+        assertTrue(result.testResults().getFirst().passed());
     }
 
     static List<Arguments> grade() {
@@ -120,8 +121,9 @@ class GradingServiceIT {
 
         var result = assertInstanceOf(ImplGradingResult.class, submission.getResult());
         assertEquals(List.of("compiled"), result.properties());
-        assertEquals(List.of("testAdd"), result.passedTests());
-        assertEquals(emptyList(), result.failedTests());
+        assertEquals(1, result.testResults().size());
+        assertEquals("testAdd", result.testResults().getFirst().method().name());
+        assertTrue(result.testResults().getFirst().passed());
     }
 
     @DirtiesContext
@@ -237,8 +239,9 @@ class GradingServiceIT {
         assertFalse(result.testSuiteResult().compilationFailed());
         assertEquals(0.5, result.testSuiteResult().mutantScore(), 0.001); // test suite covers one of two mutants
 
-        assertEquals(1, result.implResult().passedTests().size()); // implementation passes the test
-        assertEquals(0, result.implResult().failedTests().size());
+        assertEquals(1, result.implResult().testResults().size());
+        // implementation passes the test
+        assertTrue(result.implResult().testResults().getFirst().passed());
         assertEquals(1.0, result.implResult().passedTestsRatio(), 0.001);
     }
 }

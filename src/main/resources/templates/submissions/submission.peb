@@ -149,8 +149,8 @@
 
             {% if testSuiteResult.implResult != null %}
                 <h3>{{ message("submission.implementation") }}</h3>
-                {% set percent = testSuiteResult.implPercent %}
                 {% set implResult = testSuiteResult.implResult %}
+                {% set percent = testSuiteResult.implPercent %}{# not the same as implResult.passedTestsPercent! #}
             {% endif %}
         {% else %}
             {% set implResult = submission.implResult %}
@@ -176,14 +176,12 @@
             </div>
 
             <ul>
-                {% set passedTests = implResult.passedTests %}
-                {% for test in implResult.allTests %}
-                    {% set passed = passedTests contains test %}
+                {% for result in implResult.testResults %}
                     <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
-                        <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ passed ? "" : " text-slate-400" }}">
-                            {{ test }}<span class="sr-only">:</span>
+                        <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ result.passed ? "" : " text-slate-400" }}">
+                            {{ implResult.format(result.method) }}<span class="sr-only">:</span>
                         </span>
-                        {% if passed %}
+                        {% if result.passed %}
                             <i class="fas fa-circle-check text-emerald-600"></i>
                             <span class="sr-only">{{ message("submission.test-passed") }}</span>
                             {% else %}

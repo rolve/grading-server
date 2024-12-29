@@ -70,7 +70,7 @@ public record TestSuiteGradingResult(
     }
 
     public String format(TestMethod test) {
-        return formatTestMethods(List.of(test), testSuiteResult.allTests()).get(0);
+        return formatTestMethods(List.of(test), testSuiteResult.allTests()).getFirst();
     }
 
     public ExceptionDescription exceptionFor(TestMethod incorrectTest) {

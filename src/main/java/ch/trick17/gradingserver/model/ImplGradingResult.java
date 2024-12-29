@@ -2,6 +2,7 @@ package ch.trick17.gradingserver.model;
 
 import ch.trick17.jtt.grader.Grader;
 import ch.trick17.jtt.grader.Property;
+import ch.trick17.jtt.testrunner.TestMethod;
 import ch.trick17.jtt.testrunner.TestResult;
 
 import java.util.List;
@@ -13,27 +14,12 @@ import static ch.trick17.jtt.grader.Property.*;
 public record ImplGradingResult(
         Grader.Result result) implements GradingResult, Comparable<ImplGradingResult> {
 
-    @Override
-    public List<String> properties() {
-        return result.properties().stream()
-                .map(Property::prettyName)
-                .toList();
-    }
-
-    public boolean compiled() {
-        return properties().contains("compiled");
-    }
-
-    public List<String> allTests() {
-        return formatTestMethods(result.allTests(), result.allTests());
+    public List<TestResult> testResults() {
+        return result.testResults();
     }
 
     public int allTestsCount() {
         return result.allTests().size();
-    }
-
-    public List<String> passedTests() {
-        return formatTestMethods(result.passedTests(), result.allTests());
     }
 
     public int passedTestsCount() {
@@ -49,8 +35,14 @@ public record ImplGradingResult(
         return (int) Math.floor(passedTestsRatio() * 100);
     }
 
-    public List<String> failedTests() {
-        return formatTestMethods(result.failedTests(), result.allTests());
+    public String format(TestMethod test) {
+        return formatTestMethods(List.of(test), result.allTests()).getFirst();
+    }
+
+    public List<String> properties() {
+        return result.properties().stream()
+                .map(Property::prettyName)
+                .toList();
     }
 
     public List<String> detailsFor(String property) {
@@ -75,7 +67,7 @@ public record ImplGradingResult(
     }
 
     private List<String> formatTestMethodsWhere(Predicate<TestResult> filter) {
-        var methods = result.testResults().stream()
+        var methods = testResults().stream()
                 .filter(filter)
                 .map(r -> r.method())
                 .toList();
