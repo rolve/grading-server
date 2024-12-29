@@ -75,7 +75,7 @@
                 {% if beans.access.checkWriteAccess(submission) %}
                     {% set details = submission.result.detailsFor(entry.key) %}
                     {% if details != null %}
-                        <ul class="list-disc ml-5 mt-2">
+                        <ul class="list-disc ml-5 mt-2 text-sm">
                             {% for detail in details %}
                                 <li class="font-mono mb-1">{{ detail }}</li>
                             {% endfor %}
@@ -177,16 +177,37 @@
 
             <ul>
                 {% for result in implResult.testResults %}
-                    <li class="py-2 flex flex-row-reverse justify-end items-center gap-2">
-                        <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ result.passed ? "" : " text-slate-400" }}">
-                            {{ implResult.format(result.method) }}<span class="sr-only">:</span>
-                        </span>
-                        {% if result.passed %}
-                            <i class="fas fa-circle-check text-emerald-600"></i>
-                            <span class="sr-only">{{ message("submission.test-passed") }}</span>
-                            {% else %}
-                            <i class="fas fa-circle-xmark text-slate-400"></i>
-                            <span class="sr-only">{{ message("submission.test-failed") }}</span>
+                    <li class="py-2">
+                        <span class="flex flex-row-reverse justify-end items-center gap-2">
+                            <span class="overflow-hidden overflow-ellipsis whitespace-nowrap{{ result.passed ? "" : " text-slate-400" }}">
+                                {{ implResult.format(result.method) }}<span class="sr-only">:</span>
+                            </span>
+                                {% if result.passed %}
+                                    <i class="fas fa-circle-check text-emerald-600"></i>
+                                    <span class="sr-only">{{ message("submission.test-passed") }}</span>
+                                {% else %}
+                                    <i class="fas fa-circle-xmark text-slate-400"></i>
+                                    <span class="sr-only">{{ message("submission.test-failed") }}</span>
+                                {% endif %}
+                            </span>
+                        {% if beans.access.checkWriteAccess(submission) and not result.passed %}
+                            {% for exception in result.exceptions %}
+                                <p class="ml-6 mt-1 p-2 bg-slate-100 rounded-md
+                                          text-sm font-mono overflow-x-scroll"
+                                   style="font-variant-ligatures: none">
+                                    {{ exception.className() }}:
+                                    <span class="whitespace-pre-wrap">
+                                        {{- exception.message -}}
+                                    </span>
+                                    {% for elem in exception.stackTrace() %}
+                                        <br>
+                                        <span class="pl-6 whitespace-nowrap">
+                                            at {{ elem.methodName }}()
+                                            ({{ elem.fileName }}:{{ elem.lineNumber }})
+                                        </span>
+                                    {% endfor %}
+                                </p>
+                            {% endfor %}
                         {% endif %}
                     </li>
                 {% endfor %}
