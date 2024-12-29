@@ -88,7 +88,7 @@ public class SubmissionService {
             return submissions
                         .peek(s -> {
                             var left = leftToCheck.decrementAndGet();
-                            if (left % 100 == 0) {
+                            if (left % 100 == 0 && left > 0) {
                                 logger.info("Finding outdated results ({} left to check)", left);
                             }
                             minCheckedId = s.getId();
