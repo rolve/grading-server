@@ -123,7 +123,7 @@ public class GradingService {
             problemSetService.setConfig(problemSet, config);
             logger.info("Finished preparing Problem Set {}", problemSet.getId());
         } catch (Throwable e) {
-            logger.error("Error while preparing Problem Set " + problemSet.getId(), e);
+            logger.error("Error while preparing Problem Set {}", problemSet.getId(), e);
         }
     }
 
@@ -173,7 +173,9 @@ public class GradingService {
     }
 
     private void doGrade(Submission submission) {
-        logger.info("Grading Submission {} ({})", submission.getId(), submission.getCodeLocation());
+        logger.info("Grading Submission {} for \"{}\" ({})", submission.getId(),
+                submission.getSolution().getProblemSet().getName(),
+                submission.getCodeLocation());
         submissionService.setGradingStarted(submission, true);
 
         GradingResult result;
@@ -181,7 +183,7 @@ public class GradingService {
             result = tryGrade(submission);
             logger.info("Finished grading Submission {}", submission.getId());
         } catch (Throwable e) {
-            logger.error("Error while grading Submission " + submission.getId(), e);
+            logger.error("Error while grading Submission {}", submission.getId(), e);
             result = new ErrorResult(humanFriendlyMsg(e));
         }
 
