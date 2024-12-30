@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson-bom.version>2.16.0</jackson-bom.version>
         <flyway.version>10.21.0</flyway.version>
-        <grader.version>3.2.1-SNAPSHOT</grader.version>
+        <grader.version>4.0.0-SNAPSHOT</grader.version>
     </properties>
 
     <dependencies>
