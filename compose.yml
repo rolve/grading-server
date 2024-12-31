@@ -1,6 +1,9 @@
 services:
   web-app:
     build: .
+    depends_on:
+      - postgres
+      - loki
     hostname: grading-server
     ports:
       - "${PORT}:8080"
@@ -22,5 +25,17 @@ services:
       file: compose-postgres.yaml
       service: postgres-backup
 
+  loki:
+    extends:
+      file: compose-observability.yml
+      service: loki
+
+  grafana:
+    extends:
+      file: compose-observability.yml
+      service: grafana
+
 volumes:
   postgres-data:
+  loki-data:
+  grafana-data:

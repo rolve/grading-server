@@ -12,6 +12,8 @@ services:
   postgres-backup:
     build:
       context: postgres-backup
+    depends_on:
+      - postgres
     environment:
       - 'PGHOST=postgres'
       - 'PGUSER=grading-server'
