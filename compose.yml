@@ -1,3 +1,7 @@
+include:
+  - compose-postgres.yaml
+  - compose-observability.yml
+
 services:
   web-app:
     build: .
@@ -11,31 +15,9 @@ services:
       - "127.0.0.1:6001:6001" # JMX test runner VM
     environment:
       SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JAVA_TOOL_OPTIONS: ${VM_ARGS}
       GRADING_SERVER_TEST_RUNNER_VM_ARGS: ${TEST_RUNNER_VM_ARGS}
-
-  postgres:
-    extends:
-      file: compose-postgres.yaml
-      service: postgres
-
-  postgres-backup:
-    extends:
-      file: compose-postgres.yaml
-      service: postgres-backup
-
-  loki:
-    extends:
-      file: compose-observability.yml
-      service: loki
-
-  grafana:
-    extends:
-      file: compose-observability.yml
-      service: grafana
-
-volumes:
-  postgres-data:
-  loki-data:
-  grafana-data:
+      SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+    secrets:
+      - source: postgres-password
+        target: spring.datasource.password

@@ -8,6 +8,8 @@ services:
 
   grafana:
     image: "grafana/grafana:11.4.0"
+    depends_on:
+      - loki
     ports:
       - "127.0.0.1:3000:3000"
     environment:
