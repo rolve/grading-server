@@ -7,35 +7,21 @@ services:
       - loki-data:/loki
 
   grafana:
-    image: "grafana/grafana:11.4.0"
+    build:
+      context: grafana
     depends_on:
       - loki
-    ports:
-      - "127.0.0.1:3000:3000"
-    environment:
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-    entrypoint:
-      - sh
-      - -euc
-      - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/loki.yaml
-        apiVersion: 1
-        datasources:
-        - name: Loki
-          type: loki
-          access: proxy 
-          orgId: 1
-          url: http://loki:3100
-          basicAuth: false
-          isDefault: true
-          version: 1
-          editable: false
-        EOF
-        /run.sh
     volumes:
       - "grafana-data:/var/lib/grafana"
+    environment:
+      CONTEXT_PATH: ${CONTEXT_PATH}
+    secrets:
+      - grafana-password
 
 volumes:
   loki-data:
   grafana-data:
+
+secrets:
+  grafana-password:
+    file: .secrets/grafana-password.txt

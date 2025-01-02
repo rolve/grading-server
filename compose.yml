@@ -1,5 +1,5 @@
 include:
-  - compose-postgres.yaml
+  - compose-postgres.yml
   - compose-observability.yml
 
 services:
@@ -10,7 +10,6 @@ services:
       - loki
     hostname: grading-server
     ports:
-      - "${PORT}:8080"
       - "127.0.0.1:6000:6000" # JMX main VM
       - "127.0.0.1:6001:6001" # JMX test runner VM
     environment:
@@ -21,3 +20,14 @@ services:
     secrets:
       - source: postgres-password
         target: spring.datasource.password
+
+  nginx:
+    build:
+      context: nginx
+    depends_on:
+      - web-app
+      - grafana
+    ports:
+      - "${PORT}:80"
+    environment:
+      CONTEXT_PATH: ${CONTEXT_PATH}
