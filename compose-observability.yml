@@ -14,7 +14,7 @@ services:
     volumes:
       - "grafana-data:/var/lib/grafana"
     environment:
-      CONTEXT_PATH: ${CONTEXT_PATH}
+      CONTEXT_PATH: ${CONTEXT_PATH-}
     secrets:
       - grafana-password
 

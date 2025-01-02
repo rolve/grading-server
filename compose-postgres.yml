@@ -21,7 +21,7 @@ services:
       - 'PGUSER=grading-server'
       - 'PGPASSFILE=/run/secrets/postgres-password'
     volumes:
-      - "${BACKUP_DIR}:/backup"
+      - "${BACKUP_DIR:-./backup}:/backup"
     secrets:
       - postgres-password
 

@@ -13,9 +13,9 @@ services:
       - "127.0.0.1:6000:6000" # JMX main VM
       - "127.0.0.1:6001:6001" # JMX test runner VM
     environment:
-      SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH}
-      JAVA_TOOL_OPTIONS: ${VM_ARGS}
-      GRADING_SERVER_TEST_RUNNER_VM_ARGS: ${TEST_RUNNER_VM_ARGS}
+      SERVER_SERVLET_CONTEXT_PATH: ${CONTEXT_PATH-}
+      JAVA_TOOL_OPTIONS: ${VM_ARGS--Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=6000 -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.rmi.port=6000}
+      GRADING_SERVER_TEST_RUNNER_VM_ARGS: ${TEST_RUNNER_VM_ARGS--Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=6001 -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.rmi.port=6001}
       SPRING_CONFIG_IMPORT: configtree:/run/secrets/
     secrets:
       - source: postgres-password
@@ -28,6 +28,6 @@ services:
       - web-app
       - grafana
     ports:
-      - "${PORT}:80"
+      - "${PORT:-80}:80"
     environment:
-      CONTEXT_PATH: ${CONTEXT_PATH}
+      CONTEXT_PATH: ${CONTEXT_PATH-}
